@@ -1,0 +1,50 @@
+:root {
+  --color-bg: #0a0a0a;
+  --color-surface: #121212;
+  --color-text: #f4f4f5;
+  --color-muted: #a3a6ad;
+  --color-racing: #ff1801;
+  --color-neon: #9d50bb;
+  --color-danger: #ff4444;
+  --font-display: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.shell {
+  display: grid;
+  place-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  text-align: center;
+}
+
+.brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 12vw, 6rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-racing);
+  text-shadow: 0 0 24px rgb(255 24 1 / 0.4);
+}
+
+.tagline {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+}

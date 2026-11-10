@@ -7,13 +7,14 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev": "pnpm build:contracts && pnpm --parallel --recursive dev",
     "build": "pnpm --recursive build",
-    "test": "pnpm --recursive test",
-    "typecheck": "pnpm --recursive typecheck",
+    "test": "pnpm build:contracts && pnpm --recursive test",
+    "typecheck": "pnpm build:contracts && pnpm --recursive typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build:contracts": "pnpm --filter @drs/contracts build"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

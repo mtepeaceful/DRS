@@ -8,3 +8,5 @@ CHANGELOG.md
 resources
 composer.json
 vite.config.js
+apps/api/drizzle
+.claude

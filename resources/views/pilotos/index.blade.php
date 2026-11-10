@@ -197,10 +197,7 @@
                             <td style="font-weight: 600; color: #aaa;">{{ $piloto->equipe }}</td>
                             <td class="td-number">{{ $piloto->titulos }}</td>
                             <td>
-                                <button type="button" class="btn btn-action btn-ver" data-bs-toggle="modal"
-                                    data-bs-target="#verPiloto{{ $piloto->id }}">
-                                    Ver+
-                                </button>
+                                <a href="{{ route('pilotos.show', $piloto->id) }}" class="btn btn-action btn-ver">Ver+</a>
                             </td>
                             <td>
                                 <a href="{{ route('pilotos.edit', $piloto->id) }}" class="btn btn-action btn-editar">Editar</a>
@@ -220,44 +217,4 @@
     </div>
 
     {{ $pilotos->appends(['busca' => request('busca')])->links() }}
-
-
-    @foreach ($pilotos as $piloto)
-        <div class="modal fade" id="verPiloto{{ $piloto->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $piloto->id }}"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content" style="background: #0a0a0a; border: 1px solid var(--primary-racing); box-shadow: 0 0 30px rgba(255, 24, 1, 0.3); color: white;">
-                    <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                        <h1 class="modal-title fs-5" id="modalLabel{{ $piloto->id }}" style="font-weight: 800; text-transform: uppercase; color: var(--primary-racing);">{{ $piloto->nome }}</h1>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong style="color: var(--primary-racing); text-transform: uppercase; font-size: 0.8rem;">Número:</strong> <span class="td-number">{{ $piloto->numero }}</span></p>
-                        <p><strong style="color: var(--primary-racing); text-transform: uppercase; font-size: 0.8rem;">Equipe:</strong> {{ $piloto->equipe }}</p>
-                        <p><strong style="color: var(--primary-racing); text-transform: uppercase; font-size: 0.8rem;">Nacionalidade:</strong> {{ $piloto->nacionalidade }}</p>
-                        <p><strong style="color: var(--primary-racing); text-transform: uppercase; font-size: 0.8rem;">Títulos Mundiais:</strong> <span class="td-number">{{ $piloto->titulos }}</span></p>
-                    </div>
-                    <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                        <button type="button" class="btn btn-racing" data-bs-dismiss="modal" style="padding: 8px 24px;">Fechar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
 @endsection
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                modal.addEventListener('hidden.bs.modal', function () {
-                    const backdrops = document.querySelectorAll('.modal-backdrop');
-                    backdrops.forEach(b => b.remove());
-                    document.body.style.overflow = 'auto';
-                    document.body.style.paddingRight = '0';
-                });
-            });
-        });
-    </script>
-@endpush

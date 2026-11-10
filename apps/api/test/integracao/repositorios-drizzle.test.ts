@@ -1,0 +1,103 @@
+import { randomUUID } from 'node:crypto';
+import { sql } from 'drizzle-orm';
+import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest';
+import type { Equipe } from '../../src/domain/equipe.js';
+import { EquipeJaExiste, EquipeNaoEncontrada, NumeroJaEmUso } from '../../src/domain/erros.js';
+import type { DadosPiloto } from '../../src/domain/piloto.js';
+import { conectar } from '../../src/infra/database/client.js';
+import { EquipeRepositoryDrizzle } from '../../src/infra/database/equipe-repository-drizzle.js';
+import { PilotoRepositoryDrizzle } from '../../src/infra/database/piloto-repository-drizzle.js';
+
+const { db, fechar } = conectar(inject('databaseUrl'));
+const equipes = new EquipeRepositoryDrizzle(db);
+const pilotos = new PilotoRepositoryDrizzle(db);
+let mclaren: Equipe;
+
+function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
+  return {
+    nome: 'Ayrton Senna',
+    numero: 12,
+    nacionalidade: 'Brasileiro',
+    equipeId: mclaren.id,
+    titulos: 3,
+    ...sobrescrita,
+  };
+}
+
+beforeEach(async () => {
+  await db.execute(sql`truncate table pilotos, equipes`);
+  mclaren = await equipes.criar({ nome: 'McLaren' });
+});
+
+afterAll(() => fechar());
+
+describe('EquipeRepositoryDrizzle', () => {
+  it('encontra a equipe pelo nome sem diferenciar maiúsculas', async () => {
+    await expect(equipes.buscarPorNome('MCLAREN')).resolves.toEqual(mclaren);
+  });
+
+  it('converte o nome repetido em EquipeJaExiste', async () => {
+    await expect(equipes.criar({ nome: 'mclaren' })).rejects.toThrow(EquipeJaExiste);
+  });
+});
+
+describe('PilotoRepositoryDrizzle', () => {
+  it('grava e lê o piloto com a equipe', async () => {
+    const criado = await pilotos.criar(dados());
+
+    expect(criado).toMatchObject({ nome: 'Ayrton Senna', numero: 12, equipe: mclaren });
+    await expect(pilotos.buscarPorId(criado.id)).resolves.toEqual(criado);
+  });
+
+  it('converte o número repetido em NumeroJaEmUso', async () => {
+    await pilotos.criar(dados());
+
+    await expect(pilotos.criar(dados({ nome: 'Lando Norris' }))).rejects.toThrow(NumeroJaEmUso);
+  });
+
+  it('converte a equipe inexistente em EquipeNaoEncontrada', async () => {
+    await expect(pilotos.criar(dados({ equipeId: randomUUID() }))).rejects.toThrow(
+      EquipeNaoEncontrada,
+    );
+  });
+
+  it('pagina e busca pelo nome da equipe', async () => {
+    const ferrari = await equipes.criar({ nome: 'Ferrari' });
+    await pilotos.criar(dados());
+    await pilotos.criar(dados({ nome: 'Alain Prost', numero: 2 }));
+    await pilotos.criar(dados({ nome: 'Charles Leclerc', numero: 16, equipeId: ferrari.id }));
+
+    const pagina = await pilotos.listar({ pagina: 2, porPagina: 2 });
+    const busca = await pilotos.listar({ busca: 'ferr', pagina: 1, porPagina: 10 });
+
+    expect(pagina.total).toBe(3);
+    expect(pagina.itens.map((p) => p.nome)).toEqual(['Charles Leclerc']);
+    expect(busca.itens.map((p) => p.nome)).toEqual(['Charles Leclerc']);
+  });
+
+  it('trata % e _ da busca como texto comum', async () => {
+    await pilotos.criar(dados());
+
+    await expect(pilotos.listar({ busca: '%', pagina: 1, porPagina: 10 })).resolves.toEqual({
+      itens: [],
+      total: 0,
+    });
+  });
+
+  it('atualiza e exclui', async () => {
+    const criado = await pilotos.criar(dados());
+
+    const atualizado = await pilotos.atualizar(criado.id, dados({ numero: 1 }));
+
+    expect(atualizado?.numero).toBe(1);
+    expect(atualizado?.atualizadoEm.getTime()).toBeGreaterThanOrEqual(
+      criado.atualizadoEm.getTime(),
+    );
+    await expect(pilotos.excluir(criado.id)).resolves.toBe(true);
+    await expect(pilotos.excluir(criado.id)).resolves.toBe(false);
+  });
+
+  it('não atualiza um piloto que não existe', async () => {
+    await expect(pilotos.atualizar(randomUUID(), dados())).resolves.toBeNull();
+  });
+});

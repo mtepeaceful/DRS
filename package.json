@@ -14,7 +14,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build:contracts": "pnpm --filter @drs/contracts build"
+    "build:contracts": "pnpm --filter @drs/contracts build",
+    "test:integracao": "pnpm build:contracts && pnpm --filter @drs/api test:integracao",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

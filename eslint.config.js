@@ -31,6 +31,44 @@ export default tseslint.config(
     },
   },
   {
+    files: ['apps/api/src/domain/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '**/application/**',
+                '**/infra/**',
+                'fastify',
+                'drizzle-orm',
+                'drizzle-orm/*',
+              ],
+              message: 'O domínio não depende de outras camadas nem de frameworks.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['apps/api/src/application/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/infra/**', 'fastify', 'drizzle-orm', 'drizzle-orm/*'],
+              message: 'A aplicação não depende da infraestrutura nem de frameworks.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['apps/web/**/*.{ts,tsx}'],
     plugins: {
       'react-hooks': reactHooks,

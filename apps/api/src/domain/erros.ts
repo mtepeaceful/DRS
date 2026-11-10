@@ -1,0 +1,43 @@
+export type CodigoDeErro =
+  'PILOTO_NAO_ENCONTRADO' | 'EQUIPE_NAO_ENCONTRADA' | 'NUMERO_JA_EM_USO' | 'EQUIPE_JA_EXISTE';
+
+export abstract class ErroDeDominio extends Error {
+  abstract readonly codigo: CodigoDeErro;
+
+  constructor(mensagem: string) {
+    super(mensagem);
+    this.name = new.target.name;
+  }
+}
+
+export class PilotoNaoEncontrado extends ErroDeDominio {
+  readonly codigo = 'PILOTO_NAO_ENCONTRADO';
+
+  constructor() {
+    super('Piloto não encontrado.');
+  }
+}
+
+export class EquipeNaoEncontrada extends ErroDeDominio {
+  readonly codigo = 'EQUIPE_NAO_ENCONTRADA';
+
+  constructor() {
+    super('Equipe não encontrada.');
+  }
+}
+
+export class NumeroJaEmUso extends ErroDeDominio {
+  readonly codigo = 'NUMERO_JA_EM_USO';
+
+  constructor(numero: number) {
+    super(`O número ${numero} já pertence a outro piloto.`);
+  }
+}
+
+export class EquipeJaExiste extends ErroDeDominio {
+  readonly codigo = 'EQUIPE_JA_EXISTE';
+
+  constructor(nome: string) {
+    super(`Já existe uma equipe chamada ${nome}.`);
+  }
+}

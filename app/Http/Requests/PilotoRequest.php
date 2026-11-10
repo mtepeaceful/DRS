@@ -26,4 +26,12 @@ class PilotoRequest extends FormRequest
             'titulos' => ['required', 'integer', 'min:0'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'numero' => 'número',
+            'titulos' => 'títulos mundiais',
+        ];
+    }
 }

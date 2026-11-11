@@ -8,8 +8,6 @@ const arquivos = import.meta.glob<string>('../../shared/logos/*.svg', {
   eager: true,
 });
 
-const LOGOS_ESCUROS = new Set(['alpine', 'haas-f1-team', 'mclaren', 'williams']);
-
 const logos = new Map(
   Object.entries(arquivos).map(([caminho, url]) => [
     caminho.slice(caminho.lastIndexOf('/') + 1, -'.svg'.length),
@@ -33,19 +31,14 @@ interface Props extends CoresDaEquipe {
 }
 
 export function SimboloDaEquipe({ nome, tamanho = 'pequeno', ...cores }: Props) {
-  const chave = identificador(nome);
-  const url = logos.get(chave);
+  const url = logos.get(identificador(nome));
 
   if (!url) {
     return <EmblemaDaEquipe nome={nome} {...cores} />;
   }
 
   return (
-    <span
-      className={styles[tamanho]}
-      data-fundo-claro={LOGOS_ESCUROS.has(chave) || undefined}
-      aria-hidden="true"
-    >
+    <span className={styles[tamanho]} aria-hidden="true">
       <img src={url} alt="" loading="lazy" decoding="async" className={styles.logo} />
     </span>
   );

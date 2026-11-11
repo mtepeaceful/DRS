@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
+import { cabecalhoDeSessao, configuracaoDeTeste } from '../support/autenticacao.js';
 import type { Equipe } from '../../src/domain/equipe.js';
 import {
   EquipeRepositoryEmMemoria,
@@ -26,6 +27,7 @@ function corpoDoPiloto(sobrescrita: Record<string, unknown> = {}) {
 async function cadastrar(sobrescrita: Record<string, unknown> = {}) {
   const resposta = await app.inject({
     method: 'POST',
+    headers: cabecalhoDeSessao,
     url: '/pilotos',
     payload: corpoDoPiloto(sobrescrita),
   });
@@ -36,7 +38,10 @@ async function cadastrar(sobrescrita: Record<string, unknown> = {}) {
 beforeEach(async () => {
   const equipes = new EquipeRepositoryEmMemoria();
   mclaren = await equipes.criar(dadosDaEquipe('McLaren'));
-  app = await buildApp({ equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) });
+  app = await buildApp(
+    { equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) },
+    configuracaoDeTeste,
+  );
 });
 
 afterEach(() => app.close());
@@ -54,6 +59,7 @@ describe('POST /pilotos', () => {
   it('cadastra e devolve o piloto com a equipe', async () => {
     const resposta = await app.inject({
       method: 'POST',
+      headers: cabecalhoDeSessao,
       url: '/pilotos',
       payload: corpoDoPiloto(),
     });
@@ -65,6 +71,7 @@ describe('POST /pilotos', () => {
   it('responde 400 com os campos inválidos', async () => {
     const resposta = await app.inject({
       method: 'POST',
+      headers: cabecalhoDeSessao,
       url: '/pilotos',
       payload: corpoDoPiloto({ nome: '', numero: 150 }),
     });
@@ -79,6 +86,7 @@ describe('POST /pilotos', () => {
   it('descreve os erros de validação em português', async () => {
     const resposta = await app.inject({
       method: 'POST',
+      headers: cabecalhoDeSessao,
       url: '/pilotos',
       payload: corpoDoPiloto({ numero: 150 }),
     });
@@ -91,6 +99,7 @@ describe('POST /pilotos', () => {
 
     const resposta = await app.inject({
       method: 'POST',
+      headers: cabecalhoDeSessao,
       url: '/pilotos',
       payload: corpoDoPiloto({ nome: 'Lando Norris' }),
     });
@@ -102,6 +111,7 @@ describe('POST /pilotos', () => {
   it('responde 422 quando a equipe não existe', async () => {
     const resposta = await app.inject({
       method: 'POST',
+      headers: cabecalhoDeSessao,
       url: '/pilotos',
       payload: corpoDoPiloto({ equipeId: randomUUID() }),
     });
@@ -141,10 +151,15 @@ describe('GET, PUT e DELETE /pilotos/:id', () => {
     const obtido = await app.inject({ method: 'GET', url: `/pilotos/${id}` });
     const atualizado = await app.inject({
       method: 'PUT',
+      headers: cabecalhoDeSessao,
       url: `/pilotos/${id}`,
       payload: corpoDoPiloto({ numero: 1 }),
     });
-    const excluido = await app.inject({ method: 'DELETE', url: `/pilotos/${id}` });
+    const excluido = await app.inject({
+      method: 'DELETE',
+      headers: cabecalhoDeSessao,
+      url: `/pilotos/${id}`,
+    });
     const depois = await app.inject({ method: 'GET', url: `/pilotos/${id}` });
 
     expect(obtido.statusCode).toBe(200);
@@ -165,6 +180,7 @@ describe('/equipes', () => {
   it('cadastra e lista equipes', async () => {
     const criada = await app.inject({
       method: 'POST',
+      headers: cabecalhoDeSessao,
       url: '/equipes',
       payload: dadosDaEquipe('Ferrari'),
     });
@@ -180,6 +196,7 @@ describe('/equipes', () => {
   it('responde 409 para equipe repetida', async () => {
     const resposta = await app.inject({
       method: 'POST',
+      headers: cabecalhoDeSessao,
       url: '/equipes',
       payload: dadosDaEquipe('mclaren'),
     });
@@ -192,6 +209,7 @@ describe('PUT /equipes/:id', () => {
   it('atualiza as cores e normaliza para minúsculas', async () => {
     const resposta = await app.inject({
       method: 'PUT',
+      headers: cabecalhoDeSessao,
       url: `/equipes/${mclaren.id}`,
       payload: { nome: 'McLaren', cor: '#FF8000', corSecundaria: '#000000' },
     });
@@ -203,6 +221,7 @@ describe('PUT /equipes/:id', () => {
   it('recusa uma cor fora do formato', async () => {
     const resposta = await app.inject({
       method: 'PUT',
+      headers: cabecalhoDeSessao,
       url: `/equipes/${mclaren.id}`,
       payload: { nome: 'McLaren', cor: 'laranja', corSecundaria: '#000000' },
     });
@@ -214,6 +233,7 @@ describe('PUT /equipes/:id', () => {
   it('responde 404 para uma equipe que não existe', async () => {
     const resposta = await app.inject({
       method: 'PUT',
+      headers: cabecalhoDeSessao,
       url: `/equipes/${randomUUID()}`,
       payload: dadosDaEquipe('Lotus'),
     });

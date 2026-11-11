@@ -48,10 +48,13 @@ cd DRS
 pnpm install
 cp .env.example .env
 cp apps/api/.env.example apps/api/.env
+pnpm --filter @drs/api gerar-credenciais
 pnpm db:up
 pnpm --filter @drs/api db:migrate
 pnpm dev
 ```
+
+O comando `gerar-credenciais` pede a senha do administrador sem exibi-la e imprime as linhas `ADMIN_SENHA_HASH` e `SEGREDO_DA_SESSAO` para colar em `apps/api/.env`.
 
 Use a mesma senha em `.env` e em `apps/api/.env`. A interface fica em `http://localhost:5173` e a API em `http://localhost:3333`.
 
@@ -60,6 +63,16 @@ Use a mesma senha em `.env` e em `apps/api/.env`. A interface fica em `http://lo
 Para rodar sem Docker, defina `ARMAZENAMENTO=memoria` em `apps/api/.env`. A API passa a guardar os dados em memória, e eles somem ao reiniciar.
 
 A escolha do armazenamento é feita por uma fábrica (`apps/api/src/infra/criar-repositorios.ts`): o resto da aplicação recebe os repositórios pelas interfaces e não sabe qual implementação está em uso.
+
+## Segurança
+
+- Leitura pública; cadastrar, editar e excluir exigem a sessão de administrador
+- Senha guardada apenas como hash scrypt, comparada em tempo constante, com no mínimo 12 caracteres
+- Sessão assinada com HMAC-SHA256, válida por 8 horas
+- Login limitado a 5 tentativas por minuto por IP e limite geral de 300 requisições por minuto
+- Corpo das requisições limitado a 16 KB e validado pelos schemas compartilhados
+- CORS restrito ao domínio do site, headers de segurança na API (Helmet) e Content Security Policy no site
+- Consultas parametrizadas pelo Drizzle, com escape dos curingas da busca
 
 ## Testes
 

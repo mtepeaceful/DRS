@@ -10,11 +10,15 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "test:integracao": "vitest run --project integracao",
-    "db:migrate": "tsx --env-file-if-exists=.env src/scripts/migrar.ts"
+    "db:migrate": "tsx --env-file-if-exists=.env src/scripts/migrar.ts",
+    "db:migrate:prod": "node --env-file-if-exists=.env dist/scripts/migrar.js",
+    "gerar-credenciais": "tsx src/scripts/gerar-credenciais.ts"
   },
   "dependencies": {
     "@drs/contracts": "workspace:*",
+    "@fastify/cors": "^11.4.1",
     "@fastify/helmet": "^13.2.0",
+    "@fastify/rate-limit": "^11.2.2",
     "drizzle-orm": "^0.45.4",
     "fastify": "^5.12.8",
     "fastify-type-provider-zod": "^7.0.0",

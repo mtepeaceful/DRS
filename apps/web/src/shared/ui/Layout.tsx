@@ -1,5 +1,6 @@
 import { useIsFetching } from '@tanstack/react-query';
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router';
+import { encerrarSessao, useSessaoAtiva } from '../api/sessao';
 import { AsaTraseira } from './AsaTraseira';
 import botao from './botao.module.css';
 import styles from './Layout.module.css';
@@ -10,6 +11,7 @@ function classeDoLink({ isActive }: { isActive: boolean }) {
 
 export function Layout() {
   const buscando = useIsFetching() > 0;
+  const logado = useSessaoAtiva();
 
   return (
     <>
@@ -33,9 +35,20 @@ export function Layout() {
             </NavLink>
           </nav>
 
-          <Link to="/pilotos/novo" className={`${botao.primario} ${styles.acao}`}>
-            <span aria-hidden="true">+</span> Novo piloto
-          </Link>
+          {logado ? (
+            <div className={styles.sessao}>
+              <Link to="/pilotos/novo" className={`${botao.primario} ${styles.acao}`}>
+                <span aria-hidden="true">+</span> Novo piloto
+              </Link>
+              <button type="button" className={styles.link} onClick={encerrarSessao}>
+                Sair
+              </button>
+            </div>
+          ) : (
+            <Link to="/entrar" className={`${botao.secundario} ${styles.acao}`}>
+              Entrar
+            </Link>
+          )}
         </div>
       </header>
 

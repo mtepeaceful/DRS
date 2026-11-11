@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { mensagemDoErro } from '../../shared/api/http';
+import { useSessaoAtiva } from '../../shared/api/sessao';
 import { estiloDaEquipe } from '../../shared/lib/equipe';
 import { Aviso } from '../../shared/ui/Aviso';
 import { listaDeEquipes } from './api';
@@ -12,6 +13,7 @@ import styles from './EquipesPage.module.css';
 export function EquipesPage() {
   const equipes = useQuery(listaDeEquipes);
   const [editando, setEditando] = useState<string | null>(null);
+  const logado = useSessaoAtiva();
 
   return (
     <>
@@ -22,9 +24,11 @@ export function EquipesPage() {
         clássicas já chegam com as cores sugeridas.
       </p>
 
-      <div className={styles.novo}>
-        <EquipeForm />
-      </div>
+      {logado && (
+        <div className={styles.novo}>
+          <EquipeForm />
+        </div>
+      )}
 
       {equipes.isPending && (
         <div className={styles.esqueleto} role="status">
@@ -66,13 +70,15 @@ export function EquipesPage() {
                     Ver pilotos <span aria-hidden="true">→</span>
                     <span className="apenas-leitor"> da {equipe.nome}</span>
                   </Link>
-                  <button
-                    type="button"
-                    className={styles.link}
-                    onClick={() => setEditando(equipe.id)}
-                  >
-                    Editar<span className="apenas-leitor"> {equipe.nome}</span>
-                  </button>
+                  {logado && (
+                    <button
+                      type="button"
+                      className={styles.link}
+                      onClick={() => setEditando(equipe.id)}
+                    >
+                      Editar<span className="apenas-leitor"> {equipe.nome}</span>
+                    </button>
+                  )}
                 </span>
               </li>
             ),

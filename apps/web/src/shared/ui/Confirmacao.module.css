@@ -1,0 +1,36 @@
+.dialogo {
+  width: min(440px, calc(100vw - 32px));
+  padding: 28px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: var(--raio);
+  background: var(--cor-superficie-alta);
+  color: var(--cor-texto);
+}
+
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.titulo {
+  font-size: 1.2rem;
+}
+
+.descricao {
+  margin-top: 10px;
+  color: var(--cor-texto-suave);
+}
+
+.erro {
+  margin-top: 12px;
+  font-weight: 600;
+  color: var(--cor-perigo);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}

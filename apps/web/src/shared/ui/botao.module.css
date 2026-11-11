@@ -1,0 +1,60 @@
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--transicao),
+    border-color var(--transicao),
+    transform var(--transicao);
+}
+
+.base:active {
+  transform: translateY(1px);
+}
+
+.base:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.primario {
+  composes: base;
+  background: var(--cor-corrida-fundo);
+  color: #fff;
+}
+
+.primario:hover:not(:disabled) {
+  background: var(--cor-corrida-fundo-ativo);
+}
+
+.secundario {
+  composes: base;
+  background: transparent;
+  border-color: var(--cor-linha-forte);
+}
+
+.secundario:hover:not(:disabled) {
+  border-color: var(--cor-texto);
+}
+
+.perigo {
+  composes: base;
+  background: transparent;
+  border-color: rgb(255 107 107 / 0.5);
+  color: var(--cor-perigo);
+}
+
+.perigo:hover:not(:disabled) {
+  background: rgb(255 107 107 / 0.12);
+}

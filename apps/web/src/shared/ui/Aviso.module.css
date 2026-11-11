@@ -1,0 +1,27 @@
+.base {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 32px 28px;
+  border: 1px dashed var(--cor-linha-forte);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.vazio {
+  composes: base;
+}
+
+.erro {
+  composes: base;
+  border-color: rgb(255 107 107 / 0.5);
+}
+
+.titulo {
+  font-size: 1.15rem;
+}
+
+.texto {
+  max-width: 56ch;
+  color: var(--cor-texto-suave);
+}

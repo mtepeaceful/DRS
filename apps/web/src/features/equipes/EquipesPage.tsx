@@ -26,7 +26,11 @@ export function EquipesPage() {
         <EquipeForm />
       </div>
 
-      {equipes.isPending && <div className={styles.esqueleto} aria-label="Carregando equipes" />}
+      {equipes.isPending && (
+        <div className={styles.esqueleto} role="status">
+          <span className="apenas-leitor">Carregando equipes…</span>
+        </div>
+      )}
 
       {equipes.isError && (
         <Aviso tipo="erro" titulo="Não foi possível carregar as equipes">

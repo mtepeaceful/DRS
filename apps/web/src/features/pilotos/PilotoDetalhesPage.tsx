@@ -23,7 +23,11 @@ export function PilotoDetalhesPage() {
   const [confirmando, setConfirmando] = useState(false);
 
   if (piloto.isPending) {
-    return <div className={styles.esqueleto} aria-label="Carregando piloto" />;
+    return (
+      <div className={styles.esqueleto} role="status">
+        <span className="apenas-leitor">Carregando piloto…</span>
+      </div>
+    );
   }
 
   if (piloto.isError) {

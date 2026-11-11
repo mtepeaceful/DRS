@@ -30,7 +30,11 @@ function Conteudo({ id }: { id: string | undefined }) {
   }
 
   if (!equipes.data || (id && !piloto.data)) {
-    return <div className={styles.esqueleto} aria-label="Carregando formulário" />;
+    return (
+      <div className={styles.esqueleto} role="status">
+        <span className="apenas-leitor">Carregando formulário…</span>
+      </div>
+    );
   }
 
   if (equipes.data.length === 0) {

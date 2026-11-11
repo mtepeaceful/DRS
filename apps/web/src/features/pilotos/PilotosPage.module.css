@@ -102,7 +102,12 @@
 .filtroAtivo {
   composes: filtro;
   border-color: var(--cor-texto);
-  color: var(--cor-texto);
+  background: var(--cor-texto);
+  color: var(--cor-fundo);
+}
+
+.filtroAtivo:hover {
+  color: var(--cor-fundo);
 }
 
 .grade {

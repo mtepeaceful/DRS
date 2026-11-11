@@ -30,7 +30,7 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para }: Pr
           {equipe && <EmblemaDaEquipe {...equipe} />}
           {equipe?.nome ?? 'Sem equipe'}
         </p>
-        <h3 className={styles.nome}>
+        <h2 className={styles.nome}>
           {para ? (
             <Link to={para} className={styles.link} viewTransition>
               {nome || 'Nome do piloto'}
@@ -39,7 +39,7 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para }: Pr
           ) : (
             nome || 'Nome do piloto'
           )}
-        </h3>
+        </h2>
       </div>
 
       <div className={styles.rodape}>

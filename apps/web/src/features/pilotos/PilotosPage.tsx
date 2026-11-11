@@ -74,6 +74,7 @@ export function PilotosPage() {
   const equipes = useQuery(listaDeEquipes);
 
   const total = pilotos.data?.total ?? 0;
+  const equipeAtiva = (nome: string) => busca.toLowerCase() === nome.toLowerCase();
   const paginas = Math.max(1, Math.ceil(total / PILOTOS_POR_PAGINA));
 
   function aplicarBusca(evento: FormEvent) {
@@ -115,18 +116,19 @@ export function PilotosPage() {
 
         {equipes.data && equipes.data.length > 0 && (
           <nav aria-label="Filtrar por equipe" className={styles.filtros}>
-            <Link to="/" className={busca ? styles.filtro : styles.filtroAtivo}>
+            <Link
+              to="/"
+              className={busca ? styles.filtro : styles.filtroAtivo}
+              aria-current={busca ? undefined : 'page'}
+            >
               Todos
             </Link>
             {equipes.data.map((equipe) => (
               <Link
                 key={equipe.id}
                 to={`/?${parametrosDe(equipe.nome)}`}
-                className={
-                  busca.toLowerCase() === equipe.nome.toLowerCase()
-                    ? styles.filtroAtivo
-                    : styles.filtro
-                }
+                className={equipeAtiva(equipe.nome) ? styles.filtroAtivo : styles.filtro}
+                aria-current={equipeAtiva(equipe.nome) ? 'page' : undefined}
               >
                 <EmblemaDaEquipe {...equipe} />
                 {equipe.nome}
@@ -137,11 +139,14 @@ export function PilotosPage() {
       </section>
 
       {pilotos.isPending && (
-        <ul className={styles.grade} aria-label="Carregando pilotos">
-          {Array.from({ length: 6 }, (_, indice) => (
-            <li key={indice} className={styles.esqueleto} />
-          ))}
-        </ul>
+        <div role="status">
+          <span className="apenas-leitor">Carregando pilotos…</span>
+          <ul className={styles.grade} aria-hidden="true">
+            {Array.from({ length: 6 }, (_, indice) => (
+              <li key={indice} className={styles.esqueleto} />
+            ))}
+          </ul>
+        </div>
       )}
 
       {pilotos.isError && (

@@ -15,22 +15,32 @@ function perguntarSemEco(pergunta: string) {
     stdin.resume();
     stdin.setEncoding('utf8');
 
-    const aoDigitar = (tecla: string) => {
-      if (tecla === '\u0003') {
-        stdout.write('\n');
-        process.exit(130);
-      }
+    const aoDigitar = (trecho: string) => {
+      for (const caractere of trecho) {
+        if (caractere === '\u0003') {
+          stdout.write('\n');
+          process.exit(130);
+        }
 
-      if (tecla === '\r' || tecla === '\n') {
-        stdin.setRawMode(false);
-        stdin.pause();
-        stdin.off('data', aoDigitar);
-        stdout.write('\n');
-        resolver(resposta);
-        return;
-      }
+        if (caractere === '\r' || caractere === '\n') {
+          if (resposta === '') {
+            continue;
+          }
 
-      resposta = tecla === '\u007f' || tecla === '\b' ? resposta.slice(0, -1) : resposta + tecla;
+          stdin.setRawMode(false);
+          stdin.pause();
+          stdin.off('data', aoDigitar);
+          stdout.write('\n');
+          resolver(resposta);
+          return;
+        }
+
+        if (caractere === '\u007f' || caractere === '\b') {
+          resposta = resposta.slice(0, -1);
+        } else if (caractere >= ' ') {
+          resposta += caractere;
+        }
+      }
     };
 
     stdin.on('data', aoDigitar);

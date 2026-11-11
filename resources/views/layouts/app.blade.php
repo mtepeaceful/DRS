@@ -158,6 +158,15 @@
             box-shadow: 0 0 0 4px rgba(255, 24, 1, 0.25), 0 0 10px rgba(255, 24, 1, 0.3) !important;
         }
 
+        .form-control.is-invalid {
+            border-color: #ff4444 !important;
+        }
+
+        .invalid-feedback {
+            color: #ff4444;
+            font-weight: 600;
+        }
+
         /* Custom Pagination Theme */
         .pagination {
             display: flex;

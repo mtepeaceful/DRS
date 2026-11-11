@@ -156,7 +156,6 @@
 
         <div class="search-container">
             <form method="GET" action="{{ route('pilotos.index') }}">
-                @csrf
                 <div class="input-group">
                     <input type="text" name="busca" class="form-control search-input"
                         placeholder="Buscar por nome ou equipe..." value="{{ request('busca')}}">

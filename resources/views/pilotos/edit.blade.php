@@ -58,32 +58,7 @@
         <form action="{{ route('pilotos.update', $piloto->id) }}" method="post">
             @csrf
             @method('PUT')
-            <div class="mb-3">
-                <label class="form-label">Nome Completo</label>
-                <input type="text" name="nome" class="form-control" value="{{ $piloto->nome }}" required>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Equipe</label>
-                    <input type="text" name="equipe" class="form-control" value="{{ $piloto->equipe }}" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Nacionalidade</label>
-                    <input type="text" name="nacionalidade" class="form-control" value="{{ $piloto->nacionalidade }}" required>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Número</label>
-                    <input type="number" name="numero" class="form-control" value="{{ $piloto->numero }}" required>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <label class="form-label">Títulos Mundiais</label>
-                    <input type="number" name="titulos" class="form-control" value="{{ $piloto->titulos }}" min="0">
-                </div>
-            </div>
+            @include('pilotos.partials.campos')
 
             <div class="d-grid shadow-sm">
                 <button type="submit" class="btn btn-primary btn-salvar">

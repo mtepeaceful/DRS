@@ -4,7 +4,11 @@ import { criarRepositorios } from './infra/criar-repositorios.js';
 
 const env = loadEnv();
 const { repositorios, fechar } = criarRepositorios(env);
-const app = await buildApp(repositorios, { logger: { level: env.LOG_LEVEL } });
+const app = await buildApp(
+  repositorios,
+  { logger: { level: env.LOG_LEVEL }, trustProxy: true },
+  { origensPermitidas: env.ORIGENS_PERMITIDAS },
+);
 
 app.addHook('onClose', fechar);
 

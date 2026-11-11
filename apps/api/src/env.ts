@@ -4,6 +4,16 @@ const base = z.object({
   HOST: z.string().default('0.0.0.0'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3333),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  ORIGENS_PERMITIDAS: z
+    .string()
+    .default('')
+    .transform((lista) =>
+      lista
+        .split(',')
+        .map((origem) => origem.trim())
+        .filter(Boolean),
+    )
+    .pipe(z.array(z.url({ protocol: /^https?$/ }))),
 });
 
 const armazenamento = z.discriminatedUnion('ARMAZENAMENTO', [

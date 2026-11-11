@@ -1,4 +1,5 @@
 import { usarMensagensEmPortugues } from '@drs/contracts';
+import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import Fastify from 'fastify';
 import type { FastifyServerOptions } from 'fastify';
@@ -22,9 +23,14 @@ export interface Repositorios {
   equipes: EquipeRepository;
 }
 
+export interface OpcoesDoApp {
+  origensPermitidas?: string[];
+}
+
 export async function buildApp(
   { pilotos, equipes }: Repositorios,
   options: FastifyServerOptions = {},
+  { origensPermitidas = [] }: OpcoesDoApp = {},
 ) {
   usarMensagensEmPortugues();
 
@@ -34,6 +40,10 @@ export async function buildApp(
   app.setSerializerCompiler(serializerCompiler);
   tratarErros(app);
   await app.register(helmet);
+  await app.register(cors, {
+    origin: origensPermitidas,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  });
 
   app.get('/health', () => ({ status: 'ok' }));
 

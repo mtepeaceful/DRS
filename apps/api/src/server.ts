@@ -13,6 +13,7 @@ const noticias = new FonteRssMotorsport();
 const campeonatoEmCache = comCache(() => campeonato.buscarCampeonato(new Date()), 30 * MINUTO);
 const noticiasEmCache = comCache(() => noticias.buscarNoticias(), 15 * MINUTO);
 const calendarioEmCache = comCache(() => campeonato.buscarCalendario(), 30 * MINUTO);
+const participacoesEmCache = comCache(() => campeonato.buscarParticipacoes(), 30 * MINUTO);
 const resultadoEmCache = comCachePorChave(
   (rodada: number) => campeonato.buscarResultado(rodada),
   30 * MINUTO,
@@ -27,6 +28,7 @@ const app = await buildApp(
       buscarCampeonato: campeonatoEmCache,
       buscarCalendario: calendarioEmCache,
       buscarResultado: resultadoEmCache,
+      buscarParticipacoes: participacoesEmCache,
     },
     noticias: { buscarNoticias: noticiasEmCache },
     origensPermitidas: env.ORIGENS_PERMITIDAS,

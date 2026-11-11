@@ -9,6 +9,7 @@ const SEGREDO_DE_TESTE = 'segredo-de-teste-com-mais-de-32-caracteres';
 export const semCalendario = {
   buscarCalendario: async () => [],
   buscarResultado: async () => null,
+  buscarParticipacoes: async () => [],
 };
 
 const fonteVazia: FonteDeDadosDaF1 = {

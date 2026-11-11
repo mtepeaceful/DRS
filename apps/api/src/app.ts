@@ -6,6 +6,7 @@ import Fastify from 'fastify';
 import type { FastifyServerOptions } from 'fastify';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import { ConsultarCalendario } from './application/calendario/consultar-calendario.js';
+import { ConsultarDesempenho } from './application/desempenho/consultar-desempenho.js';
 import { AtualizarEquipe } from './application/equipes/atualizar-equipe.js';
 import { CadastrarEquipe } from './application/equipes/cadastrar-equipe.js';
 import { ImportarTemporada } from './application/importacao/importar-temporada.js';
@@ -30,6 +31,7 @@ import {
   rotasDeSessao,
 } from './infra/http/autenticacao.js';
 import { rotasCalendario } from './infra/http/rotas-calendario.js';
+import { rotasDesempenho } from './infra/http/rotas-desempenho.js';
 import { rotasEquipes } from './infra/http/rotas-equipes.js';
 import { rotasImportacao } from './infra/http/rotas-importacao.js';
 import { rotasPainel } from './infra/http/rotas-painel.js';
@@ -113,6 +115,10 @@ export async function buildApp(
   await app.register(rotasCalendario, {
     prefix: '/calendario',
     calendario: new ConsultarCalendario(campeonato),
+  });
+  await app.register(rotasDesempenho, {
+    prefix: '/temporada',
+    desempenho: new ConsultarDesempenho(campeonato),
   });
 
   const importar = new ImportarTemporada(pilotos, equipes, importacoes, fonteDeDados);

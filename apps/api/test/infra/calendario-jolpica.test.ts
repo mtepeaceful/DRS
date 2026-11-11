@@ -143,3 +143,43 @@ describe('FonteCampeonatoJolpica · etapa inexistente', () => {
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('FonteCampeonatoJolpica · participações', () => {
+  it('percorre todas as páginas de corridas e sprints', async () => {
+    const pedidos: string[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (entrada) => {
+      const url = new URL(String(entrada));
+      pedidos.push(`${url.pathname.split('/').pop()}?${url.searchParams.get('offset')}`);
+      const sprint = url.pathname.endsWith('/sprint.json');
+      const offset = Number(url.searchParams.get('offset'));
+      const corridas = sprint
+        ? [{ round: '2', SprintResults: [linha(1)] }]
+        : [
+            {
+              round: String(offset / 100 + 1),
+              Results: [linha(1), linha(4, { positionText: 'R' })],
+            },
+          ];
+
+      return Response.json({
+        MRData: { total: sprint ? '1' : '150', RaceTable: { Races: corridas } },
+      });
+    });
+
+    const participacoes = await new FonteCampeonatoJolpica().buscarParticipacoes();
+
+    expect(pedidos).toEqual(['results.json?0', 'results.json?100', 'sprint.json?0']);
+    expect(participacoes).toHaveLength(5);
+    expect(participacoes).toContainEqual({
+      rodada: 2,
+      tipo: 'corrida',
+      nome: 'Piloto 4',
+      equipe: 'Equipe',
+      posicao: 4,
+      classificado: false,
+      largada: 5,
+      pontos: 22,
+    });
+    expect(participacoes.filter((p) => p.tipo === 'sprint')).toHaveLength(1);
+  });
+});

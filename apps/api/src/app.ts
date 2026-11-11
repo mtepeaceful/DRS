@@ -9,6 +9,7 @@ import { ConsultarCalendario } from './application/calendario/consultar-calendar
 import { AtualizarEquipe } from './application/equipes/atualizar-equipe.js';
 import { CadastrarEquipe } from './application/equipes/cadastrar-equipe.js';
 import { ImportarTemporada } from './application/importacao/importar-temporada.js';
+import { ManterGridAtualizado } from './application/importacao/manter-grid-atualizado.js';
 import { MontarPainel } from './application/painel/montar-painel.js';
 import { ListarEquipes } from './application/equipes/listar-equipes.js';
 import { AtualizarPiloto } from './application/pilotos/atualizar-piloto.js';
@@ -20,7 +21,9 @@ import type { EquipeRepository } from './application/ports/equipe-repository.js'
 import type { FonteDeDadosDaF1 } from './application/ports/fonte-de-dados-da-f1.js';
 import type { FonteDeNoticias } from './application/ports/fonte-de-noticias.js';
 import type { FonteDoCampeonato } from './application/ports/fonte-do-campeonato.js';
+import type { ImportacaoRepository } from './application/ports/importacao-repository.js';
 import type { PilotoRepository } from './application/ports/piloto-repository.js';
+import { agendarAtualizacaoDoGrid } from './infra/agendar-atualizacao-do-grid.js';
 import {
   type ConfiguracaoDeAutenticacao,
   exigirSessaoNasEscritas,
@@ -36,6 +39,7 @@ import { tratarErros } from './infra/http/tratar-erros.js';
 export interface Repositorios {
   pilotos: PilotoRepository;
   equipes: EquipeRepository;
+  importacoes: ImportacaoRepository;
 }
 
 export interface ConfiguracaoDoApp {
@@ -44,13 +48,21 @@ export interface ConfiguracaoDoApp {
   campeonato: FonteDoCampeonato;
   noticias: FonteDeNoticias;
   origensPermitidas?: string[];
+  atualizarGridSozinho?: boolean;
 }
 
 const TAMANHO_MAXIMO_DO_CORPO = 16 * 1024;
 
 export async function buildApp(
-  { pilotos, equipes }: Repositorios,
-  { autenticacao, fonteDeDados, campeonato, noticias, origensPermitidas = [] }: ConfiguracaoDoApp,
+  { pilotos, equipes, importacoes }: Repositorios,
+  {
+    autenticacao,
+    fonteDeDados,
+    campeonato,
+    noticias,
+    origensPermitidas = [],
+    atualizarGridSozinho = false,
+  }: ConfiguracaoDoApp,
   options: FastifyServerOptions = {},
 ) {
   usarMensagensEmPortugues();
@@ -103,10 +115,13 @@ export async function buildApp(
     calendario: new ConsultarCalendario(campeonato),
   });
 
-  await app.register(rotasImportacao, {
-    prefix: '/importacoes',
-    importar: new ImportarTemporada(pilotos, equipes, fonteDeDados),
-  });
+  const importar = new ImportarTemporada(pilotos, equipes, importacoes, fonteDeDados);
+
+  await app.register(rotasImportacao, { prefix: '/importacoes', importar });
+
+  if (atualizarGridSozinho) {
+    agendarAtualizacaoDoGrid(app, new ManterGridAtualizado(importar, importacoes));
+  }
 
   return app;
 }

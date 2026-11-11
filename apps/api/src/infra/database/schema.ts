@@ -48,3 +48,24 @@ export const pilotos = pgTable(
     index('pilotos_equipe_id_idx').on(tabela.equipeId),
   ],
 );
+
+export const campeoes = pgTable(
+  'campeoes',
+  {
+    ano: smallint().primaryKey(),
+    sigla: char({ length: 3 }),
+  },
+  (tabela) => [
+    check('campeoes_ano_valido', sql`${tabela.ano} between 1950 and 2100`),
+    check('campeoes_sigla_valida', sql`${tabela.sigla} ~ '^[A-Z]{3}$'`),
+  ],
+);
+
+export const importacoes = pgTable(
+  'importacoes',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    executadaEm: timestamp('executada_em', { withTimezone: true }).notNull(),
+  },
+  (tabela) => [index('importacoes_executada_em_idx').on(tabela.executadaEm)],
+);

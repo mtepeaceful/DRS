@@ -4,6 +4,7 @@ import { buildApp } from '../../src/app.js';
 import type { Campeonato } from '../../src/application/ports/fonte-do-campeonato.js';
 import {
   EquipeRepositoryEmMemoria,
+  ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
 } from '../../src/infra/memoria/repositorios-em-memoria.js';
 import { configuracaoDeTeste, semCalendario } from '../support/autenticacao.js';
@@ -31,7 +32,11 @@ const campeonato: Campeonato = {
 async function criarApp(sobrescrita: Partial<typeof configuracaoDeTeste>) {
   const equipes = new EquipeRepositoryEmMemoria();
   app = await buildApp(
-    { equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) },
+    {
+      equipes,
+      pilotos: new PilotoRepositoryEmMemoria(equipes),
+      importacoes: new ImportacaoRepositoryEmMemoria(),
+    },
     { ...configuracaoDeTeste, ...sobrescrita },
   );
 }

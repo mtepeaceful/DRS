@@ -22,6 +22,20 @@
       "when": 1794370424153,
       "tag": "0002_torna_cores_e_pais_obrigatorios",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794436540789,
+      "tag": "0003_guarda_campeoes_e_importacoes",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794436656085,
+      "tag": "0004_permite_campeao_sem_sigla",
+      "breakpoints": true
     }
   ]
 }

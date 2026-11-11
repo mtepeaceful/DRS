@@ -1,6 +1,7 @@
 import { setTimeout as esperar } from 'node:timers/promises';
 import { z } from 'zod';
 import type {
+  Campeao,
   FonteDeDadosDaF1,
   PilotoDaTemporada,
   Temporada,
@@ -11,7 +12,6 @@ import { paisDaNacionalidade } from './nacionalidades.js';
 
 const JOLPICA = 'https://api.jolpi.ca/ergast/f1';
 const OPENF1 = 'https://api.openf1.org/v1';
-const TEMPORADAS_PARA_CONTAR_TITULOS = 30;
 const CONSULTAS_POR_LOTE = 2;
 const PAUSA_ENTRE_LOTES_EM_MS = 1100;
 
@@ -77,7 +77,6 @@ export class FonteJolpicaOpenF1 implements FonteDeDadosDaF1 {
     ]);
     const { season: ano, Drivers } = jolpica.MRData.DriverTable;
     const porSigla = new Map(Drivers.filter((p) => p.code).map((p) => [p.code, p]));
-    const titulos = await this.contarTitulos(ano);
 
     const equipes = new Map<string, DadosEquipe>();
     const pilotos: PilotoDaTemporada[] = [];
@@ -97,9 +96,9 @@ export class FonteJolpicaOpenF1 implements FonteDeDadosDaF1 {
 
       pilotos.push({
         nome: dados ? `${dados.givenName} ${dados.familyName}` : capitalizar(piloto.full_name),
+        sigla: piloto.name_acronym,
         numero: piloto.driver_number,
         pais: paisDaNacionalidade(dados?.nationality),
-        titulos: titulos.get(piloto.name_acronym) ?? 0,
         equipe: piloto.team_name,
       });
     }
@@ -107,12 +106,8 @@ export class FonteJolpicaOpenF1 implements FonteDeDadosDaF1 {
     return { ano, equipes: [...equipes.values()], pilotos };
   }
 
-  private async contarTitulos(anoAtual: number) {
-    const anos = Array.from(
-      { length: TEMPORADAS_PARA_CONTAR_TITULOS },
-      (_, i) => anoAtual - TEMPORADAS_PARA_CONTAR_TITULOS + i,
-    );
-    const titulos = new Map<string, number>();
+  async buscarCampeoes(anos: number[]): Promise<Campeao[]> {
+    const campeoes: Campeao[] = [];
 
     for (let inicio = 0; inicio < anos.length; inicio += CONSULTAS_POR_LOTE) {
       const lote = anos.slice(inicio, inicio + CONSULTAS_POR_LOTE);
@@ -120,20 +115,21 @@ export class FonteJolpicaOpenF1 implements FonteDeDadosDaF1 {
         lote.map((ano) => buscarJson(`${JOLPICA}/${ano}/driverstandings/1.json`, campeaoJolpica)),
       );
 
-      for (const resposta of respostas) {
+      respostas.forEach((resposta, indice) => {
+        const ano = lote[indice];
         const sigla =
           resposta.MRData.StandingsTable.StandingsLists[0]?.DriverStandings[0]?.Driver.code;
 
-        if (sigla) {
-          titulos.set(sigla, (titulos.get(sigla) ?? 0) + 1);
+        if (ano !== undefined) {
+          campeoes.push({ ano, sigla: sigla ?? null });
         }
-      }
+      });
 
       if (inicio + CONSULTAS_POR_LOTE < anos.length) {
         await esperar(PAUSA_ENTRE_LOTES_EM_MS);
       }
     }
 
-    return titulos;
+    return campeoes;
   }
 }

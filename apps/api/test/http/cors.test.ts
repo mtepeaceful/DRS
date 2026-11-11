@@ -3,12 +3,17 @@ import { buildApp } from '../../src/app.js';
 import { configuracaoDeTeste } from '../support/autenticacao.js';
 import {
   EquipeRepositoryEmMemoria,
+  ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
 } from '../../src/infra/memoria/repositorios-em-memoria.js';
 
 const equipes = new EquipeRepositoryEmMemoria();
 const app = await buildApp(
-  { equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) },
+  {
+    equipes,
+    pilotos: new PilotoRepositoryEmMemoria(equipes),
+    importacoes: new ImportacaoRepositoryEmMemoria(),
+  },
   { ...configuracaoDeTeste, origensPermitidas: ['https://drs.onrender.com'] },
 );
 

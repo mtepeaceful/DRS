@@ -2,9 +2,9 @@ import type { DadosEquipe } from '../../domain/equipe.js';
 
 export interface PilotoDaTemporada {
   nome: string;
+  sigla: string;
   numero: number;
   pais: string | null;
-  titulos: number;
   equipe: string;
 }
 
@@ -14,6 +14,12 @@ export interface Temporada {
   pilotos: PilotoDaTemporada[];
 }
 
+export interface Campeao {
+  ano: number;
+  sigla: string | null;
+}
+
 export interface FonteDeDadosDaF1 {
   buscarTemporadaAtual(): Promise<Temporada>;
+  buscarCampeoes(anos: number[]): Promise<Campeao[]>;
 }

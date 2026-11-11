@@ -4,7 +4,8 @@ import { AtualizarEquipe } from '../../src/application/equipes/atualizar-equipe.
 import { CadastrarEquipe } from '../../src/application/equipes/cadastrar-equipe.js';
 import { ListarEquipes } from '../../src/application/equipes/listar-equipes.js';
 import { EquipeJaExiste, EquipeNaoEncontrada } from '../../src/domain/erros.js';
-import { dadosDaEquipe, EquipeRepositoryEmMemoria } from '../support/repositorios-em-memoria.js';
+import { EquipeRepositoryEmMemoria } from '../../src/infra/memoria/repositorios-em-memoria.js';
+import { dadosDaEquipe } from '../support/dados.js';
 
 describe('CadastrarEquipe', () => {
   it('recusa nome repetido, ignorando maiúsculas e minúsculas', async () => {

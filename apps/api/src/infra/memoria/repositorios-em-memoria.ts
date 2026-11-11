@@ -1,15 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import type { EquipeRepository } from '../../src/application/ports/equipe-repository.js';
+import type { EquipeRepository } from '../../application/ports/equipe-repository.js';
 import type {
   FiltroDePilotos,
   PilotoRepository,
-} from '../../src/application/ports/piloto-repository.js';
-import type { DadosEquipe, Equipe } from '../../src/domain/equipe.js';
-import type { DadosPiloto, Piloto } from '../../src/domain/piloto.js';
-
-export function dadosDaEquipe(nome: string): DadosEquipe {
-  return { nome, cor: '#dc0000', corSecundaria: '#ffffff' };
-}
+} from '../../application/ports/piloto-repository.js';
+import type { DadosEquipe, Equipe } from '../../domain/equipe.js';
+import type { DadosPiloto, Piloto } from '../../domain/piloto.js';
 
 export class EquipeRepositoryEmMemoria implements EquipeRepository {
   readonly equipes = new Map<string, Equipe>();

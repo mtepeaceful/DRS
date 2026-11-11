@@ -7,7 +7,7 @@ import type { DadosPiloto } from '../../src/domain/piloto.js';
 import { conectar } from '../../src/infra/database/client.js';
 import { EquipeRepositoryDrizzle } from '../../src/infra/database/equipe-repository-drizzle.js';
 import { PilotoRepositoryDrizzle } from '../../src/infra/database/piloto-repository-drizzle.js';
-import { dadosDaEquipe } from '../support/repositorios-em-memoria.js';
+import { dadosDaEquipe } from '../support/dados.js';
 
 const { db, fechar } = conectar(inject('databaseUrl'));
 const equipes = new EquipeRepositoryDrizzle(db);

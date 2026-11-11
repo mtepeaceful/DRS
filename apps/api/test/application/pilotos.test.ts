@@ -9,10 +9,10 @@ import type { Equipe } from '../../src/domain/equipe.js';
 import { EquipeInvalida, NumeroJaEmUso, PilotoNaoEncontrado } from '../../src/domain/erros.js';
 import type { DadosPiloto } from '../../src/domain/piloto.js';
 import {
-  dadosDaEquipe,
   EquipeRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
-} from '../support/repositorios-em-memoria.js';
+} from '../../src/infra/memoria/repositorios-em-memoria.js';
+import { dadosDaEquipe } from '../support/dados.js';
 
 let equipes: EquipeRepositoryEmMemoria;
 let pilotos: PilotoRepositoryEmMemoria;

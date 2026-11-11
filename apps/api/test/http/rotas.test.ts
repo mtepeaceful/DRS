@@ -4,10 +4,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import type { Equipe } from '../../src/domain/equipe.js';
 import {
-  dadosDaEquipe,
   EquipeRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
-} from '../support/repositorios-em-memoria.js';
+} from '../../src/infra/memoria/repositorios-em-memoria.js';
+import { dadosDaEquipe } from '../support/dados.js';
 
 let app: FastifyInstance;
 let mclaren: Equipe;

@@ -1,4 +1,6 @@
 import { randomBytes } from 'node:crypto';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { stdin, stdout } from 'node:process';
 import { gerarHashDaSenha, TAMANHO_MINIMO_DA_SENHA } from '../infra/seguranca/senha.js';
 
@@ -47,22 +49,70 @@ function perguntarSemEco(pergunta: string) {
   });
 }
 
-const senha = await perguntarSemEco(
-  `Senha do administrador (mínimo ${TAMANHO_MINIMO_DA_SENHA} caracteres): `,
-);
-const confirmacao = await perguntarSemEco('Repita a senha: ');
+async function lerSenha() {
+  const indice = process.argv.indexOf('--arquivo');
 
-if (senha !== confirmacao) {
-  throw new Error('As senhas não conferem.');
+  if (indice === -1) {
+    const senha = await perguntarSemEco(
+      `Senha do administrador (mínimo ${TAMANHO_MINIMO_DA_SENHA} caracteres): `,
+    );
+
+    if (senha !== (await perguntarSemEco('Repita a senha: '))) {
+      throw new Error('As senhas não conferem.');
+    }
+
+    return senha;
+  }
+
+  const caminho = process.argv[indice + 1];
+
+  if (!caminho) {
+    throw new Error('Informe o caminho do arquivo depois de --arquivo.');
+  }
+
+  const senha = readFileSync(caminho, 'utf8')
+    .replace(/^\uFEFF/, '')
+    .replace(/\r?\n$/, '');
+  rmSync(caminho);
+  stdout.write(`Senha lida e arquivo ${caminho} apagado.\n`);
+
+  return senha;
 }
+
+function gravarNoEnv(variaveis: Record<string, string>) {
+  const caminho = resolve('.env');
+  const linhas = existsSync(caminho) ? readFileSync(caminho, 'utf8').split(/\r?\n/) : [];
+
+  for (const [chave, valor] of Object.entries(variaveis)) {
+    const linha = `${chave}=${valor}`;
+    const indice = linhas.findIndex((atual) => atual.startsWith(`${chave}=`));
+
+    if (indice === -1) {
+      linhas.splice(linhas.at(-1) === '' ? -1 : linhas.length, 0, linha);
+    } else {
+      linhas[indice] = linha;
+    }
+  }
+
+  writeFileSync(caminho, `${linhas.join('\n').replace(/\n*$/, '')}\n`);
+
+  return caminho;
+}
+
+const hash = await gerarHashDaSenha(await lerSenha());
+const env = gravarNoEnv({
+  ADMIN_SENHA_HASH: hash,
+  SEGREDO_DA_SESSAO: randomBytes(48).toString('base64url'),
+});
 
 stdout.write(
   [
     '',
-    'Adicione estas linhas ao apps/api/.env (e às variáveis de ambiente do deploy):',
+    `Credenciais gravadas em ${env}.`,
     '',
-    `ADMIN_SENHA_HASH=${await gerarHashDaSenha(senha)}`,
-    `SEGREDO_DA_SESSAO=${randomBytes(48).toString('base64url')}`,
+    'Para o Render, use este valor em ADMIN_SENHA_HASH:',
+    '',
+    hash,
     '',
   ].join('\n'),
 );

@@ -1,6 +1,7 @@
 import { buildApp } from './app.js';
 import { loadEnv } from './env.js';
 import { criarRepositorios } from './infra/criar-repositorios.js';
+import { FonteJolpicaOpenF1 } from './infra/f1/fonte-jolpica-openf1.js';
 
 const env = loadEnv();
 const { repositorios, fechar } = criarRepositorios(env);
@@ -8,6 +9,7 @@ const app = await buildApp(
   repositorios,
   {
     autenticacao: { hashDaSenha: env.ADMIN_SENHA_HASH, segredo: env.SEGREDO_DA_SESSAO },
+    fonteDeDados: new FonteJolpicaOpenF1(),
     origensPermitidas: env.ORIGENS_PERMITIDAS,
   },
   { logger: { level: env.LOG_LEVEL }, trustProxy: true },

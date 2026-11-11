@@ -1,0 +1,24 @@
+.painel {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.resumo {
+  display: grid;
+  gap: 6px;
+  max-width: 70ch;
+  color: var(--cor-texto-suave);
+}
+
+.ignorados {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+}
+
+.erro {
+  font-weight: 600;
+  color: var(--cor-perigo);
+}

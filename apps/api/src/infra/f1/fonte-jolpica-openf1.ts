@@ -11,9 +11,12 @@ import { paisDaNacionalidade } from './nacionalidades.js';
 const JOLPICA = 'https://api.jolpi.ca/ergast/f1';
 const OPENF1 = 'https://api.openf1.org/v1';
 const TEMPORADAS_PARA_CONTAR_TITULOS = 30;
-const CONSULTAS_POR_LOTE = 3;
+const CONSULTAS_POR_LOTE = 2;
 const PAUSA_ENTRE_LOTES_EM_MS = 1100;
 const TEMPO_LIMITE_EM_MS = 15_000;
+const TENTATIVAS_EXTRAS = 3;
+const ESPERA_MAXIMA_EM_S = 10;
+const STATUS_TEMPORARIOS = new Set([429, 502, 503, 504]);
 
 const pilotosOpenF1 = z.array(
   z.object({
@@ -61,18 +64,33 @@ export class FonteIndisponivel extends Error {
   }
 }
 
+function esperaAntesDeTentarDeNovo(resposta: Response, tentativa: number) {
+  const pedida = Number(resposta.headers.get('retry-after'));
+
+  return Number.isFinite(pedida) && pedida > 0
+    ? Math.min(pedida, ESPERA_MAXIMA_EM_S) * 1000
+    : 1000 * 2 ** tentativa;
+}
+
 async function buscarJson<Schema extends z.ZodType>(url: string, schema: Schema) {
   try {
-    const resposta = await fetch(url, {
-      headers: { accept: 'application/json', 'user-agent': 'DRS (github.com/mtepeaceful/DRS)' },
-      signal: AbortSignal.timeout(TEMPO_LIMITE_EM_MS),
-    });
+    for (let tentativa = 0; ; tentativa++) {
+      const resposta = await fetch(url, {
+        headers: { accept: 'application/json', 'user-agent': 'DRS (github.com/mtepeaceful/DRS)' },
+        signal: AbortSignal.timeout(TEMPO_LIMITE_EM_MS),
+      });
 
-    if (!resposta.ok) {
-      throw new Error(`HTTP ${resposta.status}`);
+      if (STATUS_TEMPORARIOS.has(resposta.status) && tentativa < TENTATIVAS_EXTRAS) {
+        await esperar(esperaAntesDeTentarDeNovo(resposta, tentativa));
+        continue;
+      }
+
+      if (!resposta.ok) {
+        throw new Error(`HTTP ${resposta.status}`);
+      }
+
+      return schema.parse(await resposta.json()) as z.output<Schema>;
     }
-
-    return schema.parse(await resposta.json()) as z.output<Schema>;
   } catch (erro) {
     throw new FonteIndisponivel(url, erro);
   }

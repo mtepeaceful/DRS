@@ -4,7 +4,9 @@ import { Link, useSearchParams } from 'react-router';
 import { mensagemDoErro } from '../../shared/api/http';
 import { Aviso } from '../../shared/ui/Aviso';
 import botao from '../../shared/ui/botao.module.css';
+import { useSessaoAtiva } from '../../shared/api/sessao';
 import { listaDeEquipes } from '../equipes/api';
+import { ImportarTemporada } from '../importacao/ImportarTemporada';
 import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
 import { listaDePilotos, PILOTOS_POR_PAGINA } from './api';
 import { CartaoDoPiloto } from './CartaoDoPiloto';
@@ -70,6 +72,7 @@ export function PilotosPage() {
     return () => window.removeEventListener('keydown', focarBusca);
   }, []);
 
+  const logado = useSessaoAtiva();
   const pilotos = useQuery(listaDePilotos(busca, pagina));
   const equipes = useQuery(listaDeEquipes);
 
@@ -94,6 +97,8 @@ export function PilotosPage() {
               ? `${total} ${total === 1 ? 'resultado' : 'resultados'} para “${busca}”`
               : `${total} ${total === 1 ? 'piloto' : 'pilotos'} no grid`)}
         </p>
+
+        {logado && <ImportarTemporada />}
 
         <form role="search" className={styles.busca} onSubmit={aplicarBusca}>
           <label htmlFor="busca" className="apenas-leitor">

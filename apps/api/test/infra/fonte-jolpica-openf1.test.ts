@@ -83,6 +83,41 @@ describe('FonteJolpicaOpenF1', () => {
     );
   });
 
+  it('espera e tenta de novo quando a API limita as requisições', async () => {
+    const tentativas = new Map<string, number>();
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (entrada) => {
+      const url = String(entrada);
+      const vez = (tentativas.get(url) ?? 0) + 1;
+      tentativas.set(url, vez);
+
+      if (url.includes('/2010/') && vez < 3) {
+        return new Response('devagar', { status: 429, headers: { 'retry-after': '1' } });
+      }
+
+      if (url.includes('openf1')) return Response.json(gridOpenF1);
+      if (url.includes('/current/drivers')) return Response.json(pilotosJolpica);
+      return Response.json(campeao('HAM'));
+    });
+
+    const temporada = await new FonteJolpicaOpenF1().buscarTemporadaAtual();
+
+    expect(temporada.pilotos[0]?.titulos).toBe(30);
+    expect(tentativas.get('https://api.jolpi.ca/ergast/f1/2010/driverstandings/1.json')).toBe(3);
+  });
+
+  it('desiste depois de três novas tentativas', async () => {
+    responder((url) => {
+      if (url.includes('openf1')) return gridOpenF1;
+      if (url.includes('/current/drivers')) return pilotosJolpica;
+      return undefined;
+    });
+
+    await expect(new FonteJolpicaOpenF1().buscarTemporadaAtual()).rejects.toThrow(
+      'Não foi possível obter os dados de api.jolpi.ca.',
+    );
+  });
+
   it('recusa resposta fora do formato esperado', async () => {
     responder((url) =>
       url.includes('openf1') ? [{ driver_number: 'quarenta e quatro' }] : pilotosJolpica,

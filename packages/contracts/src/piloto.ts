@@ -17,11 +17,15 @@ export const pilotoSchema = z.object({
 });
 
 export const dadosPilotoSchema = z.object({
-  nome: z.string().trim().min(1).max(255),
-  numero: z.number().int().min(NUMERO_MINIMO).max(NUMERO_MAXIMO),
-  nacionalidade: z.string().trim().min(1).max(100),
-  equipeId: z.uuid(),
-  titulos: z.number().int().min(0).default(0),
+  nome: z.string().trim().min(1, { error: 'Informe o nome do piloto.' }).max(255),
+  numero: z
+    .number({ error: 'Informe o número do piloto.' })
+    .int()
+    .min(NUMERO_MINIMO)
+    .max(NUMERO_MAXIMO),
+  nacionalidade: z.string().trim().min(1, { error: 'Informe a nacionalidade.' }).max(100),
+  equipeId: z.uuid({ error: 'Selecione uma equipe.' }),
+  titulos: z.number({ error: 'Informe a quantidade de títulos.' }).int().min(0).default(0),
 });
 
 export const listarPilotosQuerySchema = z.object({

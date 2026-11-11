@@ -6,7 +6,7 @@ export const equipeSchema = z.object({
 });
 
 export const dadosEquipeSchema = z.object({
-  nome: z.string().trim().min(1).max(100),
+  nome: z.string().trim().min(1, { error: 'Informe o nome da equipe.' }).max(100),
 });
 
 export type EquipeDTO = z.infer<typeof equipeSchema>;

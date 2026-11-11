@@ -60,3 +60,13 @@ export function nomeDoGp(nome: string) {
 export function nomeDoPaisEmPortugues(pais: string) {
   return paises[pais] ?? pais;
 }
+
+const nomesDasEquipes: Record<string, string> = {
+  'Alpine F1 Team': 'Alpine',
+  'Cadillac F1 Team': 'Cadillac',
+  'RB F1 Team': 'Racing Bulls',
+};
+
+export function nomeDaEquipe(nome: string) {
+  return nomesDasEquipes[nome] ?? nome;
+}

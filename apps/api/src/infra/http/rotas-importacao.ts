@@ -1,7 +1,7 @@
 import { erroSchema, resultadoDaImportacaoSchema } from '@drs/contracts';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import type { ImportarTemporada } from '../../application/importacao/importar-temporada.js';
-import { FonteIndisponivel } from '../f1/fonte-jolpica-openf1.js';
+import { FonteIndisponivel } from '../http-externo.js';
 
 export const rotasImportacao: FastifyPluginAsyncZod<{ importar: ImportarTemporada }> = async (
   app,

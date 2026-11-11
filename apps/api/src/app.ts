@@ -8,6 +8,7 @@ import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod
 import { AtualizarEquipe } from './application/equipes/atualizar-equipe.js';
 import { CadastrarEquipe } from './application/equipes/cadastrar-equipe.js';
 import { ImportarTemporada } from './application/importacao/importar-temporada.js';
+import { MontarPainel } from './application/painel/montar-painel.js';
 import { ListarEquipes } from './application/equipes/listar-equipes.js';
 import { AtualizarPiloto } from './application/pilotos/atualizar-piloto.js';
 import { CadastrarPiloto } from './application/pilotos/cadastrar-piloto.js';
@@ -16,6 +17,8 @@ import { ListarPilotos } from './application/pilotos/listar-pilotos.js';
 import { ObterPiloto } from './application/pilotos/obter-piloto.js';
 import type { EquipeRepository } from './application/ports/equipe-repository.js';
 import type { FonteDeDadosDaF1 } from './application/ports/fonte-de-dados-da-f1.js';
+import type { FonteDeNoticias } from './application/ports/fonte-de-noticias.js';
+import type { FonteDoCampeonato } from './application/ports/fonte-do-campeonato.js';
 import type { PilotoRepository } from './application/ports/piloto-repository.js';
 import {
   type ConfiguracaoDeAutenticacao,
@@ -24,6 +27,7 @@ import {
 } from './infra/http/autenticacao.js';
 import { rotasEquipes } from './infra/http/rotas-equipes.js';
 import { rotasImportacao } from './infra/http/rotas-importacao.js';
+import { rotasPainel } from './infra/http/rotas-painel.js';
 import { rotasPilotos } from './infra/http/rotas-pilotos.js';
 import { tratarErros } from './infra/http/tratar-erros.js';
 
@@ -35,6 +39,8 @@ export interface Repositorios {
 export interface ConfiguracaoDoApp {
   autenticacao: ConfiguracaoDeAutenticacao;
   fonteDeDados: FonteDeDadosDaF1;
+  campeonato: FonteDoCampeonato;
+  noticias: FonteDeNoticias;
   origensPermitidas?: string[];
 }
 
@@ -42,7 +48,7 @@ const TAMANHO_MAXIMO_DO_CORPO = 16 * 1024;
 
 export async function buildApp(
   { pilotos, equipes }: Repositorios,
-  { autenticacao, fonteDeDados, origensPermitidas = [] }: ConfiguracaoDoApp,
+  { autenticacao, fonteDeDados, campeonato, noticias, origensPermitidas = [] }: ConfiguracaoDoApp,
   options: FastifyServerOptions = {},
 ) {
   usarMensagensEmPortugues();
@@ -88,6 +94,8 @@ export async function buildApp(
     cadastrar: new CadastrarEquipe(equipes),
     atualizar: new AtualizarEquipe(equipes),
   });
+
+  await app.register(rotasPainel, { montar: new MontarPainel(campeonato, noticias) });
 
   await app.register(rotasImportacao, {
     prefix: '/importacoes',

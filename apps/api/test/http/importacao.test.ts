@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { afterEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import type { FonteDeDadosDaF1 } from '../../src/application/ports/fonte-de-dados-da-f1.js';
-import { FonteIndisponivel } from '../../src/infra/f1/fonte-jolpica-openf1.js';
+import { FonteIndisponivel } from '../../src/infra/http-externo.js';
 import {
   EquipeRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,

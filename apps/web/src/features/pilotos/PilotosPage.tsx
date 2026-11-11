@@ -122,7 +122,7 @@ export function PilotosPage() {
         {equipes.data && equipes.data.length > 0 && (
           <nav aria-label="Filtrar por equipe" className={styles.filtros}>
             <Link
-              to="/"
+              to="/pilotos"
               className={busca ? styles.filtro : styles.filtroAtivo}
               aria-current={busca ? undefined : 'page'}
             >
@@ -131,7 +131,7 @@ export function PilotosPage() {
             {equipes.data.map((equipe) => (
               <Link
                 key={equipe.id}
-                to={`/?${parametrosDe(equipe.nome)}`}
+                to={`/pilotos?${parametrosDe(equipe.nome)}`}
                 className={equipeAtiva(equipe.nome) ? styles.filtroAtivo : styles.filtro}
                 aria-current={equipeAtiva(equipe.nome) ? 'page' : undefined}
               >
@@ -173,7 +173,7 @@ export function PilotosPage() {
           titulo={busca ? 'Nenhum piloto encontrado' : 'O grid está vazio'}
           acao={
             busca ? (
-              <Link to="/" className={botao.secundario}>
+              <Link to="/pilotos" className={botao.secundario}>
                 Limpar busca
               </Link>
             ) : (
@@ -213,7 +213,10 @@ export function PilotosPage() {
           {paginas > 1 && (
             <nav aria-label="Paginação" className={styles.paginacao}>
               {pagina > 1 ? (
-                <Link to={`/?${parametrosDe(busca, pagina - 1)}`} className={botao.secundario}>
+                <Link
+                  to={`/pilotos?${parametrosDe(busca, pagina - 1)}`}
+                  className={botao.secundario}
+                >
                   ← Anterior
                 </Link>
               ) : (
@@ -223,7 +226,10 @@ export function PilotosPage() {
                 Página {pagina} de {paginas}
               </span>
               {pagina < paginas ? (
-                <Link to={`/?${parametrosDe(busca, pagina + 1)}`} className={botao.secundario}>
+                <Link
+                  to={`/pilotos?${parametrosDe(busca, pagina + 1)}`}
+                  className={botao.secundario}
+                >
                   Próxima →
                 </Link>
               ) : (

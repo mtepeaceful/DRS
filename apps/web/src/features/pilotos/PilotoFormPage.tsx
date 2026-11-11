@@ -19,8 +19,8 @@ function Conteudo({ id }: { id: string | undefined }) {
         tipo="erro"
         titulo="Não foi possível abrir o formulário"
         acao={
-          <Link to="/" className={botao.secundario}>
-            Voltar ao grid
+          <Link to="/pilotos" className={botao.secundario}>
+            Voltar aos pilotos
           </Link>
         }
       >

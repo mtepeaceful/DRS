@@ -66,7 +66,10 @@ export function EquipesPage() {
                   {equipe.nome}
                 </span>
                 <span className={styles.acoes}>
-                  <Link to={`/?busca=${encodeURIComponent(equipe.nome)}`} className={styles.link}>
+                  <Link
+                    to={`/pilotos?busca=${encodeURIComponent(equipe.nome)}`}
+                    className={styles.link}
+                  >
                     Ver pilotos <span aria-hidden="true">→</span>
                     <span className="apenas-leitor"> da {equipe.nome}</span>
                   </Link>

@@ -41,8 +41,8 @@ export function PilotoDetalhesPage() {
         tipo="erro"
         titulo={inexistente ? 'Piloto não encontrado' : 'Não foi possível carregar o piloto'}
         acao={
-          <Link to="/" className={botao.secundario}>
-            Voltar ao grid
+          <Link to="/pilotos" className={botao.secundario}>
+            Voltar aos pilotos
           </Link>
         }
       >
@@ -61,7 +61,7 @@ export function PilotoDetalhesPage() {
   function confirmarExclusao() {
     excluir.mutate(id, {
       onSuccess: async () => {
-        await navegar('/');
+        await navegar('/pilotos');
         queryClient.removeQueries({ queryKey: detalheDoPiloto(id).queryKey });
       },
     });
@@ -71,7 +71,7 @@ export function PilotoDetalhesPage() {
     <>
       <title>{`${nome} · DRS`}</title>
 
-      <Link to="/" className={styles.voltar} viewTransition>
+      <Link to="/pilotos" className={styles.voltar} viewTransition>
         ← Grid
       </Link>
 
@@ -81,7 +81,7 @@ export function PilotoDetalhesPage() {
         </span>
 
         <header className={styles.cabecalho}>
-          <Link to={`/?busca=${encodeURIComponent(equipe.nome)}`} className={styles.equipe}>
+          <Link to={`/pilotos?busca=${encodeURIComponent(equipe.nome)}`} className={styles.equipe}>
             <SimboloDaEquipe {...equipe} tamanho="grande" />
             {equipe.nome}
           </Link>

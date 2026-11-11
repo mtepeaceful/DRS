@@ -53,7 +53,7 @@ export function PilotoForm({ equipes, piloto }: Props) {
       : { nome: '', pais: '', equipeId: '', titulos: 0 },
   });
   const previa = useWatch({ control });
-  const voltarPara = piloto ? `/pilotos/${piloto.id}` : '/';
+  const voltarPara = piloto ? `/pilotos/${piloto.id}` : '/pilotos';
 
   async function enviar(dados: DadosPilotoDTO) {
     try {

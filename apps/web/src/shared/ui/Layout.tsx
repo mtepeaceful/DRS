@@ -28,7 +28,10 @@ export function Layout() {
 
           <nav aria-label="Principal" className={styles.nav}>
             <NavLink to="/" end className={classeDoLink}>
-              Grid
+              Início
+            </NavLink>
+            <NavLink to="/pilotos" className={classeDoLink}>
+              Pilotos
             </NavLink>
             <NavLink to="/equipes" className={classeDoLink}>
               Equipes

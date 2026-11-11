@@ -6,7 +6,7 @@ export interface Painel {
   noticias: Noticia[];
 }
 
-const LIMITE_DE_NOTICIAS = 8;
+const LIMITE_DE_NOTICIAS = 6;
 
 export class MontarPainel {
   constructor(

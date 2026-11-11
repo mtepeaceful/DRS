@@ -88,9 +88,12 @@ A escolha do armazenamento é feita por uma fábrica (`apps/api/src/infra/criar-
 ```bash
 pnpm test
 pnpm test:integracao
+pnpm test:e2e
 ```
 
-Os testes de integração rodam contra o banco `drs_test`, criado automaticamente pelo Docker Compose.
+- `pnpm test`: testes de unidade e de rotas da API e testes das telas do front com Testing Library, com a API simulada pelo MSW
+- `pnpm test:integracao`: repositórios contra o banco `drs_test`, criado automaticamente pelo Docker Compose
+- `pnpm test:e2e`: Playwright no Chrome, no desktop e no celular. Sobe a API em modo memória e o site já compilado, entra como administrador e cadastra, edita, busca e exclui um piloto de verdade
 
 ## Versão 1
 

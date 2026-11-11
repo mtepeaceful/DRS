@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "build:contracts": "pnpm --filter @drs/contracts build",
     "test:integracao": "pnpm build:contracts && pnpm --filter @drs/api test:integracao",
+    "test:e2e": "pnpm build:contracts && pnpm --filter @drs/web test:e2e",
     "db:up": "docker compose up -d --wait",
     "db:down": "docker compose down"
   },

@@ -23,6 +23,14 @@ describe('dadosPilotoSchema', () => {
     expect(dadosPilotoSchema.safeParse({ ...dadosValidos, numero }).success).toBe(false);
   });
 
+  it('pede o número quando ele não é enviado e explica o limite quando passa de 99', () => {
+    const faltando = dadosPilotoSchema.safeParse({ ...dadosValidos, numero: undefined });
+    const acima = dadosPilotoSchema.safeParse({ ...dadosValidos, numero: 150 });
+
+    expect(faltando.error?.issues[0]?.message).toBe('Informe o número do piloto.');
+    expect(acima.error?.issues[0]?.message).not.toBe('Informe o número do piloto.');
+  });
+
   it('recusa títulos negativos', () => {
     expect(dadosPilotoSchema.safeParse({ ...dadosValidos, titulos: -1 }).success).toBe(false);
   });

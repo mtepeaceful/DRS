@@ -2,6 +2,10 @@ import { z } from 'zod';
 import { equipeSchema } from './equipe.js';
 import { paginaSchema } from './paginacao.js';
 
+function aoFaltar(mensagem: string) {
+  return (problema: { code?: string }) => (problema.code === 'invalid_type' ? mensagem : undefined);
+}
+
 export const NUMERO_MINIMO = 0;
 export const NUMERO_MAXIMO = 99;
 
@@ -19,13 +23,17 @@ export const pilotoSchema = z.object({
 export const dadosPilotoSchema = z.object({
   nome: z.string().trim().min(1, { error: 'Informe o nome do piloto.' }).max(255),
   numero: z
-    .number({ error: 'Informe o número do piloto.' })
+    .number({ error: aoFaltar('Informe o número do piloto.') })
     .int()
     .min(NUMERO_MINIMO)
     .max(NUMERO_MAXIMO),
   nacionalidade: z.string().trim().min(1, { error: 'Informe a nacionalidade.' }).max(100),
   equipeId: z.uuid({ error: 'Selecione uma equipe.' }),
-  titulos: z.number({ error: 'Informe a quantidade de títulos.' }).int().min(0).default(0),
+  titulos: z
+    .number({ error: aoFaltar('Informe a quantidade de títulos.') })
+    .int()
+    .min(0)
+    .default(0),
 });
 
 export const listarPilotosQuerySchema = z.object({

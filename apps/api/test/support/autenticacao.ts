@@ -1,11 +1,17 @@
 import type { ConfiguracaoDoApp } from '../../src/app.js';
+import type { FonteDeDadosDaF1 } from '../../src/application/ports/fonte-de-dados-da-f1.js';
 import { gerarHashDaSenha } from '../../src/infra/seguranca/senha.js';
 import { emitirToken } from '../../src/infra/seguranca/sessao.js';
 
 export const SENHA_DE_TESTE = 'senha-de-teste-bem-longa';
 const SEGREDO_DE_TESTE = 'segredo-de-teste-com-mais-de-32-caracteres';
 
+const fonteVazia: FonteDeDadosDaF1 = {
+  buscarTemporadaAtual: async () => ({ ano: 2026, equipes: [], pilotos: [] }),
+};
+
 export const configuracaoDeTeste: ConfiguracaoDoApp = {
+  fonteDeDados: fonteVazia,
   autenticacao: { hashDaSenha: await gerarHashDaSenha(SENHA_DE_TESTE), segredo: SEGREDO_DE_TESTE },
 };
 

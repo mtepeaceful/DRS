@@ -1,4 +1,4 @@
-import { asc, count, eq, ilike, or } from 'drizzle-orm';
+import { asc, count, eq, ilike, or, sql } from 'drizzle-orm';
 import type {
   FiltroDePilotos,
   PilotoRepository,
@@ -58,6 +58,14 @@ export class PilotoRepositoryDrizzle implements PilotoRepository {
 
   async buscarPorNumero(numero: number): Promise<Piloto | null> {
     const [piloto] = await this.consulta().where(eq(pilotos.numero, numero));
+
+    return piloto ?? null;
+  }
+
+  async buscarPorNome(nome: string): Promise<Piloto | null> {
+    const [piloto] = await this.consulta()
+      .where(eq(sql`lower(${pilotos.nome})`, nome.toLowerCase()))
+      .limit(1);
 
     return piloto ?? null;
   }

@@ -71,6 +71,12 @@ export class PilotoRepositoryEmMemoria implements PilotoRepository {
     return [...this.pilotos.values()].find((p) => p.numero === numero) ?? null;
   }
 
+  async buscarPorNome(nome: string) {
+    const procurado = nome.toLowerCase();
+
+    return [...this.pilotos.values()].find((p) => p.nome.toLowerCase() === procurado) ?? null;
+  }
+
   async criar(dados: DadosPiloto) {
     const agora = new Date();
     const piloto = this.montar(randomUUID(), dados, agora, agora);

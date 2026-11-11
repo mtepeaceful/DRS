@@ -6,16 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: [
-      '**/dist',
-      '**/coverage',
-      'vendor',
-      'storage',
-      'bootstrap/cache',
-      'public',
-      'resources',
-      'vite.config.js',
-    ],
+    ignores: ['**/dist', '**/coverage'],
   },
   js.configs.recommended,
   ...tseslint.configs.strict,

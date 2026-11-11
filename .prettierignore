@@ -1,12 +1,3 @@
-vendor
-storage
-public
-bootstrap/cache
-composer.lock
 pnpm-lock.yaml
-CHANGELOG.md
-resources
-composer.json
-vite.config.js
 apps/api/drizzle
 .claude

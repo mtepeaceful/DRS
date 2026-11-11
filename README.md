@@ -2,48 +2,68 @@
 
 Sistema de gerenciamento de pilotos de Fórmula 1, com cadastro, busca e uma interface inspirada na identidade visual das corridas.
 
+O nome vem do Drag Reduction System, a asa traseira móvel que abre na reta. No logo, o flap da asa abre sempre que a aplicação busca dados.
+
 ## Funcionalidades
 
-- Cadastro, edição, visualização e exclusão de pilotos
-- Busca por nome ou equipe, com paginação
-- Busca de piloto implementada com o padrão Factory
-- Validação centralizada em Form Request
-- Interface em português, com tema escuro em vermelho e roxo
+- Grid de pilotos com busca ao vivo por piloto ou equipe, filtro por equipe e paginação
+- Cadastro e edição de pilotos com prévia do cartão em tempo real
+- Bandeira do país de cada piloto
+- Equipes com cores próprias e emblema, com cores clássicas sugeridas no cadastro
+- Validação compartilhada entre API e interface, com mensagens em português
 
 ## Tecnologias
 
-- PHP 8.2 e Laravel 12
-- Blade e Bootstrap 5.3
-- SQLite por padrão, compatível com MySQL e PostgreSQL via `.env`
+- **API:** Node.js, TypeScript, Fastify, Drizzle ORM, PostgreSQL
+- **Interface:** React, Vite, React Router, TanStack Query, React Hook Form
+- **Compartilhado:** schemas Zod usados pelos dois lados
+- **Qualidade:** Vitest, ESLint, Prettier
 
-## Estrutura
+## Arquitetura
+
+Monorepo com pnpm workspaces:
 
 ```
-app/
-  DesignPatterns/Factory/   Piloto e PilotoFactory
-  Http/Controllers/         PilotoController
-  Http/Requests/            PilotoRequest
-  Models/                   Piloto
-resources/views/pilotos/    listagem, cadastro, edição, detalhes e busca Factory
+apps/
+  api/                Fastify
+    src/domain/       entidades e erros de negócio, sem dependência de framework
+    src/application/  casos de uso e portas (interfaces de repositório)
+    src/infra/        PostgreSQL com Drizzle e rotas HTTP
+  web/                React
+    src/features/     telas organizadas por funcionalidade
+    src/shared/       componentes, cliente HTTP e utilitários
+packages/
+  contracts/          schemas Zod compartilhados entre API e interface
 ```
+
+A regra de dependência entre as camadas da API é verificada pelo ESLint: o domínio não importa a aplicação nem a infraestrutura, e a aplicação não importa a infraestrutura.
 
 ## Como rodar
 
-Pré-requisitos: PHP 8.2+ e Composer.
+Pré-requisitos: Node.js 24, pnpm (via `corepack enable`) e Docker.
 
 ```bash
 git clone https://github.com/mtepeaceful/DRS.git
 cd DRS
-composer install
+pnpm install
 cp .env.example .env
-php artisan key:generate
-touch database/database.sqlite
-php artisan migrate
-php artisan serve
+cp apps/api/.env.example apps/api/.env
+pnpm db:up
+pnpm --filter @drs/api db:migrate
+pnpm dev
 ```
 
-A aplicação fica disponível em `http://localhost:8000`.
+Use a mesma senha em `.env` e em `apps/api/.env`. A interface fica em `http://localhost:5173` e a API em `http://localhost:3333`.
 
-## Próximos passos
+## Testes
 
-A versão 2 está em planejamento, com API em Node.js e TypeScript, PostgreSQL e interface em React.
+```bash
+pnpm test
+pnpm test:integracao
+```
+
+Os testes de integração rodam contra o banco `drs_test`, criado automaticamente pelo Docker Compose.
+
+## Versão 1
+
+A primeira versão, em Laravel, está preservada na tag [`v1.0.0`](https://github.com/mtepeaceful/DRS/tree/v1.0.0).

@@ -10,12 +10,19 @@ export const listaDeEquipes = queryOptions({
   queryFn: ({ signal }) => buscar('/equipes', z.array(equipeSchema), { signal }),
 });
 
-export function useCadastrarEquipe() {
+export function useSalvarEquipe(id?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (dados: DadosEquipeDTO) =>
-      buscar('/equipes', equipeSchema, { method: 'POST', body: dados }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: chave }),
+      buscar(id ? `/equipes/${id}` : '/equipes', equipeSchema, {
+        method: id ? 'PUT' : 'POST',
+        body: dados,
+      }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: chave }),
+        queryClient.invalidateQueries({ queryKey: ['pilotos'] }),
+      ]),
   });
 }

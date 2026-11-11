@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { mensagemDoErro } from '../../shared/api/http';
-import { estiloDaEquipe } from '../../shared/lib/cor-da-equipe';
 import { Aviso } from '../../shared/ui/Aviso';
 import botao from '../../shared/ui/botao.module.css';
 import { listaDeEquipes } from '../equipes/api';
+import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
 import { listaDePilotos, PILOTOS_POR_PAGINA } from './api';
 import { CartaoDoPiloto } from './CartaoDoPiloto';
 import styles from './PilotosPage.module.css';
@@ -127,9 +127,8 @@ export function PilotosPage() {
                     ? styles.filtroAtivo
                     : styles.filtro
                 }
-                style={estiloDaEquipe(equipe.nome)}
               >
-                <span className={styles.pontoDoFiltro} aria-hidden="true" />
+                <EmblemaDaEquipe {...equipe} />
                 {equipe.nome}
               </Link>
             ))}
@@ -192,9 +191,9 @@ export function PilotosPage() {
                 <CartaoDoPiloto
                   nome={piloto.nome}
                   numero={piloto.numero}
-                  nacionalidade={piloto.nacionalidade}
+                  pais={piloto.pais}
                   titulos={piloto.titulos}
-                  equipe={piloto.equipe.nome}
+                  equipe={piloto.equipe}
                   para={`/pilotos/${piloto.id}`}
                 />
               </li>

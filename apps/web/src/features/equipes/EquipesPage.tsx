@@ -1,64 +1,30 @@
-import { type DadosEquipeDTO, dadosEquipeSchema } from '@drs/contracts';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { mensagemDoErro } from '../../shared/api/http';
-import { estiloDaEquipe } from '../../shared/lib/cor-da-equipe';
+import { estiloDaEquipe } from '../../shared/lib/equipe';
 import { Aviso } from '../../shared/ui/Aviso';
-import botao from '../../shared/ui/botao.module.css';
-import { CampoDeTexto } from '../../shared/ui/Campo';
-import { listaDeEquipes, useCadastrarEquipe } from './api';
+import { listaDeEquipes } from './api';
+import { EmblemaDaEquipe } from './EmblemaDaEquipe';
+import { EquipeForm } from './EquipeForm';
 import styles from './EquipesPage.module.css';
 
 export function EquipesPage() {
   const equipes = useQuery(listaDeEquipes);
-  const cadastrar = useCadastrarEquipe();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<DadosEquipeDTO>({
-    resolver: zodResolver(dadosEquipeSchema),
-    defaultValues: { nome: '' },
-  });
-
-  async function enviar(dados: DadosEquipeDTO) {
-    try {
-      await cadastrar.mutateAsync(dados);
-      reset();
-    } catch (erro) {
-      setError('nome', { message: mensagemDoErro(erro) }, { shouldFocus: true });
-    }
-  }
+  const [editando, setEditando] = useState<string | null>(null);
 
   return (
     <>
       <title>Equipes · DRS</title>
       <h1 className={styles.titulo}>Equipes</h1>
       <p className={styles.resumo}>
-        Cada equipe recebe uma cor própria, usada nos cartões dos seus pilotos.
+        As cores de cada equipe aparecem no emblema e nos cartões dos seus pilotos. Equipes
+        clássicas já chegam com as cores sugeridas.
       </p>
 
-      <form className={styles.formulario} onSubmit={handleSubmit(enviar)} noValidate>
-        <CampoDeTexto
-          rotulo="Nova equipe"
-          placeholder="Ex.: McLaren"
-          autoComplete="off"
-          maxLength={100}
-          erro={errors.nome?.message}
-          {...register('nome')}
-        />
-        <button
-          type="submit"
-          className={`${botao.primario} ${styles.enviar}`}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Adicionando…' : 'Adicionar'}
-        </button>
-      </form>
+      <div className={styles.novo}>
+        <EquipeForm />
+      </div>
 
       {equipes.isPending && <div className={styles.esqueleto} aria-label="Carregando equipes" />}
 
@@ -76,15 +42,37 @@ export function EquipesPage() {
 
       {equipes.data && equipes.data.length > 0 && (
         <ul className={styles.lista}>
-          {equipes.data.map((equipe) => (
-            <li key={equipe.id} className={styles.item} style={estiloDaEquipe(equipe.nome)}>
-              <span className={styles.nome}>{equipe.nome}</span>
-              <Link to={`/?busca=${encodeURIComponent(equipe.nome)}`} className={styles.link}>
-                Ver pilotos <span aria-hidden="true">→</span>
-                <span className="apenas-leitor"> da {equipe.nome}</span>
-              </Link>
-            </li>
-          ))}
+          {equipes.data.map((equipe) =>
+            editando === equipe.id ? (
+              <li key={equipe.id} className={styles.edicao}>
+                <EquipeForm
+                  equipe={equipe}
+                  aoConcluir={() => setEditando(null)}
+                  aoCancelar={() => setEditando(null)}
+                />
+              </li>
+            ) : (
+              <li key={equipe.id} className={styles.item} style={estiloDaEquipe(equipe)}>
+                <span className={styles.nome}>
+                  <EmblemaDaEquipe {...equipe} />
+                  {equipe.nome}
+                </span>
+                <span className={styles.acoes}>
+                  <Link to={`/?busca=${encodeURIComponent(equipe.nome)}`} className={styles.link}>
+                    Ver pilotos <span aria-hidden="true">→</span>
+                    <span className="apenas-leitor"> da {equipe.nome}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    className={styles.link}
+                    onClick={() => setEditando(equipe.id)}
+                  >
+                    Editar<span className="apenas-leitor"> {equipe.nome}</span>
+                  </button>
+                </span>
+              </li>
+            ),
+          )}
         </ul>
       )}
     </>

@@ -80,8 +80,8 @@
   flex: none;
   align-items: center;
   gap: 8px;
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 40px;
+  padding: 0 14px 0 8px;
   border: 1px solid var(--cor-linha);
   border-radius: 999px;
   background: var(--cor-superficie);
@@ -103,13 +103,6 @@
   composes: filtro;
   border-color: var(--cor-texto);
   color: var(--cor-texto);
-}
-
-.pontoDoFiltro {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--cor-equipe);
 }
 
 .grade {

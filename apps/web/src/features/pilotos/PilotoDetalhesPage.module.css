@@ -62,7 +62,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 6px 14px 6px 8px;
   border: 1px solid var(--cor-linha-forte);
   border-radius: 999px;
   background: rgb(8 8 10 / 0.5);
@@ -76,13 +76,6 @@
 
 .equipe:hover {
   border-color: var(--cor-equipe);
-}
-
-.ponto {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--cor-equipe);
 }
 
 .nome {
@@ -154,4 +147,10 @@
   min-height: 420px;
   border-radius: calc(var(--raio) * 1.5);
   background: var(--cor-superficie);
+}
+
+.pais {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }

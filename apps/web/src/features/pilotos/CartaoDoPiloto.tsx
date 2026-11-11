@@ -1,18 +1,22 @@
+import type { EquipeDTO } from '@drs/contracts';
 import { Link } from 'react-router';
-import { estiloDaEquipe } from '../../shared/lib/cor-da-equipe';
+import { estiloDaEquipe } from '../../shared/lib/equipe';
+import { nomeDoPais } from '../../shared/lib/paises';
+import { Bandeira } from '../../shared/ui/Bandeira';
+import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
 import styles from './CartaoDoPiloto.module.css';
 import { rotuloDeTitulos } from './titulos';
 
 interface Props {
   nome: string;
   numero: number | undefined;
-  nacionalidade: string;
+  pais: string;
   titulos: number;
-  equipe: string;
+  equipe: EquipeDTO | undefined;
   para?: string;
 }
 
-export function CartaoDoPiloto({ nome, numero, nacionalidade, titulos, equipe, para }: Props) {
+export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para }: Props) {
   const numeroValido = numero !== undefined && Number.isInteger(numero);
 
   return (
@@ -23,8 +27,8 @@ export function CartaoDoPiloto({ nome, numero, nacionalidade, titulos, equipe, p
 
       <div className={styles.corpo}>
         <p className={styles.equipe}>
-          <span className={styles.ponto} aria-hidden="true" />
-          {equipe || 'Sem equipe'}
+          {equipe && <EmblemaDaEquipe {...equipe} />}
+          {equipe?.nome ?? 'Sem equipe'}
         </p>
         <h3 className={styles.nome}>
           {para ? (
@@ -39,7 +43,10 @@ export function CartaoDoPiloto({ nome, numero, nacionalidade, titulos, equipe, p
       </div>
 
       <div className={styles.rodape}>
-        <span>{nacionalidade || 'Nacionalidade'}</span>
+        <span className={styles.pais}>
+          <Bandeira pais={pais} />
+          {pais ? nomeDoPais(pais) : 'País'}
+        </span>
         {titulos > 0 && <span className={styles.campeao}>{rotuloDeTitulos(titulos)}</span>}
       </div>
     </article>

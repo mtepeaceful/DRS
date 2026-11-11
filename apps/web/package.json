@@ -12,6 +12,7 @@
     "@drs/contracts": "workspace:*",
     "@hookform/resolvers": "^7.0.5",
     "@tanstack/react-query": "^5.107.1",
+    "country-flag-icons": "^1.6.20",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-hook-form": "^7.91.0",

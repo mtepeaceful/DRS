@@ -8,23 +8,14 @@
   color: var(--cor-texto-suave);
 }
 
-.formulario {
-  display: grid;
-  grid-template-columns: minmax(0, 420px) auto;
-  align-items: start;
-  justify-content: start;
-  gap: 12px;
+.novo {
+  max-width: 720px;
   margin: 28px 0 32px;
-}
-
-.enviar {
-  margin-top: 25px;
-  min-height: 48px;
 }
 
 .lista {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 12px;
   margin: 0;
   padding: 0;
@@ -56,7 +47,20 @@
   background: var(--cor-equipe);
 }
 
+.edicao {
+  grid-column: 1 / -1;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
 .nome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--fonte-display);
   font-size: 1.1rem;
   font-weight: 700;
@@ -64,8 +68,10 @@
 }
 
 .link {
-  justify-self: start;
   padding: 4px 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
   color: var(--cor-texto-suave);
   font-size: 0.9rem;
   font-weight: 700;
@@ -80,14 +86,4 @@
   min-height: 160px;
   border-radius: var(--raio);
   background: var(--cor-superficie);
-}
-
-@media (max-width: 520px) {
-  .formulario {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .enviar {
-    margin-top: 0;
-  }
 }

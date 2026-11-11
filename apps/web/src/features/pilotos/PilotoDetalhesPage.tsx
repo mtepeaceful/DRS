@@ -2,10 +2,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ErroDaApi, mensagemDoErro } from '../../shared/api/http';
-import { estiloDaEquipe } from '../../shared/lib/cor-da-equipe';
+import { estiloDaEquipe } from '../../shared/lib/equipe';
+import { nomeDoPais } from '../../shared/lib/paises';
 import { Aviso } from '../../shared/ui/Aviso';
+import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { Confirmacao } from '../../shared/ui/Confirmacao';
+import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
 import { detalheDoPiloto, useExcluirPiloto } from './api';
 import styles from './PilotoDetalhesPage.module.css';
 
@@ -42,7 +45,7 @@ export function PilotoDetalhesPage() {
     );
   }
 
-  const { nome, numero, nacionalidade, titulos, equipe, atualizadoEm } = piloto.data;
+  const { nome, numero, pais, titulos, equipe, atualizadoEm } = piloto.data;
 
   function fecharConfirmacao() {
     setConfirmando(false);
@@ -66,14 +69,14 @@ export function PilotoDetalhesPage() {
         ← Grid
       </Link>
 
-      <article className={styles.painel} style={estiloDaEquipe(equipe.nome)}>
+      <article className={styles.painel} style={estiloDaEquipe(equipe)}>
         <span className={styles.numero} aria-hidden="true">
           {numero}
         </span>
 
         <header className={styles.cabecalho}>
           <Link to={`/?busca=${encodeURIComponent(equipe.nome)}`} className={styles.equipe}>
-            <span className={styles.ponto} aria-hidden="true" />
+            <EmblemaDaEquipe {...equipe} />
             {equipe.nome}
           </Link>
           <h1 className={styles.nome}>{nome}</h1>
@@ -81,8 +84,11 @@ export function PilotoDetalhesPage() {
 
         <dl className={styles.dados}>
           <div className={styles.dado}>
-            <dt>Nacionalidade</dt>
-            <dd>{nacionalidade}</dd>
+            <dt>País</dt>
+            <dd className={styles.pais}>
+              <Bandeira pais={pais} />
+              {nomeDoPais(pais)}
+            </dd>
           </div>
           <div className={titulos > 0 ? styles.dadoCampeao : styles.dado}>
             <dt>Títulos mundiais</dt>

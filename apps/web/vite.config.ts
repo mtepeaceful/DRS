@@ -3,6 +3,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    assetsInlineLimit: (arquivo) => (arquivo.includes('country-flag-icons') ? false : undefined),
+  },
   server: {
     port: 5173,
     proxy: {

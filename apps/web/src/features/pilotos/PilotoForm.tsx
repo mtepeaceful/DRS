@@ -12,6 +12,7 @@ import { Link, useNavigate } from 'react-router';
 import type { z } from 'zod';
 import { ErroDaApi, mensagemDoErro } from '../../shared/api/http';
 import botao from '../../shared/ui/botao.module.css';
+import { paises } from '../../shared/lib/paises';
 import { CampoDeSelecao, CampoDeTexto } from '../../shared/ui/Campo';
 import { useSalvarPiloto } from './api';
 import { CartaoDoPiloto } from './CartaoDoPiloto';
@@ -19,7 +20,7 @@ import styles from './PilotoForm.module.css';
 
 type Entrada = z.input<typeof dadosPilotoSchema>;
 
-const campos = ['nome', 'numero', 'nacionalidade', 'equipeId', 'titulos'] as const;
+const campos = ['nome', 'numero', 'pais', 'equipeId', 'titulos'] as const;
 
 function numeroOuVazio(valor: string) {
   return valor === '' ? undefined : Number(valor);
@@ -45,11 +46,11 @@ export function PilotoForm({ equipes, piloto }: Props) {
       ? {
           nome: piloto.nome,
           numero: piloto.numero,
-          nacionalidade: piloto.nacionalidade,
+          pais: piloto.pais,
           equipeId: piloto.equipe.id,
           titulos: piloto.titulos,
         }
-      : { nome: '', nacionalidade: '', equipeId: '', titulos: 0 },
+      : { nome: '', pais: '', equipeId: '', titulos: 0 },
   });
   const previa = useWatch({ control });
   const voltarPara = piloto ? `/pilotos/${piloto.id}` : '/';
@@ -100,14 +101,14 @@ export function PilotoForm({ equipes, piloto }: Props) {
               </option>
             ))}
           </CampoDeSelecao>
-          <CampoDeTexto
-            rotulo="Nacionalidade"
-            placeholder="Ex.: Brasileiro"
-            autoComplete="off"
-            maxLength={100}
-            erro={errors.nacionalidade?.message}
-            {...register('nacionalidade')}
-          />
+          <CampoDeSelecao rotulo="País" erro={errors.pais?.message} {...register('pais')}>
+            <option value="">Selecione</option>
+            {paises.map((pais) => (
+              <option key={pais.codigo} value={pais.codigo}>
+                {pais.nome}
+              </option>
+            ))}
+          </CampoDeSelecao>
         </div>
 
         <div className={styles.linha}>
@@ -153,9 +154,9 @@ export function PilotoForm({ equipes, piloto }: Props) {
         <CartaoDoPiloto
           nome={previa.nome ?? ''}
           numero={previa.numero}
-          nacionalidade={previa.nacionalidade ?? ''}
+          pais={previa.pais ?? ''}
           titulos={Number.isInteger(previa.titulos) ? (previa.titulos ?? 0) : 0}
-          equipe={equipes.find((equipe) => equipe.id === previa.equipeId)?.nome ?? ''}
+          equipe={equipes.find((equipe) => equipe.id === previa.equipeId)}
         />
       </aside>
     </div>

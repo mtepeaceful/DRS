@@ -59,7 +59,7 @@ services:
           style-src-attr 'unsafe-inline';
           font-src https://fonts.gstatic.com;
           img-src 'self' data:;
-          connect-src 'self' https://drs-api.onrender.com;
+          connect-src 'self' https://drs-api-s9e1.onrender.com;
           frame-ancestors 'none';
           base-uri 'self';
           form-action 'self';

@@ -30,7 +30,7 @@ const app = await buildApp(
     },
     noticias: { buscarNoticias: noticiasEmCache },
     origensPermitidas: env.ORIGENS_PERMITIDAS,
-    atualizarGridSozinho: true,
+    atualizarGridSozinho: env.ATUALIZAR_GRID_SOZINHO,
   },
   { logger: { level: env.LOG_LEVEL }, trustProxy: true },
 );

@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { estiloDaEquipe } from '../../shared/lib/equipe';
 import { nomeDoPais } from '../../shared/lib/paises';
 import { Bandeira } from '../../shared/ui/Bandeira';
-import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
+import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import styles from './CartaoDoPiloto.module.css';
 import { rotuloDeTitulos } from './titulos';
 
@@ -27,7 +27,7 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para }: Pr
 
       <div className={styles.corpo}>
         <p className={styles.equipe}>
-          {equipe && <EmblemaDaEquipe {...equipe} />}
+          {equipe && <SimboloDaEquipe {...equipe} />}
           {equipe?.nome ?? 'Sem equipe'}
         </p>
         <h2 className={styles.nome}>

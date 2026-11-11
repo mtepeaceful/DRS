@@ -94,6 +94,8 @@
 }
 
 .rodape {
+  display: grid;
+  gap: 6px;
   max-width: var(--largura-maxima);
   margin: 0 auto;
   padding: 24px 20px 40px;
@@ -121,4 +123,10 @@
   .conteudo {
     padding-top: 28px;
   }
+}
+
+.aviso {
+  max-width: 70ch;
+  font-size: 0.78rem;
+  opacity: 0.8;
 }

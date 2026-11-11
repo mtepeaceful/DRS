@@ -9,7 +9,7 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { Confirmacao } from '../../shared/ui/Confirmacao';
-import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
+import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { detalheDoPiloto, useExcluirPiloto } from './api';
 import styles from './PilotoDetalhesPage.module.css';
 
@@ -82,7 +82,7 @@ export function PilotoDetalhesPage() {
 
         <header className={styles.cabecalho}>
           <Link to={`/?busca=${encodeURIComponent(equipe.nome)}`} className={styles.equipe}>
-            <EmblemaDaEquipe {...equipe} />
+            <SimboloDaEquipe {...equipe} tamanho="grande" />
             {equipe.nome}
           </Link>
           <h1 className={styles.nome}>{nome}</h1>

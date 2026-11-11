@@ -6,7 +6,7 @@ import botao from '../../shared/ui/botao.module.css';
 import { CampoDeTexto } from '../../shared/ui/Campo';
 import { useSalvarEquipe } from './api';
 import { coresSugeridas } from './cores-classicas';
-import { EmblemaDaEquipe } from './EmblemaDaEquipe';
+import { SimboloDaEquipe } from './SimboloDaEquipe';
 import styles from './EquipeForm.module.css';
 
 interface Props {
@@ -75,7 +75,7 @@ export function EquipeForm({ equipe, aoConcluir, aoCancelar }: Props) {
 
       <div className={styles.rodape}>
         <span className={styles.previa}>
-          <EmblemaDaEquipe
+          <SimboloDaEquipe
             nome={previa.nome ?? ''}
             cor={previa.cor ?? '#8a8d96'}
             corSecundaria={previa.corSecundaria ?? '#ffffff'}

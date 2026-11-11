@@ -7,7 +7,7 @@ import botao from '../../shared/ui/botao.module.css';
 import { useSessaoAtiva } from '../../shared/api/sessao';
 import { listaDeEquipes } from '../equipes/api';
 import { ImportarTemporada } from '../importacao/ImportarTemporada';
-import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
+import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { listaDePilotos, PILOTOS_POR_PAGINA } from './api';
 import { CartaoDoPiloto } from './CartaoDoPiloto';
 import styles from './PilotosPage.module.css';
@@ -135,7 +135,7 @@ export function PilotosPage() {
                 className={equipeAtiva(equipe.nome) ? styles.filtroAtivo : styles.filtro}
                 aria-current={equipeAtiva(equipe.nome) ? 'page' : undefined}
               >
-                <EmblemaDaEquipe {...equipe} />
+                <SimboloDaEquipe {...equipe} />
                 {equipe.nome}
               </Link>
             ))}

@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
+import { configuracaoDeTeste } from '../support/autenticacao.js';
 import {
   EquipeRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -8,8 +9,7 @@ import {
 const equipes = new EquipeRepositoryEmMemoria();
 const app = await buildApp(
   { equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) },
-  {},
-  { origensPermitidas: ['https://drs.onrender.com'] },
+  { ...configuracaoDeTeste, origensPermitidas: ['https://drs.onrender.com'] },
 );
 
 afterAll(() => app.close());
@@ -48,5 +48,6 @@ describe('CORS', () => {
 
     expect(resposta.statusCode).toBe(204);
     expect(resposta.headers['access-control-allow-methods']).toContain('POST');
+    expect(resposta.headers['access-control-allow-headers']).toContain('authorization');
   });
 });

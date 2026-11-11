@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { hashValido } from './infra/seguranca/senha.js';
 
 const base = z.object({
   HOST: z.string().default('0.0.0.0'),
@@ -14,6 +15,10 @@ const base = z.object({
         .filter(Boolean),
     )
     .pipe(z.array(z.url({ protocol: /^https?$/ }))),
+  ADMIN_SENHA_HASH: z.string().refine(hashValido, {
+    error: 'Gere com "pnpm --filter @drs/api gerar-credenciais".',
+  }),
+  SEGREDO_DA_SESSAO: z.string().min(32, { error: 'Use um segredo com pelo menos 32 caracteres.' }),
 });
 
 const armazenamento = z.discriminatedUnion('ARMAZENAMENTO', [

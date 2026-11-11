@@ -4,6 +4,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { EquipesPage } from './features/equipes/EquipesPage';
+import { ApenasAdministrador } from './features/sessao/ApenasAdministrador';
+import { EntrarPage } from './features/sessao/EntrarPage';
 import { PilotoDetalhesPage } from './features/pilotos/PilotoDetalhesPage';
 import { PilotoFormPage } from './features/pilotos/PilotoFormPage';
 import { PilotosPage } from './features/pilotos/PilotosPage';
@@ -19,9 +21,15 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <PilotosPage /> },
-      { path: 'pilotos/novo', element: <PilotoFormPage /> },
       { path: 'pilotos/:id', element: <PilotoDetalhesPage /> },
-      { path: 'pilotos/:id/editar', element: <PilotoFormPage /> },
+      { path: 'entrar', element: <EntrarPage /> },
+      {
+        element: <ApenasAdministrador />,
+        children: [
+          { path: 'pilotos/novo', element: <PilotoFormPage /> },
+          { path: 'pilotos/:id/editar', element: <PilotoFormPage /> },
+        ],
+      },
       { path: 'equipes', element: <EquipesPage /> },
       { path: '*', element: <NaoEncontrada /> },
     ],

@@ -1,5 +1,6 @@
 import { type ErroDTO, erroSchema } from '@drs/contracts';
 import type { z } from 'zod';
+import { encerrarSessao, tokenDaSessao } from './sessao';
 
 const BASE: string = import.meta.env.VITE_API_URL ?? '/api';
 
@@ -26,10 +27,19 @@ async function requisitar(caminho: string, { method = 'GET', body, signal }: Opc
     init.signal = signal;
   }
 
+  const headers: Record<string, string> = {};
+  const token = tokenDaSessao();
+
+  if (token) {
+    headers.authorization = `Bearer ${token}`;
+  }
+
   if (body !== undefined) {
-    init.headers = { 'content-type': 'application/json' };
+    headers['content-type'] = 'application/json';
     init.body = JSON.stringify(body);
   }
+
+  init.headers = headers;
 
   let resposta: Response;
 
@@ -44,6 +54,10 @@ async function requisitar(caminho: string, { method = 'GET', body, signal }: Opc
       codigo: 'SEM_CONEXAO',
       mensagem: 'Não foi possível conectar ao servidor. Verifique sua conexão e tente de novo.',
     });
+  }
+
+  if (resposta.status === 401 && token) {
+    encerrarSessao();
   }
 
   if (!resposta.ok) {

@@ -6,8 +6,11 @@ const env = loadEnv();
 const { repositorios, fechar } = criarRepositorios(env);
 const app = await buildApp(
   repositorios,
+  {
+    autenticacao: { hashDaSenha: env.ADMIN_SENHA_HASH, segredo: env.SEGREDO_DA_SESSAO },
+    origensPermitidas: env.ORIGENS_PERMITIDAS,
+  },
   { logger: { level: env.LOG_LEVEL }, trustProxy: true },
-  { origensPermitidas: env.ORIGENS_PERMITIDAS },
 );
 
 app.addHook('onClose', fechar);

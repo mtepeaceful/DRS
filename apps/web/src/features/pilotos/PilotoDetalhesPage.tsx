@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ErroDaApi, mensagemDoErro } from '../../shared/api/http';
+import { useSessaoAtiva } from '../../shared/api/sessao';
 import { estiloDaEquipe } from '../../shared/lib/equipe';
 import { nomeDoPais } from '../../shared/lib/paises';
 import { Aviso } from '../../shared/ui/Aviso';
@@ -21,6 +22,7 @@ export function PilotoDetalhesPage() {
   const piloto = useQuery(detalheDoPiloto(id));
   const excluir = useExcluirPiloto();
   const [confirmando, setConfirmando] = useState(false);
+  const logado = useSessaoAtiva();
 
   if (piloto.isPending) {
     return (
@@ -104,14 +106,16 @@ export function PilotoDetalhesPage() {
           <p className={styles.atualizacao}>
             Atualizado em {formatoDeData.format(new Date(atualizadoEm))}
           </p>
-          <div className={styles.acoes}>
-            <Link to={`/pilotos/${id}/editar`} className={botao.primario}>
-              Editar
-            </Link>
-            <button type="button" className={botao.perigo} onClick={() => setConfirmando(true)}>
-              Excluir
-            </button>
-          </div>
+          {logado && (
+            <div className={styles.acoes}>
+              <Link to={`/pilotos/${id}/editar`} className={botao.primario}>
+                Editar
+              </Link>
+              <button type="button" className={botao.perigo} onClick={() => setConfirmando(true)}>
+                Excluir
+              </button>
+            </div>
+          )}
         </footer>
       </article>
 

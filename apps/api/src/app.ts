@@ -1,6 +1,7 @@
 import { usarMensagensEmPortugues } from '@drs/contracts';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import Fastify from 'fastify';
 import type { FastifyServerOptions } from 'fastify';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
@@ -14,6 +15,11 @@ import { ListarPilotos } from './application/pilotos/listar-pilotos.js';
 import { ObterPiloto } from './application/pilotos/obter-piloto.js';
 import type { EquipeRepository } from './application/ports/equipe-repository.js';
 import type { PilotoRepository } from './application/ports/piloto-repository.js';
+import {
+  type ConfiguracaoDeAutenticacao,
+  exigirSessaoNasEscritas,
+  rotasDeSessao,
+} from './infra/http/autenticacao.js';
 import { rotasEquipes } from './infra/http/rotas-equipes.js';
 import { rotasPilotos } from './infra/http/rotas-pilotos.js';
 import { tratarErros } from './infra/http/tratar-erros.js';
@@ -23,18 +29,21 @@ export interface Repositorios {
   equipes: EquipeRepository;
 }
 
-export interface OpcoesDoApp {
+export interface ConfiguracaoDoApp {
+  autenticacao: ConfiguracaoDeAutenticacao;
   origensPermitidas?: string[];
 }
 
+const TAMANHO_MAXIMO_DO_CORPO = 16 * 1024;
+
 export async function buildApp(
   { pilotos, equipes }: Repositorios,
+  { autenticacao, origensPermitidas = [] }: ConfiguracaoDoApp,
   options: FastifyServerOptions = {},
-  { origensPermitidas = [] }: OpcoesDoApp = {},
 ) {
   usarMensagensEmPortugues();
 
-  const app = Fastify(options);
+  const app = Fastify({ bodyLimit: TAMANHO_MAXIMO_DO_CORPO, ...options });
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
@@ -43,9 +52,22 @@ export async function buildApp(
   await app.register(cors, {
     origin: origensPermitidas,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['content-type', 'authorization'],
   });
+  await app.register(rateLimit, {
+    max: 300,
+    timeWindow: '1 minute',
+    errorResponseBuilder: () => ({
+      statusCode: 429,
+      code: 'MUITAS_REQUISICOES',
+      message: 'Muitas requisições. Aguarde um pouco e tente de novo.',
+    }),
+  });
+  exigirSessaoNasEscritas(app, autenticacao);
 
   app.get('/health', () => ({ status: 'ok' }));
+
+  await app.register(rotasDeSessao, autenticacao);
 
   await app.register(rotasPilotos, {
     prefix: '/pilotos',

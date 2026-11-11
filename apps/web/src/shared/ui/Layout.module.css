@@ -49,8 +49,17 @@
   margin-right: auto;
 }
 
+.sessao {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .link {
   position: relative;
+  border: 0;
+  background: none;
+  cursor: pointer;
   padding: 10px 12px;
   color: var(--cor-texto-suave);
   font-weight: 700;

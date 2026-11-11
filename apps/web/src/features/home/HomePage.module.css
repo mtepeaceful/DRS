@@ -214,63 +214,24 @@
   text-align: right;
 }
 
-.podio {
+.rodapeDoCartao {
   align-self: end;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: end;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: 16px;
 }
 
-.degrau {
-  display: grid;
-  justify-items: center;
-  align-content: end;
-  gap: 8px;
-  min-width: 0;
-  padding: 14px 8px;
-  border: 1px solid var(--cor-linha);
-  border-radius: var(--raio-pequeno);
-  background: rgb(8 8 10 / 0.5);
-  text-align: center;
-}
-
-.degrau1 {
-  composes: degrau;
-  order: 2;
-  min-height: 150px;
-  border-color: var(--cor-corrida);
-}
-
-.degrau2 {
-  composes: degrau;
-  order: 1;
-  min-height: 128px;
-}
-
-.degrau3 {
-  composes: degrau;
-  order: 3;
-  min-height: 112px;
-}
-
-.lugar {
-  font-family: var(--fonte-display);
-  font-size: 1.3rem;
-  font-weight: 800;
-}
-
-.degrau1 .lugar {
-  color: var(--cor-corrida);
-}
-
-.nomeNoPodio {
-  font-size: 0.88rem;
+.linkDoCartao {
+  justify-self: start;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
   font-weight: 700;
-  overflow-wrap: anywhere;
+  text-decoration: none;
+  transition: color var(--transicao);
+}
+
+.linkDoCartao:hover,
+.linkDoCartao:focus-visible {
+  color: var(--cor-texto);
 }
 
 .secao {

@@ -4,17 +4,17 @@ import { Link } from 'react-router';
 import { mensagemDoErro } from '../../shared/api/http';
 import { Aviso } from '../../shared/ui/Aviso';
 import botao from '../../shared/ui/botao.module.css';
+import { CORES_NEUTRAS } from '../calendario/cores';
+import { Podio } from '../calendario/Podio';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { painel } from './api';
 import { ContagemRegressiva } from './ContagemRegressiva';
 import styles from './HomePage.module.css';
 import { ondeAssistir, TEMPORADA_DO_GUIA } from './onde-assistir';
-import { nomeDaEquipe, nomeDoGp, nomeDoPaisEmPortugues } from './traducoes';
+import { nomeDaEquipe, nomeDoGp, nomeDoPaisEmPortugues } from '../../shared/lib/traducoes';
 
 type Campeonato = NonNullable<PainelDTO['campeonato']>;
 type Corrida = NonNullable<Campeonato['proximaCorrida']>;
-
-const CORES_NEUTRAS = { cor: '#8a8d96', corSecundaria: '#ffffff' };
 
 const diaDaSessao = new Intl.DateTimeFormat('pt-BR', {
   weekday: 'short',
@@ -48,6 +48,9 @@ function ProximaCorrida({ corrida, total }: { corrida: Corrida; total: number })
           {corrida.circuito} · {corrida.cidade}, {nomeDoPaisEmPortugues(corrida.pais)}
         </p>
         <ContagemRegressiva ate={corrida.inicio} />
+        <Link to="/calendario" className={styles.linkDoCartao}>
+          Ver o calendário completo →
+        </Link>
       </div>
 
       <div className={styles.agenda}>
@@ -142,15 +145,12 @@ function UltimaCorrida({ corrida }: { corrida: NonNullable<Campeonato['ultimaCor
           {nomeDoGp(corrida.nome)} · {dataLonga.format(new Date(corrida.data))}
         </p>
       </header>
-      <ol className={styles.podio}>
-        {corrida.podio.map((piloto) => (
-          <li key={piloto.posicao} className={styles[`degrau${piloto.posicao}`]}>
-            <span className={styles.lugar}>{piloto.posicao}º</span>
-            <span className={styles.nomeNoPodio}>{piloto.nome}</span>
-            <SimboloDaEquipe nome={piloto.equipe} {...CORES_NEUTRAS} />
-          </li>
-        ))}
-      </ol>
+      <div className={styles.rodapeDoCartao}>
+        <Podio pilotos={corrida.podio} />
+        <Link to={`/calendario/${corrida.rodada}`} className={styles.linkDoCartao}>
+          Resultado completo →
+        </Link>
+      </div>
     </section>
   );
 }

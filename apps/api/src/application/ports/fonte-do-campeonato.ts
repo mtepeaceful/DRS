@@ -29,6 +29,7 @@ export interface PosicaoDeConstrutor {
 }
 
 export interface ResultadoDeCorrida {
+  rodada: number;
   nome: string;
   data: Date;
   podio: { posicao: number; nome: string; equipe: string }[];

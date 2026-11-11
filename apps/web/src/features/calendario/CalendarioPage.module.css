@@ -1,0 +1,230 @@
+.topo {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.titulo {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.resumo {
+  max-width: 60ch;
+  color: var(--cor-texto-suave);
+}
+
+.etapas {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etapa,
+.link {
+  display: grid;
+  grid-template-columns: 3ch 4.5rem minmax(0, 1fr) minmax(0, 17rem) 1rem;
+  align-items: center;
+  column-gap: 20px;
+  min-height: 76px;
+  padding: 14px 20px;
+}
+
+.etapa {
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.etapaProxima {
+  composes: etapa;
+  border-color: var(--cor-corrida);
+  background:
+    radial-gradient(420px 120px at 0% 0%, rgb(255 42 20 / 0.16), transparent 70%),
+    var(--cor-superficie);
+}
+
+.link {
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  text-decoration: none;
+  transition:
+    border-color var(--transicao),
+    background-color var(--transicao);
+}
+
+.link:hover,
+.link:focus-visible {
+  border-color: var(--cor-linha-forte);
+  background: var(--cor-superficie-alta);
+}
+
+.rodada {
+  font-family: var(--fonte-display);
+  font-weight: 800;
+  color: var(--cor-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.etapaProxima .rodada {
+  color: var(--cor-corrida);
+}
+
+.data {
+  display: grid;
+  line-height: 1.2;
+}
+
+.dia {
+  font-weight: 800;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.semana {
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.gp {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nomeDoGp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.local {
+  overflow: hidden;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vencedor {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.vencedor > :first-child {
+  justify-self: center;
+}
+
+.nomeDoVencedor {
+  display: grid;
+  min-width: 0;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.equipe {
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.selo {
+  justify-self: start;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--cor-corrida-fundo);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.aguardando {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+.seta {
+  color: var(--cor-texto-suave);
+  transition:
+    color var(--transicao),
+    transform var(--transicao);
+}
+
+.link:hover .seta,
+.link:focus-visible .seta {
+  color: var(--cor-texto);
+  transform: translateX(3px);
+}
+
+.esqueleto {
+  min-height: 640px;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+@media (max-width: 720px) {
+  .etapa,
+  .link {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'rodada data seta'
+      'gp gp seta'
+      'resultado resultado seta';
+    align-items: center;
+    gap: 10px 12px;
+    padding: 16px;
+  }
+
+  .rodada {
+    grid-area: rodada;
+  }
+
+  .data {
+    grid-area: data;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .data::before {
+    content: '·';
+    color: var(--cor-texto-suave);
+  }
+
+  .gp {
+    grid-area: gp;
+  }
+
+  .gp + * {
+    grid-area: resultado;
+  }
+
+  .seta {
+    grid-area: seta;
+  }
+
+  .vencedor {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .vencedor > :first-child {
+    justify-self: start;
+  }
+
+  .local {
+    white-space: normal;
+  }
+}

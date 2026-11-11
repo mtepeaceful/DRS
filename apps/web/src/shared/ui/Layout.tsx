@@ -30,6 +30,9 @@ export function Layout() {
             <NavLink to="/" end className={classeDoLink}>
               Início
             </NavLink>
+            <NavLink to="/calendario" className={classeDoLink}>
+              Calendário
+            </NavLink>
             <NavLink to="/pilotos" className={classeDoLink}>
               Pilotos
             </NavLink>

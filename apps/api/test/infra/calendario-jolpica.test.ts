@@ -60,7 +60,7 @@ const respostas: Record<string, unknown> = {
             Results: [
               linha(1, { Time: { time: '1:32:10.512' }, FastestLap: { rank: '1' } }),
               linha(2, { Time: { time: '+3.201' } }),
-              linha(3, { laps: '70', status: 'Lapped' }),
+              linha(3, { laps: '70', status: 'Lapped', Time: { time: '+12.004' } }),
               linha(4, { positionText: 'R', laps: '12', status: 'Retired', points: '0' }),
             ],
           },
@@ -109,7 +109,12 @@ describe('FonteCampeonatoJolpica · calendário', () => {
         voltaMaisRapida: true,
       }),
       expect.objectContaining({ posicao: 2, tempo: '+3.201', voltaMaisRapida: false }),
-      expect.objectContaining({ posicao: 3, classificado: true, situacao: '+1 volta' }),
+      expect.objectContaining({
+        posicao: 3,
+        classificado: true,
+        tempo: null,
+        situacao: '+1 volta',
+      }),
       expect.objectContaining({
         posicao: 4,
         classificado: false,

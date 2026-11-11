@@ -76,6 +76,7 @@ const respostas: Record<string, unknown> = {
       RaceTable: {
         Races: [
           {
+            round: '1',
             raceName: 'GP passado',
             date: '2026-03-01',
             Results: [1, 2, 3].map((posicao) => ({
@@ -120,6 +121,7 @@ describe('FonteCampeonatoJolpica', () => {
       { posicao: 1, nome: 'Lando Norris', equipe: 'McLaren', pontos: 25, vitorias: 1 },
       { posicao: 2, nome: 'Sem Posição', equipe: '', pontos: 0, vitorias: 0 },
     ]);
+    expect(campeonato.ultimaCorrida?.rodada).toBe(1);
     expect(campeonato.ultimaCorrida?.podio.map((p) => p.nome)).toEqual([
       'Piloto 1',
       'Piloto 2',

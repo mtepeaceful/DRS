@@ -3,6 +3,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
+import { CalendarioPage } from './features/calendario/CalendarioPage';
+import { ResultadoPage } from './features/calendario/ResultadoPage';
 import { EquipesPage } from './features/equipes/EquipesPage';
 import { HomePage } from './features/home/HomePage';
 import { ApenasAdministrador } from './features/sessao/ApenasAdministrador';
@@ -22,6 +24,8 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: 'calendario', element: <CalendarioPage /> },
+      { path: 'calendario/:rodada', element: <ResultadoPage /> },
       { path: 'pilotos', element: <PilotosPage /> },
       { path: 'pilotos/:id', element: <PilotoDetalhesPage /> },
       { path: 'entrar', element: <EntrarPage /> },

@@ -89,6 +89,7 @@ const ultimoResultado = z.object({
     RaceTable: z.object({
       Races: z.array(
         z.object({
+          round: z.coerce.number().int(),
           raceName: z.string(),
           date: z.iso.date(),
           Results: z.array(
@@ -153,7 +154,7 @@ function paraLinha(
     equipe: linha.Constructor.name,
     largada: linha.grid,
     voltas: linha.laps,
-    tempo: linha.Time?.time ?? null,
+    tempo: voltasAtras > 0 ? null : (linha.Time?.time ?? null),
     situacao:
       linha.status === 'Lapped' && voltasAtras > 0
         ? `+${voltasAtras} ${voltasAtras === 1 ? 'volta' : 'voltas'}`
@@ -272,6 +273,7 @@ export class FonteCampeonatoJolpica implements FonteDoCampeonato {
       })),
       ultimaCorrida: corridaAnterior
         ? {
+            rodada: corridaAnterior.round,
             nome: corridaAnterior.raceName,
             data: new Date(`${corridaAnterior.date}T00:00:00Z`),
             podio: corridaAnterior.Results.filter((r) => r.position <= 3).map((r) => ({

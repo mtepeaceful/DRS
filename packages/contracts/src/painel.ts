@@ -1,16 +1,5 @@
 import { z } from 'zod';
-
-const sessaoSchema = z.object({ nome: z.string(), inicio: z.iso.datetime() });
-
-const corridaSchema = z.object({
-  rodada: z.number().int(),
-  nome: z.string(),
-  circuito: z.string(),
-  cidade: z.string(),
-  pais: z.string(),
-  inicio: z.iso.datetime(),
-  sessoes: z.array(sessaoSchema),
-});
+import { corridaSchema } from './calendario.js';
 
 const posicaoSchema = z.object({
   posicao: z.number().int(),
@@ -30,6 +19,7 @@ export const painelSchema = z.object({
       construtores: z.array(posicaoSchema),
       ultimaCorrida: z
         .object({
+          rodada: z.number().int(),
           nome: z.string(),
           data: z.iso.datetime(),
           podio: z.array(

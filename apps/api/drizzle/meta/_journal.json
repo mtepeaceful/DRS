@@ -8,6 +8,20 @@
       "when": 1794339407714,
       "tag": "0000_cria_equipes_e_pilotos",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794370407239,
+      "tag": "0001_adiciona_cores_e_pais",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794370424153,
+      "tag": "0002_torna_cores_e_pais_obrigatorios",
+      "breakpoints": true
     }
   ]
 }

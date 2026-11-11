@@ -4,7 +4,7 @@ import { dadosPilotoSchema, listarPilotosQuerySchema } from '../src/index.js';
 const dadosValidos = {
   nome: 'Ayrton Senna',
   numero: 12,
-  nacionalidade: 'Brasileiro',
+  pais: 'BR',
   equipeId: '0b9f6f0e-6d0b-4c57-9d59-5f0a6b0f6a11',
 };
 

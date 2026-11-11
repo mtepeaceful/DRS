@@ -4,7 +4,7 @@ export interface Piloto {
   id: string;
   nome: string;
   numero: number;
-  nacionalidade: string;
+  pais: string;
   titulos: number;
   equipe: Equipe;
   criadoEm: Date;
@@ -14,7 +14,7 @@ export interface Piloto {
 export interface DadosPiloto {
   nome: string;
   numero: number;
-  nacionalidade: string;
+  pais: string;
   equipeId: string;
   titulos: number;
 }

@@ -3,9 +3,10 @@ import type {
   FiltroDePilotos,
   PilotoRepository,
 } from '../../application/ports/piloto-repository.js';
-import { EquipeNaoEncontrada, NumeroJaEmUso } from '../../domain/erros.js';
+import { EquipeInvalida, NumeroJaEmUso } from '../../domain/erros.js';
 import type { DadosPiloto, Piloto } from '../../domain/piloto.js';
 import type { Database } from './client.js';
+import { colunasDaEquipe } from './equipe-repository-drizzle.js';
 import { violouChaveEstrangeira, violouUnicidade } from './erros-postgres.js';
 import { equipes, pilotos } from './schema.js';
 
@@ -13,11 +14,11 @@ const colunas = {
   id: pilotos.id,
   nome: pilotos.nome,
   numero: pilotos.numero,
-  nacionalidade: pilotos.nacionalidade,
+  pais: pilotos.pais,
   titulos: pilotos.titulos,
   criadoEm: pilotos.criadoEm,
   atualizadoEm: pilotos.atualizadoEm,
-  equipe: { id: equipes.id, nome: equipes.nome },
+  equipe: colunasDaEquipe,
 };
 
 function escaparLike(termo: string) {
@@ -99,7 +100,7 @@ export class PilotoRepositoryDrizzle implements PilotoRepository {
       }
 
       if (violouChaveEstrangeira(erro, 'pilotos_equipe_id_equipes_id_fk')) {
-        throw new EquipeNaoEncontrada();
+        throw new EquipeInvalida();
       }
 
       throw erro;

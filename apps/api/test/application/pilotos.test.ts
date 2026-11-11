@@ -6,9 +6,10 @@ import { ExcluirPiloto } from '../../src/application/pilotos/excluir-piloto.js';
 import { ListarPilotos } from '../../src/application/pilotos/listar-pilotos.js';
 import { ObterPiloto } from '../../src/application/pilotos/obter-piloto.js';
 import type { Equipe } from '../../src/domain/equipe.js';
-import { EquipeNaoEncontrada, NumeroJaEmUso, PilotoNaoEncontrado } from '../../src/domain/erros.js';
+import { EquipeInvalida, NumeroJaEmUso, PilotoNaoEncontrado } from '../../src/domain/erros.js';
 import type { DadosPiloto } from '../../src/domain/piloto.js';
 import {
+  dadosDaEquipe,
   EquipeRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
 } from '../support/repositorios-em-memoria.js';
@@ -22,7 +23,7 @@ function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
   return {
     nome: 'Ayrton Senna',
     numero: 12,
-    nacionalidade: 'Brasileiro',
+    pais: 'BR',
     equipeId: mclaren.id,
     titulos: 3,
     ...sobrescrita,
@@ -32,8 +33,8 @@ function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
 beforeEach(async () => {
   equipes = new EquipeRepositoryEmMemoria();
   pilotos = new PilotoRepositoryEmMemoria(equipes);
-  mclaren = await equipes.criar({ nome: 'McLaren' });
-  ferrari = await equipes.criar({ nome: 'Ferrari' });
+  mclaren = await equipes.criar(dadosDaEquipe('McLaren'));
+  ferrari = await equipes.criar(dadosDaEquipe('Ferrari'));
 });
 
 describe('CadastrarPiloto', () => {
@@ -47,7 +48,7 @@ describe('CadastrarPiloto', () => {
     const cadastrar = new CadastrarPiloto(pilotos, equipes);
 
     await expect(cadastrar.executar(dados({ equipeId: randomUUID() }))).rejects.toThrow(
-      EquipeNaoEncontrada,
+      EquipeInvalida,
     );
   });
 

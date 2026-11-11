@@ -3,6 +3,7 @@ import helmet from '@fastify/helmet';
 import Fastify from 'fastify';
 import type { FastifyServerOptions } from 'fastify';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import { AtualizarEquipe } from './application/equipes/atualizar-equipe.js';
 import { CadastrarEquipe } from './application/equipes/cadastrar-equipe.js';
 import { ListarEquipes } from './application/equipes/listar-equipes.js';
 import { AtualizarPiloto } from './application/pilotos/atualizar-piloto.js';
@@ -49,6 +50,7 @@ export async function buildApp(
     prefix: '/equipes',
     listar: new ListarEquipes(equipes),
     cadastrar: new CadastrarEquipe(equipes),
+    atualizar: new AtualizarEquipe(equipes),
   });
 
   return app;

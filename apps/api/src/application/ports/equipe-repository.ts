@@ -5,4 +5,5 @@ export interface EquipeRepository {
   buscarPorId(id: string): Promise<Equipe | null>;
   buscarPorNome(nome: string): Promise<Equipe | null>;
   criar(dados: DadosEquipe): Promise<Equipe>;
+  atualizar(id: string, dados: DadosEquipe): Promise<Equipe | null>;
 }

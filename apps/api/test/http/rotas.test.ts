@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import type { Equipe } from '../../src/domain/equipe.js';
 import {
+  dadosDaEquipe,
   EquipeRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
 } from '../support/repositorios-em-memoria.js';
@@ -15,7 +16,7 @@ function corpoDoPiloto(sobrescrita: Record<string, unknown> = {}) {
   return {
     nome: 'Ayrton Senna',
     numero: 12,
-    nacionalidade: 'Brasileiro',
+    pais: 'BR',
     equipeId: mclaren.id,
     titulos: 3,
     ...sobrescrita,
@@ -34,7 +35,7 @@ async function cadastrar(sobrescrita: Record<string, unknown> = {}) {
 
 beforeEach(async () => {
   const equipes = new EquipeRepositoryEmMemoria();
-  mclaren = await equipes.criar({ nome: 'McLaren' });
+  mclaren = await equipes.criar(dadosDaEquipe('McLaren'));
   app = await buildApp({ equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) });
 });
 
@@ -106,7 +107,7 @@ describe('POST /pilotos', () => {
     });
 
     expect(resposta.statusCode).toBe(422);
-    expect(resposta.json()).toMatchObject({ codigo: 'EQUIPE_NAO_ENCONTRADA' });
+    expect(resposta.json()).toMatchObject({ codigo: 'EQUIPE_INVALIDA' });
   });
 });
 
@@ -165,7 +166,7 @@ describe('/equipes', () => {
     const criada = await app.inject({
       method: 'POST',
       url: '/equipes',
-      payload: { nome: 'Ferrari' },
+      payload: dadosDaEquipe('Ferrari'),
     });
     const lista = await app.inject({ method: 'GET', url: '/equipes' });
 
@@ -180,10 +181,44 @@ describe('/equipes', () => {
     const resposta = await app.inject({
       method: 'POST',
       url: '/equipes',
-      payload: { nome: 'mclaren' },
+      payload: dadosDaEquipe('mclaren'),
     });
 
     expect(resposta.statusCode).toBe(409);
+  });
+});
+
+describe('PUT /equipes/:id', () => {
+  it('atualiza as cores e normaliza para minúsculas', async () => {
+    const resposta = await app.inject({
+      method: 'PUT',
+      url: `/equipes/${mclaren.id}`,
+      payload: { nome: 'McLaren', cor: '#FF8000', corSecundaria: '#000000' },
+    });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(resposta.json()).toMatchObject({ cor: '#ff8000', corSecundaria: '#000000' });
+  });
+
+  it('recusa uma cor fora do formato', async () => {
+    const resposta = await app.inject({
+      method: 'PUT',
+      url: `/equipes/${mclaren.id}`,
+      payload: { nome: 'McLaren', cor: 'laranja', corSecundaria: '#000000' },
+    });
+
+    expect(resposta.statusCode).toBe(400);
+    expect(resposta.json().campos).toHaveProperty('cor');
+  });
+
+  it('responde 404 para uma equipe que não existe', async () => {
+    const resposta = await app.inject({
+      method: 'PUT',
+      url: `/equipes/${randomUUID()}`,
+      payload: dadosDaEquipe('Lotus'),
+    });
+
+    expect(resposta.statusCode).toBe(404);
   });
 });
 

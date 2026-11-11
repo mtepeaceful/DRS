@@ -13,7 +13,7 @@ export const pilotoSchema = z.object({
   id: z.uuid(),
   nome: z.string(),
   numero: z.number().int(),
-  nacionalidade: z.string(),
+  pais: z.string(),
   titulos: z.number().int(),
   equipe: equipeSchema,
   criadoEm: z.iso.datetime(),
@@ -27,7 +27,7 @@ export const dadosPilotoSchema = z.object({
     .int()
     .min(NUMERO_MINIMO)
     .max(NUMERO_MAXIMO),
-  nacionalidade: z.string().trim().min(1, { error: 'Informe a nacionalidade.' }).max(100),
+  pais: z.string().regex(/^[A-Z]{2}$/, { error: 'Selecione um país.' }),
   equipeId: z.uuid({ error: 'Selecione uma equipe.' }),
   titulos: z
     .number({ error: aoFaltar('Informe a quantidade de títulos.') })

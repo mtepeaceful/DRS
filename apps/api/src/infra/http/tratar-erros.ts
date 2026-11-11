@@ -5,7 +5,8 @@ import { type CodigoDeErro, ErroDeDominio } from '../../domain/erros.js';
 
 const statusPorCodigo: Record<CodigoDeErro, number> = {
   PILOTO_NAO_ENCONTRADO: 404,
-  EQUIPE_NAO_ENCONTRADA: 422,
+  EQUIPE_NAO_ENCONTRADA: 404,
+  EQUIPE_INVALIDA: 422,
   NUMERO_JA_EM_USO: 409,
   EQUIPE_JA_EXISTE: 409,
 };

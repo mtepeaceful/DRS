@@ -1,5 +1,9 @@
 export type CodigoDeErro =
-  'PILOTO_NAO_ENCONTRADO' | 'EQUIPE_NAO_ENCONTRADA' | 'NUMERO_JA_EM_USO' | 'EQUIPE_JA_EXISTE';
+  | 'PILOTO_NAO_ENCONTRADO'
+  | 'EQUIPE_NAO_ENCONTRADA'
+  | 'EQUIPE_INVALIDA'
+  | 'NUMERO_JA_EM_USO'
+  | 'EQUIPE_JA_EXISTE';
 
 export abstract class ErroDeDominio extends Error {
   abstract readonly codigo: CodigoDeErro;
@@ -23,6 +27,14 @@ export class EquipeNaoEncontrada extends ErroDeDominio {
 
   constructor() {
     super('Equipe não encontrada.');
+  }
+}
+
+export class EquipeInvalida extends ErroDeDominio {
+  readonly codigo = 'EQUIPE_INVALIDA';
+
+  constructor() {
+    super('A equipe informada não existe.');
   }
 }
 

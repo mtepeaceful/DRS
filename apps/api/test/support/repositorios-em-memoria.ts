@@ -7,6 +7,10 @@ import type {
 import type { DadosEquipe, Equipe } from '../../src/domain/equipe.js';
 import type { DadosPiloto, Piloto } from '../../src/domain/piloto.js';
 
+export function dadosDaEquipe(nome: string): DadosEquipe {
+  return { nome, cor: '#dc0000', corSecundaria: '#ffffff' };
+}
+
 export class EquipeRepositoryEmMemoria implements EquipeRepository {
   readonly equipes = new Map<string, Equipe>();
 
@@ -25,8 +29,19 @@ export class EquipeRepositoryEmMemoria implements EquipeRepository {
   }
 
   async criar(dados: DadosEquipe) {
-    const equipe = { id: randomUUID(), nome: dados.nome };
+    const equipe = { id: randomUUID(), ...dados };
     this.equipes.set(equipe.id, equipe);
+
+    return equipe;
+  }
+
+  async atualizar(id: string, dados: DadosEquipe) {
+    if (!this.equipes.has(id)) {
+      return null;
+    }
+
+    const equipe = { id, ...dados };
+    this.equipes.set(id, equipe);
 
     return equipe;
   }
@@ -92,8 +107,8 @@ export class PilotoRepositoryEmMemoria implements PilotoRepository {
       throw new Error(`Equipe ${dados.equipeId} não existe no repositório em memória`);
     }
 
-    const { nome, numero, nacionalidade, titulos } = dados;
+    const { nome, numero, pais, titulos } = dados;
 
-    return { id, nome, numero, nacionalidade, titulos, equipe, criadoEm, atualizadoEm };
+    return { id, nome, numero, pais, titulos, equipe, criadoEm, atualizadoEm };
   }
 }

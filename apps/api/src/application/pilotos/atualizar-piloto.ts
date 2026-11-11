@@ -1,4 +1,4 @@
-import { EquipeNaoEncontrada, NumeroJaEmUso, PilotoNaoEncontrado } from '../../domain/erros.js';
+import { EquipeInvalida, NumeroJaEmUso, PilotoNaoEncontrado } from '../../domain/erros.js';
 import type { DadosPiloto, Piloto } from '../../domain/piloto.js';
 import type { EquipeRepository } from '../ports/equipe-repository.js';
 import type { PilotoRepository } from '../ports/piloto-repository.js';
@@ -11,7 +11,7 @@ export class AtualizarPiloto {
 
   async executar(id: string, dados: DadosPiloto): Promise<Piloto> {
     if (!(await this.equipes.buscarPorId(dados.equipeId))) {
-      throw new EquipeNaoEncontrada();
+      throw new EquipeInvalida();
     }
 
     const donoDoNumero = await this.pilotos.buscarPorNumero(dados.numero);

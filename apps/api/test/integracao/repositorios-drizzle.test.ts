@@ -2,11 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest';
 import type { Equipe } from '../../src/domain/equipe.js';
-import { EquipeJaExiste, EquipeNaoEncontrada, NumeroJaEmUso } from '../../src/domain/erros.js';
+import { EquipeJaExiste, EquipeInvalida, NumeroJaEmUso } from '../../src/domain/erros.js';
 import type { DadosPiloto } from '../../src/domain/piloto.js';
 import { conectar } from '../../src/infra/database/client.js';
 import { EquipeRepositoryDrizzle } from '../../src/infra/database/equipe-repository-drizzle.js';
 import { PilotoRepositoryDrizzle } from '../../src/infra/database/piloto-repository-drizzle.js';
+import { dadosDaEquipe } from '../support/repositorios-em-memoria.js';
 
 const { db, fechar } = conectar(inject('databaseUrl'));
 const equipes = new EquipeRepositoryDrizzle(db);
@@ -17,7 +18,7 @@ function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
   return {
     nome: 'Ayrton Senna',
     numero: 12,
-    nacionalidade: 'Brasileiro',
+    pais: 'BR',
     equipeId: mclaren.id,
     titulos: 3,
     ...sobrescrita,
@@ -26,7 +27,7 @@ function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
 
 beforeEach(async () => {
   await db.execute(sql`truncate table pilotos, equipes`);
-  mclaren = await equipes.criar({ nome: 'McLaren' });
+  mclaren = await equipes.criar(dadosDaEquipe('McLaren'));
 });
 
 afterAll(() => fechar());
@@ -37,7 +38,17 @@ describe('EquipeRepositoryDrizzle', () => {
   });
 
   it('converte o nome repetido em EquipeJaExiste', async () => {
-    await expect(equipes.criar({ nome: 'mclaren' })).rejects.toThrow(EquipeJaExiste);
+    await expect(equipes.criar(dadosDaEquipe('mclaren'))).rejects.toThrow(EquipeJaExiste);
+  });
+
+  it('atualiza as cores da equipe', async () => {
+    const atualizada = await equipes.atualizar(mclaren.id, {
+      nome: 'McLaren',
+      cor: '#ff8000',
+      corSecundaria: '#000000',
+    });
+
+    expect(atualizada).toEqual({ ...mclaren, cor: '#ff8000', corSecundaria: '#000000' });
   });
 });
 
@@ -55,14 +66,12 @@ describe('PilotoRepositoryDrizzle', () => {
     await expect(pilotos.criar(dados({ nome: 'Lando Norris' }))).rejects.toThrow(NumeroJaEmUso);
   });
 
-  it('converte a equipe inexistente em EquipeNaoEncontrada', async () => {
-    await expect(pilotos.criar(dados({ equipeId: randomUUID() }))).rejects.toThrow(
-      EquipeNaoEncontrada,
-    );
+  it('converte a equipe inexistente em EquipeInvalida', async () => {
+    await expect(pilotos.criar(dados({ equipeId: randomUUID() }))).rejects.toThrow(EquipeInvalida);
   });
 
   it('pagina e busca pelo nome da equipe', async () => {
-    const ferrari = await equipes.criar({ nome: 'Ferrari' });
+    const ferrari = await equipes.criar(dadosDaEquipe('Ferrari'));
     await pilotos.criar(dados());
     await pilotos.criar(dados({ nome: 'Alain Prost', numero: 2 }));
     await pilotos.criar(dados({ nome: 'Charles Leclerc', numero: 16, equipeId: ferrari.id }));

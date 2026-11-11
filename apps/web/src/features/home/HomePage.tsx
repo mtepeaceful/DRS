@@ -9,7 +9,7 @@ import { painel } from './api';
 import { ContagemRegressiva } from './ContagemRegressiva';
 import styles from './HomePage.module.css';
 import { ondeAssistir, TEMPORADA_DO_GUIA } from './onde-assistir';
-import { nomeDoGp, nomeDoPaisEmPortugues } from './traducoes';
+import { nomeDaEquipe, nomeDoGp, nomeDoPaisEmPortugues } from './traducoes';
 
 type Campeonato = NonNullable<PainelDTO['campeonato']>;
 type Corrida = NonNullable<Campeonato['proximaCorrida']>;
@@ -119,7 +119,7 @@ function Construtores({ campeonato }: { campeonato: Campeonato }) {
           <li key={equipe.nome} className={styles.linha}>
             <span className={styles.posicao}>{equipe.posicao}</span>
             <SimboloDaEquipe nome={equipe.nome} {...CORES_NEUTRAS} />
-            <span className={styles.nome}>{equipe.nome}</span>
+            <span className={styles.nome}>{nomeDaEquipe(equipe.nome)}</span>
             <span className={styles.pontos}>
               {equipe.pontos}
               <span className="apenas-leitor"> pontos</span>

@@ -57,32 +57,7 @@
     <div class="form-container">
         <form action="{{ route('pilotos.store') }}" method="post">
             @csrf
-            <div class="mb-3">
-                <label class="form-label">Nome Completo</label>
-                <input type="text" name="nome" class="form-control" placeholder="Ex: Lewis Hamilton" required>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Equipe</label>
-                    <input type="text" name="equipe" class="form-control" placeholder="Ex: Mercedes" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Nacionalidade</label>
-                    <input type="text" name="nacionalidade" class="form-control" placeholder="Ex: Britânico" required>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Número</label>
-                    <input type="number" name="numero" class="form-control" placeholder="44" required>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <label class="form-label">Títulos Mundiais</label>
-                    <input type="number" name="titulos" class="form-control" value="0" min="0">
-                </div>
-            </div>
+            @include('pilotos.partials.campos', ['piloto' => null])
 
             <div class="d-grid shadow-sm">
                 <button type="submit" class="btn btn-primary btn-salvar">

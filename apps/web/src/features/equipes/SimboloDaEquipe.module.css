@@ -1,0 +1,30 @@
+.base {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+
+.pequeno {
+  composes: base;
+  height: 28px;
+}
+
+.grande {
+  composes: base;
+  height: 56px;
+}
+
+.logo {
+  display: block;
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
+.pequeno .logo {
+  max-width: 96px;
+}
+
+.grande .logo {
+  max-width: 200px;
+}

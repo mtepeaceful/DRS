@@ -1,0 +1,49 @@
+export interface Sessao {
+  nome: string;
+  inicio: Date;
+}
+
+export interface Corrida {
+  rodada: number;
+  nome: string;
+  circuito: string;
+  cidade: string;
+  pais: string;
+  inicio: Date;
+  sessoes: Sessao[];
+}
+
+export interface PosicaoDePiloto {
+  posicao: number;
+  nome: string;
+  equipe: string;
+  pontos: number;
+  vitorias: number;
+}
+
+export interface PosicaoDeConstrutor {
+  posicao: number;
+  nome: string;
+  pontos: number;
+  vitorias: number;
+}
+
+export interface ResultadoDeCorrida {
+  nome: string;
+  data: Date;
+  podio: { posicao: number; nome: string; equipe: string }[];
+}
+
+export interface Campeonato {
+  ano: number;
+  totalDeRodadas: number;
+  rodadasDisputadas: number;
+  proximaCorrida: Corrida | null;
+  pilotos: PosicaoDePiloto[];
+  construtores: PosicaoDeConstrutor[];
+  ultimaCorrida: ResultadoDeCorrida | null;
+}
+
+export interface FonteDoCampeonato {
+  buscarCampeonato(agora: Date): Promise<Campeonato>;
+}

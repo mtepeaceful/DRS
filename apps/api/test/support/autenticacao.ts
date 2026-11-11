@@ -12,6 +12,18 @@ const fonteVazia: FonteDeDadosDaF1 = {
 
 export const configuracaoDeTeste: ConfiguracaoDoApp = {
   fonteDeDados: fonteVazia,
+  campeonato: {
+    buscarCampeonato: async () => ({
+      ano: 2026,
+      totalDeRodadas: 0,
+      rodadasDisputadas: 0,
+      proximaCorrida: null,
+      pilotos: [],
+      construtores: [],
+      ultimaCorrida: null,
+    }),
+  },
+  noticias: { buscarNoticias: async () => [] },
   autenticacao: { hashDaSenha: await gerarHashDaSenha(SENHA_DE_TESTE), segredo: SEGREDO_DE_TESTE },
 };
 

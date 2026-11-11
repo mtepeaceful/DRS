@@ -28,7 +28,10 @@ export function Layout() {
 
           <nav aria-label="Principal" className={styles.nav}>
             <NavLink to="/" end className={classeDoLink}>
-              Grid
+              Início
+            </NavLink>
+            <NavLink to="/pilotos" className={classeDoLink}>
+              Pilotos
             </NavLink>
             <NavLink to="/equipes" className={classeDoLink}>
               Equipes
@@ -56,7 +59,13 @@ export function Layout() {
         <Outlet />
       </main>
 
-      <footer className={styles.rodape}>DRS · gerenciamento de pilotos de Fórmula 1</footer>
+      <footer className={styles.rodape}>
+        <p>DRS · gerenciamento de pilotos de Fórmula 1</p>
+        <p className={styles.aviso}>
+          Projeto pessoal, sem fins lucrativos e sem afiliação com a Fórmula 1, a FIA ou as equipes.
+          Nomes, marcas e logos pertencem aos seus donos. Dados da OpenF1 e da Jolpica.
+        </p>
+      </footer>
       <ScrollRestoration />
     </>
   );

@@ -10,7 +10,7 @@ export function NaoEncontrada() {
         titulo="Essa página saiu da pista"
         acao={
           <Link to="/" className={botao.primario}>
-            Voltar ao grid
+            Voltar ao início
           </Link>
         }
       >

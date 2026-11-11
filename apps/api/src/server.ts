@@ -1,15 +1,25 @@
 import { buildApp } from './app.js';
 import { loadEnv } from './env.js';
 import { criarRepositorios } from './infra/criar-repositorios.js';
+import { comCache } from './infra/cache/com-cache.js';
+import { FonteCampeonatoJolpica } from './infra/f1/fonte-campeonato-jolpica.js';
 import { FonteJolpicaOpenF1 } from './infra/f1/fonte-jolpica-openf1.js';
+import { FonteRssMotorsport } from './infra/noticias/fonte-rss-motorsport.js';
 
 const env = loadEnv();
+const MINUTO = 60_000;
+const campeonato = new FonteCampeonatoJolpica();
+const noticias = new FonteRssMotorsport();
+const campeonatoEmCache = comCache(() => campeonato.buscarCampeonato(new Date()), 30 * MINUTO);
+const noticiasEmCache = comCache(() => noticias.buscarNoticias(), 15 * MINUTO);
 const { repositorios, fechar } = criarRepositorios(env);
 const app = await buildApp(
   repositorios,
   {
     autenticacao: { hashDaSenha: env.ADMIN_SENHA_HASH, segredo: env.SEGREDO_DA_SESSAO },
     fonteDeDados: new FonteJolpicaOpenF1(),
+    campeonato: { buscarCampeonato: campeonatoEmCache },
+    noticias: { buscarNoticias: noticiasEmCache },
     origensPermitidas: env.ORIGENS_PERMITIDAS,
   },
   { logger: { level: env.LOG_LEVEL }, trustProxy: true },

@@ -6,6 +6,7 @@ import type {
   Temporada,
 } from '../../application/ports/fonte-de-dados-da-f1.js';
 import type { DadosEquipe } from '../../domain/equipe.js';
+import { buscarJson } from '../http-externo.js';
 import { paisDaNacionalidade } from './nacionalidades.js';
 
 const JOLPICA = 'https://api.jolpi.ca/ergast/f1';
@@ -13,10 +14,6 @@ const OPENF1 = 'https://api.openf1.org/v1';
 const TEMPORADAS_PARA_CONTAR_TITULOS = 30;
 const CONSULTAS_POR_LOTE = 2;
 const PAUSA_ENTRE_LOTES_EM_MS = 1100;
-const TEMPO_LIMITE_EM_MS = 15_000;
-const TENTATIVAS_EXTRAS = 3;
-const ESPERA_MAXIMA_EM_S = 10;
-const STATUS_TEMPORARIOS = new Set([429, 502, 503, 504]);
 
 const pilotosOpenF1 = z.array(
   z.object({
@@ -56,45 +53,6 @@ const campeaoJolpica = z.object({
     }),
   }),
 });
-
-export class FonteIndisponivel extends Error {
-  constructor(url: string, causa: unknown) {
-    super(`Não foi possível obter os dados de ${new URL(url).host}.`, { cause: causa });
-    this.name = 'FonteIndisponivel';
-  }
-}
-
-function esperaAntesDeTentarDeNovo(resposta: Response, tentativa: number) {
-  const pedida = Number(resposta.headers.get('retry-after'));
-
-  return Number.isFinite(pedida) && pedida > 0
-    ? Math.min(pedida, ESPERA_MAXIMA_EM_S) * 1000
-    : 1000 * 2 ** tentativa;
-}
-
-async function buscarJson<Schema extends z.ZodType>(url: string, schema: Schema) {
-  try {
-    for (let tentativa = 0; ; tentativa++) {
-      const resposta = await fetch(url, {
-        headers: { accept: 'application/json', 'user-agent': 'DRS (github.com/mtepeaceful/DRS)' },
-        signal: AbortSignal.timeout(TEMPO_LIMITE_EM_MS),
-      });
-
-      if (STATUS_TEMPORARIOS.has(resposta.status) && tentativa < TENTATIVAS_EXTRAS) {
-        await esperar(esperaAntesDeTentarDeNovo(resposta, tentativa));
-        continue;
-      }
-
-      if (!resposta.ok) {
-        throw new Error(`HTTP ${resposta.status}`);
-      }
-
-      return schema.parse(await resposta.json()) as z.output<Schema>;
-    }
-  } catch (erro) {
-    throw new FonteIndisponivel(url, erro);
-  }
-}
 
 function corDeContraste(hex: string) {
   const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));

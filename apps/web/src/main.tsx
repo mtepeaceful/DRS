@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { EquipesPage } from './features/equipes/EquipesPage';
+import { HomePage } from './features/home/HomePage';
 import { ApenasAdministrador } from './features/sessao/ApenasAdministrador';
 import { EntrarPage } from './features/sessao/EntrarPage';
 import { PilotoDetalhesPage } from './features/pilotos/PilotoDetalhesPage';
@@ -20,7 +21,8 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { index: true, element: <PilotosPage /> },
+      { index: true, element: <HomePage /> },
+      { path: 'pilotos', element: <PilotosPage /> },
       { path: 'pilotos/:id', element: <PilotoDetalhesPage /> },
       { path: 'entrar', element: <EntrarPage /> },
       {

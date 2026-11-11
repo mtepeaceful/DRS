@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { FonteIndisponivel, FonteJolpicaOpenF1 } from '../../src/infra/f1/fonte-jolpica-openf1.js';
+import { FonteJolpicaOpenF1 } from '../../src/infra/f1/fonte-jolpica-openf1.js';
+import { FonteIndisponivel } from '../../src/infra/http-externo.js';
 
 vi.mock('node:timers/promises', () => ({ setTimeout: async () => undefined }));
 

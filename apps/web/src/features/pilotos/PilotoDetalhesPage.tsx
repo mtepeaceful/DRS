@@ -9,7 +9,7 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { Confirmacao } from '../../shared/ui/Confirmacao';
-import { EmblemaDaEquipe } from '../equipes/EmblemaDaEquipe';
+import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { detalheDoPiloto, useExcluirPiloto } from './api';
 import styles from './PilotoDetalhesPage.module.css';
 
@@ -41,8 +41,8 @@ export function PilotoDetalhesPage() {
         tipo="erro"
         titulo={inexistente ? 'Piloto não encontrado' : 'Não foi possível carregar o piloto'}
         acao={
-          <Link to="/" className={botao.secundario}>
-            Voltar ao grid
+          <Link to="/pilotos" className={botao.secundario}>
+            Voltar aos pilotos
           </Link>
         }
       >
@@ -61,7 +61,7 @@ export function PilotoDetalhesPage() {
   function confirmarExclusao() {
     excluir.mutate(id, {
       onSuccess: async () => {
-        await navegar('/');
+        await navegar('/pilotos');
         queryClient.removeQueries({ queryKey: detalheDoPiloto(id).queryKey });
       },
     });
@@ -71,7 +71,7 @@ export function PilotoDetalhesPage() {
     <>
       <title>{`${nome} · DRS`}</title>
 
-      <Link to="/" className={styles.voltar} viewTransition>
+      <Link to="/pilotos" className={styles.voltar} viewTransition>
         ← Grid
       </Link>
 
@@ -81,8 +81,8 @@ export function PilotoDetalhesPage() {
         </span>
 
         <header className={styles.cabecalho}>
-          <Link to={`/?busca=${encodeURIComponent(equipe.nome)}`} className={styles.equipe}>
-            <EmblemaDaEquipe {...equipe} />
+          <Link to={`/pilotos?busca=${encodeURIComponent(equipe.nome)}`} className={styles.equipe}>
+            <SimboloDaEquipe {...equipe} tamanho="grande" />
             {equipe.nome}
           </Link>
           <h1 className={styles.nome}>{nome}</h1>

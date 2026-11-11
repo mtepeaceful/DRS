@@ -86,3 +86,7 @@ Os testes de integração rodam contra o banco `drs_test`, criado automaticament
 ## Versão 1
 
 A primeira versão, em Laravel, está preservada na tag [`v1.0.0`](https://github.com/mtepeaceful/DRS/tree/v1.0.0).
+
+## Aviso
+
+Projeto pessoal, sem fins lucrativos e sem afiliação com a Fórmula 1, a FIA ou as equipes. Nomes, marcas e logos pertencem aos seus respectivos donos e são usados apenas para identificação. Dados da temporada fornecidos pela [OpenF1](https://openf1.org) e pela [Jolpica](https://github.com/jolpica/jolpica-f1).

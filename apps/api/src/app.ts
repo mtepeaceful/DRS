@@ -1,3 +1,4 @@
+import { usarMensagensEmPortugues } from '@drs/contracts';
 import helmet from '@fastify/helmet';
 import Fastify from 'fastify';
 import type { FastifyServerOptions } from 'fastify';
@@ -24,6 +25,8 @@ export async function buildApp(
   { pilotos, equipes }: Repositorios,
   options: FastifyServerOptions = {},
 ) {
+  usarMensagensEmPortugues();
+
   const app = Fastify(options);
 
   app.setValidatorCompiler(validatorCompiler);

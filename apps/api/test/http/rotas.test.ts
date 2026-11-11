@@ -75,6 +75,16 @@ describe('POST /pilotos', () => {
     });
   });
 
+  it('descreve os erros de validação em português', async () => {
+    const resposta = await app.inject({
+      method: 'POST',
+      url: '/pilotos',
+      payload: corpoDoPiloto({ numero: 150 }),
+    });
+
+    expect(resposta.json().campos.numero[0]).toMatch(/grande demais/i);
+  });
+
   it('responde 409 quando o número já está em uso', async () => {
     await cadastrar();
 

@@ -43,34 +43,6 @@
   text-decoration: none;
 }
 
-.asa {
-  display: grid;
-  gap: 4px;
-  width: 26px;
-}
-
-.flap,
-.plano {
-  display: block;
-  height: 5px;
-  border-radius: 2px;
-}
-
-.flap {
-  background: var(--cor-corrida);
-  transform-origin: left center;
-  transition: transform 220ms ease;
-}
-
-.plano {
-  background: var(--cor-texto);
-}
-
-.marca:hover .flap,
-.marca:focus-visible .flap {
-  transform: rotate(-16deg) translateY(-2px);
-}
-
 .nav {
   display: flex;
   gap: 4px;

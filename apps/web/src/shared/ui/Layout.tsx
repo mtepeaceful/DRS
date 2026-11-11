@@ -1,4 +1,6 @@
+import { useIsFetching } from '@tanstack/react-query';
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router';
+import { AsaTraseira } from './AsaTraseira';
 import botao from './botao.module.css';
 import styles from './Layout.module.css';
 
@@ -7,6 +9,8 @@ function classeDoLink({ isActive }: { isActive: boolean }) {
 }
 
 export function Layout() {
+  const buscando = useIsFetching() > 0;
+
   return (
     <>
       <a href="#conteudo" className={styles.pular}>
@@ -16,10 +20,7 @@ export function Layout() {
       <header className={styles.cabecalho}>
         <div className={styles.barra}>
           <Link to="/" className={styles.marca} aria-label="DRS, página inicial">
-            <span className={styles.asa} aria-hidden="true">
-              <span className={styles.flap} />
-              <span className={styles.plano} />
-            </span>
+            <AsaTraseira aberta={buscando} />
             DRS
           </Link>
 

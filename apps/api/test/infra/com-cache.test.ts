@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { comCache } from '../../src/infra/cache/com-cache.js';
+import { comCache, comCachePorChave } from '../../src/infra/cache/com-cache.js';
 
 describe('comCache', () => {
   it('reaproveita o valor enquanto ele é válido', async () => {
@@ -55,5 +55,18 @@ describe('comCache', () => {
     await Promise.all([emCache(), emCache(), emCache()]);
 
     expect(buscar).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('comCachePorChave', () => {
+  it('guarda um valor separado para cada chave', async () => {
+    const buscar = vi.fn(async (rodada: number) => `rodada ${rodada}`);
+    const emCache = comCachePorChave(buscar, 1000);
+
+    await expect(emCache(1)).resolves.toBe('rodada 1');
+    await expect(emCache(2)).resolves.toBe('rodada 2');
+    await emCache(1);
+
+    expect(buscar).toHaveBeenCalledTimes(2);
   });
 });

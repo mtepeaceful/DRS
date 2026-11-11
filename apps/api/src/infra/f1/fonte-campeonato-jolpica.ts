@@ -2,7 +2,10 @@ import { z } from 'zod';
 import type {
   Campeonato,
   Corrida,
+  Etapa,
   FonteDoCampeonato,
+  LinhaDoResultado,
+  ResultadoDaEtapa,
   Sessao,
 } from '../../application/ports/fonte-do-campeonato.js';
 import { buscarJson } from '../http-externo.js';
@@ -101,6 +104,65 @@ const ultimoResultado = z.object({
   }),
 });
 
+const linhaDoResultado = z.object({
+  number: z.coerce.number().int(),
+  position: z.coerce.number().int(),
+  positionText: z.string(),
+  points: z.coerce.number(),
+  grid: z.coerce.number().int(),
+  laps: z.coerce.number().int(),
+  status: z.string(),
+  Time: z.object({ time: z.string() }).optional(),
+  FastestLap: z.object({ rank: z.coerce.number().int() }).optional(),
+  Driver: nomeDoPiloto,
+  Constructor: z.object({ name: z.string() }),
+});
+
+const resultadosDaTemporada = z.object({
+  MRData: z.object({
+    RaceTable: z.object({
+      Races: z.array(
+        z.object({ round: z.coerce.number().int(), Results: z.array(linhaDoResultado) }),
+      ),
+    }),
+  }),
+});
+
+const SITUACOES: Record<string, string> = {
+  Finished: 'Completou',
+  Lapped: 'Retardatário',
+  Retired: 'Abandonou',
+  'Did not start': 'Não largou',
+  'Did not finish': 'Abandonou',
+  Disqualified: 'Desclassificado',
+  Withdrew: 'Retirou-se',
+};
+
+function paraLinha(
+  linha: z.infer<typeof linhaDoResultado>,
+  voltasDoVencedor: number,
+): LinhaDoResultado {
+  const voltasAtras = voltasDoVencedor - linha.laps;
+  const classificado = /^\d+$/.test(linha.positionText);
+
+  return {
+    posicao: linha.position,
+    classificado,
+    nome: nome(linha.Driver),
+    numero: linha.number,
+    equipe: linha.Constructor.name,
+    largada: linha.grid,
+    voltas: linha.laps,
+    tempo: linha.Time?.time ?? null,
+    situacao:
+      linha.status === 'Lapped' && voltasAtras > 0
+        ? `+${voltasAtras} ${voltasAtras === 1 ? 'volta' : 'voltas'}`
+        : (SITUACOES[linha.status] ?? linha.status),
+    pontos: linha.points,
+    voltaMaisRapida: linha.FastestLap?.rank === 1,
+  };
+}
+
 function instante(data: string, hora: string | undefined) {
   return new Date(`${data}T${hora ?? '00:00:00Z'}`);
 }
@@ -136,6 +198,48 @@ function paraCorrida(corrida: z.infer<typeof corridaJolpica>): Corrida {
 }
 
 export class FonteCampeonatoJolpica implements FonteDoCampeonato {
+  async buscarCalendario(): Promise<Etapa[]> {
+    const [agenda, vencedores] = await Promise.all([
+      buscarJson(`${JOLPICA}.json`, calendario),
+      buscarJson(`${JOLPICA}/results/1.json?limit=100`, resultadosDaTemporada),
+    ]);
+    const vencedorPorRodada = new Map(
+      vencedores.MRData.RaceTable.Races.map((corrida) => [corrida.round, corrida.Results[0]]),
+    );
+
+    return agenda.MRData.RaceTable.Races.map((corrida) => {
+      const vencedor = vencedorPorRodada.get(corrida.round);
+
+      return {
+        ...paraCorrida(corrida),
+        vencedor: vencedor
+          ? { nome: nome(vencedor.Driver), equipe: vencedor.Constructor.name }
+          : null,
+      };
+    });
+  }
+
+  async buscarResultado(rodada: number): Promise<ResultadoDaEtapa | null> {
+    const agenda = await buscarJson(`${JOLPICA}.json`, calendario);
+    const corrida = agenda.MRData.RaceTable.Races.find((etapa) => etapa.round === rodada);
+
+    if (!corrida) {
+      return null;
+    }
+
+    const resultado = await buscarJson(
+      `${JOLPICA}/${rodada}/results.json?limit=40`,
+      resultadosDaTemporada,
+    );
+    const linhas = resultado.MRData.RaceTable.Races[0]?.Results ?? [];
+    const voltasDoVencedor = linhas[0]?.laps ?? 0;
+
+    return {
+      etapa: paraCorrida(corrida),
+      classificacao: linhas.map((linha) => paraLinha(linha, voltasDoVencedor)),
+    };
+  }
+
   async buscarCampeonato(agora: Date): Promise<Campeonato> {
     const [agenda, pilotos, construtores, ultima] = await Promise.all([
       buscarJson(`${JOLPICA}.json`, calendario),

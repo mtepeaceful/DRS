@@ -41,7 +41,18 @@ export interface TemporadaHistorica {
   construtores: ConstrutorDaHistoria[];
 }
 
+export interface Carreira {
+  nascimento: string | null;
+  estreia: number;
+  temporadas: number;
+  corridas: number;
+  vitorias: number;
+  podios: number;
+  poles: number;
+}
+
 export interface FonteDaHistoria {
   buscarCampeoes(anos: number[]): Promise<Campeao[]>;
   buscarTemporada(ano: number): Promise<TemporadaHistorica>;
+  buscarCarreira(nome: string): Promise<Carreira | null>;
 }

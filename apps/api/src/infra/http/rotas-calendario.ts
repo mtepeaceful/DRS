@@ -37,10 +37,10 @@ export const rotasCalendario: FastifyPluginAsyncZod<{ calendario: ConsultarCalen
       },
     },
     async (request, reply) => {
-      const { etapa, classificacao } = await calendario.resultado(request.params.rodada);
+      const { etapa, ...sessoes } = await calendario.resultado(request.params.rodada);
       reply.header('cache-control', CACHE_NO_NAVEGADOR);
 
-      return { etapa: apresentarCorrida(etapa), classificacao };
+      return { etapa: apresentarCorrida(etapa), ...sessoes };
     },
   );
 };

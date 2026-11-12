@@ -36,3 +36,17 @@ test('cabe na tela sem rolagem lateral', async ({ page }) => {
 
   expect(sobra).toBeLessThanOrEqual(0);
 });
+
+test('pode ser instalado e tem prévia ao compartilhar', async ({ page, request }) => {
+  await page.goto('/');
+
+  const manifesto = await request.get('/manifest.webmanifest');
+  expect(manifesto.ok()).toBe(true);
+  expect(await manifesto.json()).toMatchObject({ short_name: 'DRS', display: 'standalone' });
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    'content',
+    'DRS · Data Retrieval System',
+  );
+  expect((await request.get('/icone-512.png')).headers()['content-type']).toBe('image/png');
+});

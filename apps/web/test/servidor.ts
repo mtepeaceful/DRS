@@ -77,6 +77,14 @@ export const servidor = setupServer(
     });
   }),
 
+  http.get('*/api/pilotos/:id/carreira', () => HttpResponse.json(null)),
+
+  http.get('*/api/temporada/pilotos', () =>
+    HttpResponse.json({ ano: 2026, rodadasDisputadas: 0, pilotos: [] }),
+  ),
+
+  http.get('*/api/calendario', () => HttpResponse.json([])),
+
   http.get('*/api/pilotos/:id', ({ params }) => {
     const encontrado = banco.pilotos.find((p) => p.id === params.id);
 

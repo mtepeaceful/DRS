@@ -1,4 +1,5 @@
 import {
+  carreiraSchema,
   dadosPilotoSchema,
   erroSchema,
   listarPilotosQuerySchema,
@@ -9,6 +10,7 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import type { AtualizarPiloto } from '../../application/pilotos/atualizar-piloto.js';
 import type { CadastrarPiloto } from '../../application/pilotos/cadastrar-piloto.js';
+import type { ConsultarCarreira } from '../../application/pilotos/consultar-carreira.js';
 import type { ExcluirPiloto } from '../../application/pilotos/excluir-piloto.js';
 import type { ListarPilotos } from '../../application/pilotos/listar-pilotos.js';
 import type { ObterPiloto } from '../../application/pilotos/obter-piloto.js';
@@ -20,6 +22,7 @@ export interface CasosDeUsoDePilotos {
   cadastrar: CadastrarPiloto;
   atualizar: AtualizarPiloto;
   excluir: ExcluirPiloto;
+  carreira: ConsultarCarreira;
 }
 
 const parametros = z.object({ id: z.uuid() });
@@ -34,6 +37,16 @@ export const rotasPilotos: FastifyPluginAsyncZod<CasosDeUsoDePilotos> = async (a
       },
     },
     async (request) => apresentarPaginaDePilotos(await casos.listar.executar(request.query)),
+  );
+
+  app.get(
+    '/:id/carreira',
+    { schema: { params: parametros, response: { 200: carreiraSchema, 404: erroSchema } } },
+    async (request, reply) => {
+      reply.header('cache-control', 'public, max-age=3600');
+
+      return casos.carreira.executar(request.params.id);
+    },
   );
 
   app.get(

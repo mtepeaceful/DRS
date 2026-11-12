@@ -67,3 +67,90 @@ describe('Calendário', () => {
     );
   });
 });
+
+describe('Resultado do fim de semana', () => {
+  const linha = (posicao: number, nome: string) => ({
+    posicao,
+    classificado: true,
+    nome,
+    numero: posicao * 10,
+    equipe: 'McLaren',
+    largada: posicao,
+    voltas: 24,
+    tempo: posicao === 1 ? '30:25.318' : `+${posicao}.000`,
+    situacao: 'Completou',
+    pontos: 9 - posicao,
+    voltaMaisRapida: false,
+  });
+
+  function responder(sprint: boolean) {
+    servidor.use(
+      http.get('*/api/calendario/:rodada', () =>
+        HttpResponse.json({
+          etapa: etapa(12, 'Dutch Grand Prix', null),
+          classificacao: [
+            linha(1, 'Lando Norris'),
+            linha(2, 'Oscar Piastri'),
+            linha(3, 'George Russell'),
+          ],
+          sprint: sprint ? [linha(1, 'George Russell')] : [],
+          qualificacao: [
+            {
+              posicao: 1,
+              nome: 'Lando Norris',
+              numero: 1,
+              equipe: 'McLaren',
+              q1: '1:12.001',
+              q2: '1:11.500',
+              q3: '1:11.163',
+            },
+            {
+              posicao: 2,
+              nome: 'Lance Stroll',
+              numero: 18,
+              equipe: 'Aston Martin',
+              q1: '1:13.818',
+              q2: null,
+              q3: null,
+            },
+          ],
+        }),
+      ),
+    );
+  }
+
+  it('abre na corrida e troca para a classificação guardando a escolha no endereço', async () => {
+    responder(true);
+    const { router, usuario } = renderizar('/calendario/12');
+    const sessoes = await screen.findByRole('navigation', { name: 'Sessões do fim de semana' });
+
+    expect(
+      within(sessoes)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Corrida', 'Sprint', 'Classificação']);
+    expect(within(sessoes).getByRole('link', { name: 'Corrida' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByRole('region', { name: 'Pódio' })).toBeInTheDocument();
+
+    await usuario.click(within(sessoes).getByRole('link', { name: 'Classificação' }));
+
+    expect(router.state.location.search).toBe('?sessao=classificacao');
+    expect(screen.getByRole('row', { name: /Lance Stroll/ })).toHaveTextContent('1:13.818 · Q1');
+  });
+
+  it('esconde a aba de sprint quando o fim de semana não teve uma', async () => {
+    responder(false);
+    renderizar('/calendario/12?sessao=sprint');
+
+    const sessoes = await screen.findByRole('navigation', { name: 'Sessões do fim de semana' });
+
+    expect(within(sessoes).queryByRole('link', { name: 'Sprint' })).not.toBeInTheDocument();
+    expect(within(sessoes).getByRole('link', { name: 'Corrida' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+});

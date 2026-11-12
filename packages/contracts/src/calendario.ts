@@ -16,21 +16,33 @@ export const etapaSchema = corridaSchema.extend({
   vencedor: z.object({ nome: z.string(), equipe: z.string() }).nullable(),
 });
 
+const linhaDoResultadoSchema = z.object({
+  posicao: z.number().int(),
+  classificado: z.boolean(),
+  nome: z.string(),
+  numero: z.number().int(),
+  equipe: z.string(),
+  largada: z.number().int(),
+  voltas: z.number().int(),
+  tempo: z.string().nullable(),
+  situacao: z.string(),
+  pontos: z.number(),
+  voltaMaisRapida: z.boolean(),
+});
+
 export const resultadoDaEtapaSchema = z.object({
   etapa: corridaSchema,
-  classificacao: z.array(
+  classificacao: z.array(linhaDoResultadoSchema),
+  sprint: z.array(linhaDoResultadoSchema),
+  qualificacao: z.array(
     z.object({
       posicao: z.number().int(),
-      classificado: z.boolean(),
       nome: z.string(),
       numero: z.number().int(),
       equipe: z.string(),
-      largada: z.number().int(),
-      voltas: z.number().int(),
-      tempo: z.string().nullable(),
-      situacao: z.string(),
-      pontos: z.number(),
-      voltaMaisRapida: z.boolean(),
+      q1: z.string().nullable(),
+      q2: z.string().nullable(),
+      q3: z.string().nullable(),
     }),
   ),
 });

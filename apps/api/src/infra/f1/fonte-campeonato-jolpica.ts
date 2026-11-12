@@ -4,6 +4,7 @@ import type {
   Corrida,
   Etapa,
   FonteDoCampeonato,
+  LinhaDaQualificacao,
   LinhaDoResultado,
   Participacao,
   ResultadoDaEtapa,
@@ -131,6 +132,47 @@ const resultadosDaTemporada = z.object({
 });
 
 const POR_PAGINA = 100;
+
+const tempoDeVolta = z
+  .string()
+  .optional()
+  .transform((tempo) => tempo || null);
+
+const qualificacaoDaEtapa = z.object({
+  MRData: z.object({
+    RaceTable: z.object({
+      Races: z.array(
+        z.object({
+          QualifyingResults: z.array(
+            z.object({
+              number: z.coerce.number().int(),
+              position: z.coerce.number().int(),
+              Driver: nomeDoPiloto,
+              Constructor: z.object({ name: z.string() }),
+              Q1: tempoDeVolta,
+              Q2: tempoDeVolta,
+              Q3: tempoDeVolta,
+            }),
+          ),
+        }),
+      ),
+    }),
+  }),
+});
+
+const sprintDaEtapa = z.object({
+  MRData: z.object({
+    RaceTable: z.object({
+      Races: z.array(z.object({ SprintResults: z.array(linhaDoResultado) })),
+    }),
+  }),
+});
+
+function classificacaoFinal(linhas: z.infer<typeof linhaDoResultado>[]) {
+  const voltasDoVencedor = linhas[0]?.laps ?? 0;
+
+  return linhas.map((linha) => paraLinha(linha, voltasDoVencedor));
+}
 
 const paginaDeResultados = z.object({
   MRData: z.object({
@@ -273,16 +315,27 @@ export class FonteCampeonatoJolpica implements FonteDoCampeonato {
       return null;
     }
 
-    const resultado = await buscarJson(
-      `${JOLPICA}/${rodada}/results.json?limit=40`,
-      resultadosDaTemporada,
-    );
-    const linhas = resultado.MRData.RaceTable.Races[0]?.Results ?? [];
-    const voltasDoVencedor = linhas[0]?.laps ?? 0;
+    const [resultado, sprint, qualificacao] = await Promise.all([
+      buscarJson(`${JOLPICA}/${rodada}/results.json?limit=40`, resultadosDaTemporada),
+      buscarJson(`${JOLPICA}/${rodada}/sprint.json?limit=40`, sprintDaEtapa),
+      buscarJson(`${JOLPICA}/${rodada}/qualifying.json?limit=40`, qualificacaoDaEtapa),
+    ]);
 
     return {
       etapa: paraCorrida(corrida),
-      classificacao: linhas.map((linha) => paraLinha(linha, voltasDoVencedor)),
+      classificacao: classificacaoFinal(resultado.MRData.RaceTable.Races[0]?.Results ?? []),
+      sprint: classificacaoFinal(sprint.MRData.RaceTable.Races[0]?.SprintResults ?? []),
+      qualificacao: (qualificacao.MRData.RaceTable.Races[0]?.QualifyingResults ?? []).map(
+        (linha): LinhaDaQualificacao => ({
+          posicao: linha.position,
+          nome: nome(linha.Driver),
+          numero: linha.number,
+          equipe: linha.Constructor.name,
+          q1: linha.Q1,
+          q2: linha.Q2,
+          q3: linha.Q3,
+        }),
+      ),
     };
   }
 

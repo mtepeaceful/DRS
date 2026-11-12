@@ -105,6 +105,9 @@ function Classificacao({ campeonato }: { campeonato: Campeonato }) {
           </li>
         ))}
       </ol>
+      <Link to="/classificacao" className={styles.linkDoCartao}>
+        Classificação completa →
+      </Link>
     </section>
   );
 }
@@ -130,6 +133,9 @@ function Construtores({ campeonato }: { campeonato: Campeonato }) {
           </li>
         ))}
       </ol>
+      <Link to="/classificacao" className={styles.linkDoCartao}>
+        Classificação completa →
+      </Link>
     </section>
   );
 }

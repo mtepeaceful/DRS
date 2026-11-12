@@ -257,3 +257,24 @@ describe('rotas desconhecidas', () => {
     expect(resposta.json()).toMatchObject({ codigo: 'ROTA_NAO_ENCONTRADA' });
   });
 });
+
+describe('GET /pilotos/:id/carreira', () => {
+  it('é pública e devolve nulo quando a fonte não conhece o piloto', async () => {
+    const { id } = await cadastrar();
+
+    const resposta = await app.inject({ method: 'GET', url: `/pilotos/${id}/carreira` });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(resposta.headers['cache-control']).toBe('public, max-age=3600');
+    expect(resposta.json()).toBeNull();
+  });
+
+  it('responde 404 para piloto inexistente', async () => {
+    const resposta = await app.inject({
+      method: 'GET',
+      url: `/pilotos/${crypto.randomUUID()}/carreira`,
+    });
+
+    expect(resposta.statusCode).toBe(404);
+  });
+});

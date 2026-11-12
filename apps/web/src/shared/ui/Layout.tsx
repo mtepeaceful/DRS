@@ -1,7 +1,8 @@
 import { useIsFetching } from '@tanstack/react-query';
-import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router';
+import { Link, NavLink, Outlet, ScrollRestoration, useNavigation } from 'react-router';
 import { encerrarSessao, useSessaoAtiva } from '../api/sessao';
 import { AsaTraseira } from './AsaTraseira';
+import { AvisoDeEspera } from './AvisoDeEspera';
 import botao from './botao.module.css';
 import styles from './Layout.module.css';
 
@@ -14,7 +15,9 @@ function classeDoInicio(estado: { isActive: boolean }) {
 }
 
 export function Layout() {
-  const buscando = useIsFetching() > 0;
+  const buscandoDados = useIsFetching() > 0;
+  const trocandoDePagina = useNavigation().state !== 'idle';
+  const buscando = buscandoDados || trocandoDePagina;
   const logado = useSessaoAtiva();
 
   return (
@@ -76,6 +79,7 @@ export function Layout() {
           Nomes, marcas e logos pertencem aos seus donos. Dados da OpenF1 e da Jolpica.
         </p>
       </footer>
+      <AvisoDeEspera ativo={buscando} />
       <ScrollRestoration />
     </>
   );

@@ -21,6 +21,7 @@ export const configuracaoDeTeste: ConfiguracaoDoApp = {
   historia: {
     buscarCampeoes: async () => [],
     buscarTemporada: () => Promise.reject(new Error('sem histórico nos testes')),
+    buscarCarreira: async () => null,
   },
   campeonato: {
     buscarCampeonato: async () => ({

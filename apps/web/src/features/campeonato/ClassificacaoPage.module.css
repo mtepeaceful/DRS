@@ -1,0 +1,155 @@
+.topo {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.titulo {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.resumo {
+  color: var(--cor-texto-suave);
+}
+
+.resumo a {
+  color: var(--cor-texto);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.cartao {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.tituloDoCartao {
+  font-size: 1.1rem;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela th,
+.tabela td {
+  padding: 9px 6px;
+  border-top: 1px solid var(--cor-linha);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tabela thead th {
+  border-top: 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tabela .posicao,
+.tabela .numero,
+.tabela .pontos {
+  width: 4.5ch;
+  text-align: right;
+}
+
+.posicao {
+  font-family: var(--fonte-display);
+  font-weight: 800;
+  color: var(--cor-texto-suave);
+}
+
+.tabela tbody tr:first-child .posicao {
+  color: var(--cor-corrida);
+}
+
+.pontos {
+  font-family: var(--fonte-display);
+  font-weight: 800;
+}
+
+.nome {
+  font-weight: 700;
+}
+
+.identidade {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.identidade > :first-child {
+  justify-self: center;
+}
+
+.textos {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.detalhe {
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.barra {
+  display: block;
+  height: 3px;
+  margin-top: 4px;
+  border-radius: 2px;
+  background: var(--cor-linha);
+}
+
+.barra > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cor-corrida);
+}
+
+.esqueleto {
+  min-height: 640px;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+@media (max-width: 860px) {
+  .colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .cartao {
+    padding: 18px 12px;
+  }
+
+  .identidade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .identidade > :first-child {
+    display: none;
+  }
+}

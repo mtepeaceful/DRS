@@ -1,0 +1,10 @@
+.carregando {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+.carregando > svg {
+  width: 96px;
+  height: auto;
+}

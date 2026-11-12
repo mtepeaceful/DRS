@@ -69,6 +69,39 @@ const respostas: Record<string, unknown> = {
     },
   },
   '/current/3/results.json': { MRData: { RaceTable: { Races: [] } } },
+  '/current/2/sprint.json': {
+    MRData: { RaceTable: { Races: [{ SprintResults: [linha(1, { laps: '24' })] }] } },
+  },
+  '/current/3/sprint.json': { MRData: { RaceTable: { Races: [] } } },
+  '/current/2/qualifying.json': {
+    MRData: {
+      RaceTable: {
+        Races: [
+          {
+            QualifyingResults: [
+              {
+                number: '10',
+                position: '1',
+                Driver: { givenName: 'Piloto', familyName: '1' },
+                Constructor: { name: 'Equipe' },
+                Q1: '1:30.939',
+                Q2: '1:29.207',
+                Q3: '1:27.470',
+              },
+              {
+                number: '20',
+                position: '20',
+                Driver: { givenName: 'Piloto', familyName: '20' },
+                Constructor: { name: 'Equipe' },
+                Q1: '1:41.564',
+              },
+            ],
+          },
+        ],
+      },
+    },
+  },
+  '/current/3/qualifying.json': { MRData: { RaceTable: { Races: [] } } },
 };
 
 afterEach(() => vi.restoreAllMocks());
@@ -124,12 +157,47 @@ describe('FonteCampeonatoJolpica · calendário', () => {
     ]);
   });
 
+  it('traz a classificação de sábado e a sprint da etapa', async () => {
+    simularJolpica();
+
+    const resultado = await new FonteCampeonatoJolpica().buscarResultado(2);
+
+    expect(resultado?.sprint).toEqual([
+      expect.objectContaining({ posicao: 1, voltas: 24, situacao: 'Completou' }),
+    ]);
+    expect(resultado?.qualificacao).toEqual([
+      {
+        posicao: 1,
+        nome: 'Piloto 1',
+        numero: 10,
+        equipe: 'Equipe',
+        q1: '1:30.939',
+        q2: '1:29.207',
+        q3: '1:27.470',
+      },
+      {
+        posicao: 20,
+        nome: 'Piloto 20',
+        numero: 20,
+        equipe: 'Equipe',
+        q1: '1:41.564',
+        q2: null,
+        q3: null,
+      },
+    ]);
+  });
+
   it('devolve classificação vazia para etapa ainda não disputada', async () => {
     simularJolpica();
 
     const resultado = await new FonteCampeonatoJolpica().buscarResultado(3);
 
-    expect(resultado).toMatchObject({ etapa: { rodada: 3 }, classificacao: [] });
+    expect(resultado).toMatchObject({
+      etapa: { rodada: 3 },
+      classificacao: [],
+      sprint: [],
+      qualificacao: [],
+    });
   });
 });
 

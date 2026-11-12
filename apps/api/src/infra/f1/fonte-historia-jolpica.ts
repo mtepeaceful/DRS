@@ -2,9 +2,11 @@ import { setTimeout as esperar } from 'node:timers/promises';
 import { z } from 'zod';
 import type {
   Campeao,
+  Carreira,
   FonteDaHistoria,
   TemporadaHistorica,
 } from '../../application/ports/fonte-da-historia.js';
+import { comCache } from '../cache/com-cache.js';
 import { buscarJson } from '../http-externo.js';
 import { paisDaNacionalidade } from './nacionalidades.js';
 
@@ -82,6 +84,46 @@ const vencedores = z.object({
   }),
 });
 
+const POR_PAGINA = 100;
+const UM_DIA_EM_MS = 24 * 60 * 60_000;
+
+const listaDePilotos = z.object({
+  MRData: z.object({
+    total: z.coerce.number().int(),
+    DriverTable: z.object({
+      Drivers: z.array(
+        z.object({
+          driverId: z.string().regex(/^[A-Za-z0-9_-]+$/),
+          givenName: z.string(),
+          familyName: z.string(),
+          dateOfBirth: z.iso.date().optional(),
+        }),
+      ),
+    }),
+  }),
+});
+
+type PilotoJolpica = z.infer<typeof listaDePilotos>['MRData']['DriverTable']['Drivers'][number];
+
+const total = z.object({ MRData: z.object({ total: z.coerce.number().int() }) });
+
+const temporadas = z.object({
+  MRData: z.object({
+    SeasonTable: z.object({
+      Seasons: z.array(z.object({ season: z.coerce.number().int() })),
+    }),
+  }),
+});
+
+function chaveDoNome(nomeCompleto: string) {
+  return nomeCompleto
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z]+/g, ' ')
+    .trim();
+}
+
 function nome({ givenName, familyName }: z.infer<typeof piloto>) {
   return `${givenName} ${familyName}`;
 }
@@ -95,6 +137,54 @@ function construtoresDe(resposta: z.infer<typeof classificacaoDeConstrutores>) {
 }
 
 export class FonteHistoriaJolpica implements FonteDaHistoria {
+  private readonly pilotosPorNome = comCache(async () => {
+    const porNome = new Map<string, PilotoJolpica>();
+    let quantos = Number.POSITIVE_INFINITY;
+
+    for (let offset = 0; offset < quantos; offset += POR_PAGINA) {
+      const pagina = await buscarJson(
+        `${JOLPICA}/drivers.json?limit=${POR_PAGINA}&offset=${offset}`,
+        listaDePilotos,
+      );
+      quantos = pagina.MRData.total;
+
+      for (const dados of pagina.MRData.DriverTable.Drivers) {
+        porNome.set(chaveDoNome(nome(dados)), dados);
+      }
+    }
+
+    return porNome;
+  }, UM_DIA_EM_MS);
+
+  async buscarCarreira(nomeDoPiloto: string): Promise<Carreira | null> {
+    const dados = (await this.pilotosPorNome()).get(chaveDoNome(nomeDoPiloto));
+
+    if (!dados) {
+      return null;
+    }
+
+    const base = `${JOLPICA}/drivers/${encodeURIComponent(dados.driverId)}`;
+    const [corridas, vitorias, segundos, terceiros, poles, anos] = await Promise.all([
+      buscarJson(`${base}/results.json?limit=1`, total),
+      buscarJson(`${base}/results/1.json?limit=1`, total),
+      buscarJson(`${base}/results/2.json?limit=1`, total),
+      buscarJson(`${base}/results/3.json?limit=1`, total),
+      buscarJson(`${base}/grid/1/results.json?limit=1`, total),
+      buscarJson(`${base}/seasons.json?limit=100`, temporadas),
+    ]);
+    const disputadas = anos.MRData.SeasonTable.Seasons.map((temporada) => temporada.season);
+
+    return {
+      nascimento: dados.dateOfBirth ?? null,
+      estreia: Math.min(...disputadas),
+      temporadas: disputadas.length,
+      corridas: corridas.MRData.total,
+      vitorias: vitorias.MRData.total,
+      podios: vitorias.MRData.total + segundos.MRData.total + terceiros.MRData.total,
+      poles: poles.MRData.total,
+    };
+  }
+
   async buscarCampeoes(anos: number[]): Promise<Campeao[]> {
     const campeoes: Campeao[] = [];
 

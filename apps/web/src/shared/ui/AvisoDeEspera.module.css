@@ -1,0 +1,43 @@
+.lugar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.aviso {
+  max-width: 460px;
+  padding: 12px 16px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: var(--raio);
+  background: var(--cor-superficie-alta);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+  color: var(--cor-texto);
+  font-size: 0.9rem;
+  font-weight: 600;
+  animation: aparecer 240ms ease 4s both;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aviso {
+    animation-duration: 1ms;
+  }
+}

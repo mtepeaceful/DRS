@@ -12,6 +12,7 @@ import { Confirmacao } from '../../shared/ui/Confirmacao';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { detalheDoPiloto, useExcluirPiloto } from './api';
 import styles from './PilotoDetalhesPage.module.css';
+import { CarreiraDoPiloto, TemporadaDoPiloto } from './RaioXDoPiloto';
 
 const formatoDeData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
 
@@ -121,6 +122,9 @@ export function PilotoDetalhesPage() {
           )}
         </footer>
       </article>
+
+      <TemporadaDoPiloto nome={nome} />
+      <CarreiraDoPiloto id={id} />
 
       <Confirmacao
         aberta={confirmando}

@@ -1,4 +1,9 @@
-import { type DadosPilotoDTO, paginaDePilotosSchema, pilotoSchema } from '@drs/contracts';
+import {
+  carreiraSchema,
+  type DadosPilotoDTO,
+  paginaDePilotosSchema,
+  pilotoSchema,
+} from '@drs/contracts';
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { buscar, enviar } from '../../shared/api/http';
 
@@ -33,6 +38,15 @@ export function detalheDoPiloto(id: string) {
   return queryOptions({
     queryKey: chaves.detalhe(id),
     queryFn: ({ signal }) => buscar(`/pilotos/${encodeURIComponent(id)}`, pilotoSchema, { signal }),
+  });
+}
+
+export function carreiraDoPiloto(id: string) {
+  return queryOptions({
+    queryKey: [...chaves.detalhe(id), 'carreira'],
+    queryFn: ({ signal }) =>
+      buscar(`/pilotos/${encodeURIComponent(id)}/carreira`, carreiraSchema, { signal }),
+    staleTime: 60 * 60_000,
   });
 }
 

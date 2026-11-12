@@ -19,6 +19,7 @@ const base = z.object({
     error: 'Gere com "pnpm --filter @drs/api gerar-credenciais".',
   }),
   SEGREDO_DA_SESSAO: z.string().min(32, { error: 'Use um segredo com pelo menos 32 caracteres.' }),
+  ATUALIZAR_GRID_SOZINHO: z.stringbool().default(true),
 });
 
 const armazenamento = z.discriminatedUnion('ARMAZENAMENTO', [

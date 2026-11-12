@@ -44,6 +44,16 @@ describe('loadEnv', () => {
     ).toThrow();
   });
 
+  it('atualiza o grid sozinho a menos que seja desligado', () => {
+    const memoria = { ...credenciais, ARMAZENAMENTO: 'memoria' };
+
+    expect(loadEnv(memoria).ATUALIZAR_GRID_SOZINHO).toBe(true);
+    expect(loadEnv({ ...memoria, ATUALIZAR_GRID_SOZINHO: 'false' }).ATUALIZAR_GRID_SOZINHO).toBe(
+      false,
+    );
+    expect(() => loadEnv({ ...memoria, ATUALIZAR_GRID_SOZINHO: 'talvez' })).toThrow();
+  });
+
   it('recusa um armazenamento desconhecido', () => {
     expect(() => loadEnv({ ...credenciais, ARMAZENAMENTO: 'mysql' })).toThrow();
   });

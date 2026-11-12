@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 
@@ -24,6 +25,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['./test/preparar.ts'],
+      include: ['test/**/*.test.tsx'],
+      restoreMocks: true,
+    },
     build: {
       assetsInlineLimit: (arquivo) => (arquivo.includes('country-flag-icons') ? false : undefined),
     },

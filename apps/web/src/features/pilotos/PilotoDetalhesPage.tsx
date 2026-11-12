@@ -106,6 +106,9 @@ export function PilotoDetalhesPage() {
           <p className={styles.atualizacao}>
             Atualizado em {formatoDeData.format(new Date(atualizadoEm))}
           </p>
+          <Link to={`/comparar?${new URLSearchParams({ a: nome })}`} className={styles.comparar}>
+            Comparar com outro piloto →
+          </Link>
           {logado && (
             <div className={styles.acoes}>
               <Link to={`/pilotos/${id}/editar`} className={botao.primario}>

@@ -6,6 +6,21 @@ import { servidor } from './servidor';
 
 beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {});
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(private readonly avisar: ResizeObserverCallback) {}
+
+      observe() {
+        this.avisar(
+          [{ contentRect: { width: 640 } } as ResizeObserverEntry],
+          this as unknown as ResizeObserver,
+        );
+      }
+
+      disconnect() {}
+    },
+  );
   servidor.listen({ onUnhandledFrame: 'error' });
 });
 

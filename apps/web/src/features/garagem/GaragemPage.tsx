@@ -123,6 +123,10 @@ export function GaragemPage() {
           <Link to="/glossario#drs" className={styles.saibaMais}>
             O que é o DRS e por que ele saiu em 2026
           </Link>
+          {' · '}
+          <Link to="/carro" className={styles.saibaMais}>
+            O que cada peça do carro faz
+          </Link>
         </p>
       </section>
     </>

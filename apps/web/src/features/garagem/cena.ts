@@ -21,6 +21,7 @@ import {
   SphereGeometry,
   SRGBColorSpace,
   TorusGeometry,
+  Vector3,
   WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -31,11 +32,23 @@ export interface Pintura {
   numero: number;
 }
 
+export type Ponto = readonly [number, number, number];
+
+export interface PontoNaTela {
+  x: number;
+  y: number;
+  visivel: boolean;
+}
+
 export interface Garagem {
   abrirAsa: (aberta: boolean) => void;
   girar: (girando: boolean) => void;
+  focar: (ponto: Ponto | null) => void;
+  projetar: (ponto: Ponto) => PontoNaTela;
   destruir: () => void;
 }
+
+const CENTRO_DO_CARRO: Ponto = [0, 0.45, 0];
 
 const CARBONO = '#1c1c22';
 const BORRACHA = '#111114';
@@ -249,7 +262,7 @@ export function montarGaragem(
   cena.add(chao(), conjunto);
 
   const controles = new OrbitControls(camera, renderizador.domElement);
-  controles.target.set(0, 0.45, 0);
+  controles.target.set(...CENTRO_DO_CARRO);
   controles.enableDamping = true;
   controles.enablePan = false;
   controles.minDistance = 5;
@@ -259,6 +272,8 @@ export function montarGaragem(
   controles.autoRotateSpeed = 1.1;
 
   let anguloDesejado = FLAP_FECHADO;
+  const alvoDesejado = new Vector3(...CENTRO_DO_CARRO);
+  const projetado = new Vector3();
 
   function ajustar() {
     const { clientWidth: largura, clientHeight: altura } = recipiente;
@@ -278,6 +293,7 @@ export function montarGaragem(
 
   renderizador.setAnimationLoop(() => {
     dobradica.rotation.z += (anguloDesejado - dobradica.rotation.z) * 0.12;
+    controles.target.lerp(alvoDesejado, 0.08);
     controles.update();
     renderizador.render(cena, camera);
   });
@@ -288,6 +304,18 @@ export function montarGaragem(
     },
     girar: (ativo) => {
       controles.autoRotate = ativo;
+    },
+    focar: (ponto) => {
+      alvoDesejado.set(...(ponto ?? CENTRO_DO_CARRO));
+    },
+    projetar: (ponto) => {
+      projetado.set(...ponto).project(camera);
+
+      return {
+        x: ((projetado.x + 1) / 2) * recipiente.clientWidth,
+        y: ((1 - projetado.y) / 2) * recipiente.clientHeight,
+        visivel: projetado.z < 1,
+      };
     },
     destruir: () => {
       renderizador.setAnimationLoop(null);

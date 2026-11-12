@@ -252,7 +252,7 @@ export const TERMOS: Termo[] = [
     definicao:
       'Arco de titânio sobre o cockpit que protege a cabeça do piloto. Obrigatório desde 2018, já salvou pilotos em acidentes graves.',
     relacionados: ['safety-car'],
-    noSite: { texto: 'Veja o halo na garagem 3D', para: '/pilotos' },
+    noSite: { texto: 'Veja o halo no carro explicado', para: '/carro?peca=halo' },
   },
   {
     id: 'unidade-de-potencia',

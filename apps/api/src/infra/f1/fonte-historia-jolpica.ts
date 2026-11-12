@@ -2,8 +2,9 @@ import { setTimeout as esperar } from 'node:timers/promises';
 import { z } from 'zod';
 import type {
   Campeao,
-  Carreira,
+  CarreiraNaF1,
   FonteDaHistoria,
+  PilotoDaF1,
   TemporadaHistorica,
 } from '../../application/ports/fonte-da-historia.js';
 import { comCache } from '../cache/com-cache.js';
@@ -98,15 +99,33 @@ const listaDePilotos = z.object({
           givenName: z.string(),
           familyName: z.string(),
           dateOfBirth: z.iso.date().optional(),
+          nationality: z.string().optional(),
+          url: z.string().optional(),
         }),
       ),
     }),
   }),
 });
 
-type PilotoJolpica = z.infer<typeof listaDePilotos>['MRData']['DriverTable']['Drivers'][number];
-
 const total = z.object({ MRData: z.object({ total: z.coerce.number().int() }) });
+
+const equipesDoPiloto = z.object({
+  MRData: z.object({
+    ConstructorTable: z.object({
+      Constructors: z.array(
+        z.object({ constructorId: z.string().regex(/^[A-Za-z0-9_-]+$/), name: z.string() }),
+      ),
+    }),
+  }),
+});
+
+const WIKIPEDIA_EM_INGLES = /^https?:\/\/en\.wikipedia\.org\/wiki\/(.+)$/;
+
+function artigo(url: string | undefined) {
+  const encontrado = url?.match(WIKIPEDIA_EM_INGLES)?.[1];
+
+  return encontrado ? decodeURIComponent(encontrado).replaceAll('_', ' ') : null;
+}
 
 const temporadas = z.object({
   MRData: z.object({
@@ -115,15 +134,6 @@ const temporadas = z.object({
     }),
   }),
 });
-
-function chaveDoNome(nomeCompleto: string) {
-  return nomeCompleto
-    .normalize('NFD')
-    .replace(/\p{M}/gu, '')
-    .toLowerCase()
-    .replace(/[^a-z]+/g, ' ')
-    .trim();
-}
 
 function nome({ givenName, familyName }: z.infer<typeof piloto>) {
   return `${givenName} ${familyName}`;
@@ -138,8 +148,8 @@ function construtoresDe(resposta: z.infer<typeof classificacaoDeConstrutores>) {
 }
 
 export class FonteHistoriaJolpica implements FonteDaHistoria {
-  private readonly pilotosPorNome = comCache(async () => {
-    const porNome = new Map<string, PilotoJolpica>();
+  readonly listarPilotos = comCache(async (): Promise<PilotoDaF1[]> => {
+    const pilotos: PilotoDaF1[] = [];
     let quantos = Number.POSITIVE_INFINITY;
 
     for (let offset = 0; offset < quantos; offset += POR_PAGINA) {
@@ -148,41 +158,42 @@ export class FonteHistoriaJolpica implements FonteDaHistoria {
         listaDePilotos,
       );
       quantos = pagina.MRData.total;
-
-      for (const dados of pagina.MRData.DriverTable.Drivers) {
-        porNome.set(chaveDoNome(nome(dados)), dados);
-      }
+      pilotos.push(
+        ...pagina.MRData.DriverTable.Drivers.map((dados) => ({
+          id: dados.driverId,
+          nome: nome(dados),
+          pais: paisDaNacionalidade(dados.nationality),
+          nascimento: dados.dateOfBirth ?? null,
+          wikipedia: artigo(dados.url),
+        })),
+      );
     }
 
-    return porNome;
+    return pilotos;
   }, UM_DIA_EM_MS);
 
-  async buscarCarreira(nomeDoPiloto: string): Promise<Carreira | null> {
-    const dados = (await this.pilotosPorNome()).get(chaveDoNome(nomeDoPiloto));
-
-    if (!dados) {
-      return null;
-    }
-
-    const base = `${JOLPICA}/drivers/${encodeURIComponent(dados.driverId)}`;
-    const [corridas, vitorias, segundos, terceiros, poles, anos] = await Promise.all([
+  async buscarCarreira(id: string): Promise<CarreiraNaF1> {
+    const base = `${JOLPICA}/drivers/${encodeURIComponent(id)}`;
+    const [corridas, vitorias, segundos, terceiros, poles, anos, equipes] = await Promise.all([
       buscarJson(`${base}/results.json?limit=1`, total),
       buscarJson(`${base}/results/1.json?limit=1`, total),
       buscarJson(`${base}/results/2.json?limit=1`, total),
       buscarJson(`${base}/results/3.json?limit=1`, total),
       buscarJson(`${base}/grid/1/results.json?limit=1`, total),
       buscarJson(`${base}/seasons.json?limit=100`, temporadas),
+      buscarJson(`${base}/constructors.json?limit=100`, equipesDoPiloto),
     ]);
-    const disputadas = anos.MRData.SeasonTable.Seasons.map((temporada) => temporada.season);
 
     return {
-      nascimento: dados.dateOfBirth ?? null,
-      estreia: Math.min(...disputadas),
-      temporadas: disputadas.length,
+      temporadas: anos.MRData.SeasonTable.Seasons.map((temporada) => temporada.season),
       corridas: corridas.MRData.total,
       vitorias: vitorias.MRData.total,
       podios: vitorias.MRData.total + segundos.MRData.total + terceiros.MRData.total,
       poles: poles.MRData.total,
+      equipes: equipes.MRData.ConstructorTable.Constructors.map((equipe) => ({
+        id: equipe.constructorId,
+        nome: equipe.name.replaceAll('&amp;', '&'),
+      })),
     };
   }
 

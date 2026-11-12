@@ -42,6 +42,18 @@ async function criarApp() {
           rodada === 20
             ? {
                 etapa: corrida,
+                sprint: [],
+                qualificacao: [
+                  {
+                    posicao: 1,
+                    nome: 'Lando Norris',
+                    numero: 1,
+                    equipe: 'McLaren',
+                    q1: '1:30.939',
+                    q2: '1:29.207',
+                    q3: '1:27.470',
+                  },
+                ],
                 classificacao: [
                   {
                     posicao: 1,
@@ -94,6 +106,8 @@ describe('GET /calendario/:rodada', () => {
     expect(resposta.json()).toMatchObject({
       etapa: { nome: 'São Paulo Grand Prix' },
       classificacao: [{ posicao: 1, voltaMaisRapida: true }],
+      sprint: [],
+      qualificacao: [{ posicao: 1, q3: '1:27.470' }],
     });
   });
 

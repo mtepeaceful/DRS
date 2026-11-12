@@ -63,9 +63,21 @@ export interface LinhaDoResultado {
   voltaMaisRapida: boolean;
 }
 
+export interface LinhaDaQualificacao {
+  posicao: number;
+  nome: string;
+  numero: number;
+  equipe: string;
+  q1: string | null;
+  q2: string | null;
+  q3: string | null;
+}
+
 export interface ResultadoDaEtapa {
   etapa: Corrida;
   classificacao: LinhaDoResultado[];
+  sprint: LinhaDoResultado[];
+  qualificacao: LinhaDaQualificacao[];
 }
 
 export interface Participacao {

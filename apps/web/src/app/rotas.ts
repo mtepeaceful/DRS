@@ -52,6 +52,11 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'pilotos/:id/garagem',
+        lazy: () =>
+          import('../features/garagem/GaragemPage').then((m) => ({ Component: m.GaragemPage })),
+      },
+      {
         path: 'entrar',
         lazy: () =>
           import('../features/sessao/EntrarPage').then((m) => ({ Component: m.EntrarPage })),

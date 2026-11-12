@@ -1,6 +1,7 @@
-import { useDeferredValue, useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { useDeferredValue, useState } from 'react';
+import { Link } from 'react-router';
 import { semAcento } from '../../shared/lib/texto';
+import { useRolarAteAncora } from '../../shared/lib/useRolarAteAncora';
 import chip from '../../shared/ui/chip.module.css';
 import styles from './GlossarioPage.module.css';
 import { CATEGORIAS, type Categoria, TERMOS } from './termos';
@@ -9,16 +10,11 @@ const POR_ID = new Map(TERMOS.map((termo) => [termo.id, termo]));
 const EM_ORDEM = TERMOS.toSorted((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
 export function GlossarioPage() {
-  const { hash } = useLocation();
   const [busca, setBusca] = useState('');
   const [categoria, setCategoria] = useState<Categoria | null>(null);
   const termo = semAcento(useDeferredValue(busca).trim());
 
-  useEffect(() => {
-    const alvo = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
-    alvo?.scrollIntoView({ block: 'start' });
-    alvo?.focus({ preventScroll: true });
-  }, [hash]);
+  useRolarAteAncora();
 
   const encontrados = EM_ORDEM.filter(
     (item) =>

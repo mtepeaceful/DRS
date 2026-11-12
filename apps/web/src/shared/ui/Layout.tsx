@@ -78,6 +78,8 @@ export function Layout() {
           <Link to="/glossario">Glossário</Link>
           <Link to="/circuitos">Circuitos</Link>
           <Link to="/historia/pilotos">Pilotos da história</Link>
+          <Link to="/historia/carros">Evolução dos carros</Link>
+          <Link to="/carro">O carro por dentro</Link>
           <Link to="/classificacao">Campeonato</Link>
           <Link to="/comparar">Comparar pilotos</Link>
         </nav>

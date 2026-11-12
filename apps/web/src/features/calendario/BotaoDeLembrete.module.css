@@ -1,0 +1,34 @@
+.botao {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cor-texto);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color var(--transicao),
+    border-color var(--transicao);
+}
+
+.botao:hover,
+.botao:focus-visible {
+  border-color: var(--cor-texto);
+  background: var(--cor-superficie-alta);
+}
+
+.icone {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

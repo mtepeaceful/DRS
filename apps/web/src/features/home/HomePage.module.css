@@ -214,6 +214,13 @@
   text-align: right;
 }
 
+.acoesDaCorrida {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
 .rodapeDoCartao {
   align-self: end;
   display: grid;

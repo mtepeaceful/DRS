@@ -1,7 +1,10 @@
 import type { Equipe } from '../../domain/equipe.js';
 import type { EquipeRepository } from '../ports/equipe-repository.js';
 import type { FonteDeDadosDaF1, PilotoDaTemporada } from '../ports/fonte-de-dados-da-f1.js';
+import type { ImportacaoRepository } from '../ports/importacao-repository.js';
 import type { PilotoRepository } from '../ports/piloto-repository.js';
+
+const TEMPORADAS_PARA_CONTAR_TITULOS = 30;
 
 export interface PilotoIgnorado {
   nome: string;
@@ -18,11 +21,24 @@ export class ImportarTemporada {
   constructor(
     private readonly pilotos: PilotoRepository,
     private readonly equipes: EquipeRepository,
+    private readonly importacoes: ImportacaoRepository,
     private readonly fonte: FonteDeDadosDaF1,
+    private readonly agora: () => Date = () => new Date(),
   ) {}
 
-  async executar(): Promise<ResultadoDaImportacao> {
+  private emAndamento: Promise<ResultadoDaImportacao> | null = null;
+
+  executar(): Promise<ResultadoDaImportacao> {
+    this.emAndamento ??= this.importar().finally(() => {
+      this.emAndamento = null;
+    });
+
+    return this.emAndamento;
+  }
+
+  private async importar(): Promise<ResultadoDaImportacao> {
     const temporada = await this.fonte.buscarTemporadaAtual();
+    const titulos = await this.contarTitulos(temporada.ano);
     const resultado: ResultadoDaImportacao = {
       ano: temporada.ano,
       equipes: { criadas: 0, atualizadas: 0 },
@@ -43,18 +59,58 @@ export class ImportarTemporada {
     }
 
     for (const piloto of temporada.pilotos) {
-      const ignorado = await this.importarPiloto(piloto, equipesPorNome, resultado);
+      const ignorado = await this.importarPiloto(
+        piloto,
+        titulos.get(piloto.sigla) ?? 0,
+        equipesPorNome,
+        resultado,
+      );
 
       if (ignorado) {
         resultado.pilotos.ignorados.push({ nome: piloto.nome, motivo: ignorado });
       }
     }
 
+    await this.importacoes.registrarImportacao(this.agora());
+
     return resultado;
+  }
+
+  private async contarTitulos(anoAtual: number) {
+    const anos = Array.from(
+      { length: TEMPORADAS_PARA_CONTAR_TITULOS },
+      (_, i) => anoAtual - TEMPORADAS_PARA_CONTAR_TITULOS + i,
+    );
+    const campeaoPorAno = new Map(
+      (await this.importacoes.listarCampeoes()).map(({ ano, sigla }) => [ano, sigla]),
+    );
+    const faltando = anos.filter((ano) => !campeaoPorAno.has(ano));
+
+    if (faltando.length > 0) {
+      const novos = await this.fonte.buscarCampeoes(faltando);
+      await this.importacoes.guardarCampeoes(novos);
+
+      for (const { ano, sigla } of novos) {
+        campeaoPorAno.set(ano, sigla);
+      }
+    }
+
+    const titulos = new Map<string, number>();
+
+    for (const ano of anos) {
+      const sigla = campeaoPorAno.get(ano);
+
+      if (sigla) {
+        titulos.set(sigla, (titulos.get(sigla) ?? 0) + 1);
+      }
+    }
+
+    return titulos;
   }
 
   private async importarPiloto(
     piloto: PilotoDaTemporada,
+    titulos: number,
     equipesPorNome: Map<string, Equipe>,
     resultado: ResultadoDaImportacao,
   ) {
@@ -79,7 +135,7 @@ export class ImportarTemporada {
       nome: piloto.nome,
       numero: piloto.numero,
       pais: piloto.pais,
-      titulos: piloto.titulos,
+      titulos,
       equipeId: equipe.id,
     };
 

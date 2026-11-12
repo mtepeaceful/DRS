@@ -29,6 +29,7 @@ export interface PosicaoDeConstrutor {
 }
 
 export interface ResultadoDeCorrida {
+  rodada: number;
   nome: string;
   data: Date;
   podio: { posicao: number; nome: string; equipe: string }[];
@@ -44,6 +45,31 @@ export interface Campeonato {
   ultimaCorrida: ResultadoDeCorrida | null;
 }
 
+export interface Etapa extends Corrida {
+  vencedor: { nome: string; equipe: string } | null;
+}
+
+export interface LinhaDoResultado {
+  posicao: number;
+  classificado: boolean;
+  nome: string;
+  numero: number;
+  equipe: string;
+  largada: number;
+  voltas: number;
+  tempo: string | null;
+  situacao: string;
+  pontos: number;
+  voltaMaisRapida: boolean;
+}
+
+export interface ResultadoDaEtapa {
+  etapa: Corrida;
+  classificacao: LinhaDoResultado[];
+}
+
 export interface FonteDoCampeonato {
   buscarCampeonato(agora: Date): Promise<Campeonato>;
+  buscarCalendario(): Promise<Etapa[]>;
+  buscarResultado(rodada: number): Promise<ResultadoDaEtapa | null>;
 }

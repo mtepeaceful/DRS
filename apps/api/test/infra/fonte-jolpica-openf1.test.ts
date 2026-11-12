@@ -33,12 +33,16 @@ const pilotosJolpica = {
   },
 };
 
-function campeao(sigla: string) {
+function campeao(sigla?: string) {
   return {
     MRData: {
       StandingsTable: {
         StandingsLists: [
-          { DriverStandings: [{ Driver: { code: sigla, givenName: 'X', familyName: 'Y' } }] },
+          {
+            DriverStandings: [
+              { Driver: { ...(sigla && { code: sigla }), givenName: 'X', familyName: 'Y' } },
+            ],
+          },
         ],
       },
     },
@@ -58,30 +62,41 @@ function responder(respostas: (url: string) => unknown) {
 afterEach(() => vi.restoreAllMocks());
 
 describe('FonteJolpicaOpenF1', () => {
-  it('cruza as duas APIs pela sigla e conta os títulos', async () => {
+  it('cruza as duas APIs pela sigla', async () => {
     const fetch = responder((url) => {
       if (url.includes('openf1')) return gridOpenF1;
       if (url.includes('/current/drivers')) return pilotosJolpica;
-      return campeao(url.includes('/2020/') || url.includes('/2019/') ? 'HAM' : 'VER');
+      return undefined;
     });
 
     const temporada = await new FonteJolpicaOpenF1().buscarTemporadaAtual();
 
     expect(temporada.ano).toBe(2026);
     expect(temporada.pilotos).toEqual([
-      { nome: 'Lewis Hamilton', numero: 44, pais: 'GB', titulos: 2, equipe: 'Ferrari' },
-      { nome: 'Novato Da Silva', numero: 99, pais: null, titulos: 0, equipe: 'Haas F1 Team' },
+      { nome: 'Lewis Hamilton', sigla: 'HAM', numero: 44, pais: 'GB', equipe: 'Ferrari' },
+      { nome: 'Novato Da Silva', sigla: 'NOV', numero: 99, pais: null, equipe: 'Haas F1 Team' },
     ]);
     expect(temporada.equipes).toEqual([
       { nome: 'Ferrari', cor: '#ed1131', corSecundaria: '#ffffff' },
       { nome: 'Haas F1 Team', cor: '#8a8d96', corSecundaria: '#ffffff' },
     ]);
-    expect(
-      fetch.mock.calls.filter(([url]) => String(url).includes('driverstandings')),
-    ).toHaveLength(30);
-    expect(String(fetch.mock.calls.find(([url]) => String(url).includes('/1996/'))?.[0])).toContain(
-      'jolpi.ca',
-    );
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('busca o campeão de cada ano pedido', async () => {
+    const fetch = responder((url) => {
+      if (url.includes('/1996/')) return campeao();
+      return campeao(url.includes('/2020/') ? 'HAM' : 'VER');
+    });
+
+    const campeoes = await new FonteJolpicaOpenF1().buscarCampeoes([1996, 2020, 2021]);
+
+    expect(campeoes).toEqual([
+      { ano: 1996, sigla: null },
+      { ano: 2020, sigla: 'HAM' },
+      { ano: 2021, sigla: 'VER' },
+    ]);
+    expect(fetch).toHaveBeenCalledTimes(3);
   });
 
   it('espera e tenta de novo quando a API limita as requisições', async () => {
@@ -96,25 +111,19 @@ describe('FonteJolpicaOpenF1', () => {
         return new Response('devagar', { status: 429, headers: { 'retry-after': '1' } });
       }
 
-      if (url.includes('openf1')) return Response.json(gridOpenF1);
-      if (url.includes('/current/drivers')) return Response.json(pilotosJolpica);
-      return Response.json(campeao('HAM'));
+      return Response.json(campeao('VET'));
     });
 
-    const temporada = await new FonteJolpicaOpenF1().buscarTemporadaAtual();
+    const campeoes = await new FonteJolpicaOpenF1().buscarCampeoes([2010, 2011]);
 
-    expect(temporada.pilotos[0]?.titulos).toBe(30);
+    expect(campeoes).toHaveLength(2);
     expect(tentativas.get('https://api.jolpi.ca/ergast/f1/2010/driverstandings/1.json')).toBe(3);
   });
 
   it('desiste depois de três novas tentativas', async () => {
-    responder((url) => {
-      if (url.includes('openf1')) return gridOpenF1;
-      if (url.includes('/current/drivers')) return pilotosJolpica;
-      return undefined;
-    });
+    responder(() => undefined);
 
-    await expect(new FonteJolpicaOpenF1().buscarTemporadaAtual()).rejects.toThrow(
+    await expect(new FonteJolpicaOpenF1().buscarCampeoes([2010])).rejects.toThrow(
       'Não foi possível obter os dados de api.jolpi.ca.',
     );
   });

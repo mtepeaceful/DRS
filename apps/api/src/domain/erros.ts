@@ -3,7 +3,8 @@ export type CodigoDeErro =
   | 'EQUIPE_NAO_ENCONTRADA'
   | 'EQUIPE_INVALIDA'
   | 'NUMERO_JA_EM_USO'
-  | 'EQUIPE_JA_EXISTE';
+  | 'EQUIPE_JA_EXISTE'
+  | 'ETAPA_NAO_ENCONTRADA';
 
 export abstract class ErroDeDominio extends Error {
   abstract readonly codigo: CodigoDeErro;
@@ -51,5 +52,13 @@ export class EquipeJaExiste extends ErroDeDominio {
 
   constructor(nome: string) {
     super(`Já existe uma equipe chamada ${nome}.`);
+  }
+}
+
+export class EtapaNaoEncontrada extends ErroDeDominio {
+  readonly codigo = 'ETAPA_NAO_ENCONTRADA';
+
+  constructor() {
+    super('Etapa não encontrada no calendário da temporada.');
   }
 }

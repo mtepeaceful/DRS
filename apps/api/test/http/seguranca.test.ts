@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import {
   EquipeRepositoryEmMemoria,
+  ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
 } from '../../src/infra/memoria/repositorios-em-memoria.js';
 import { emitirToken } from '../../src/infra/seguranca/sessao.js';
@@ -15,7 +16,11 @@ let app: FastifyInstance;
 beforeEach(async () => {
   const equipes = new EquipeRepositoryEmMemoria();
   app = await buildApp(
-    { equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) },
+    {
+      equipes,
+      pilotos: new PilotoRepositoryEmMemoria(equipes),
+      importacoes: new ImportacaoRepositoryEmMemoria(),
+    },
     configuracaoDeTeste,
   );
 });

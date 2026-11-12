@@ -28,29 +28,29 @@ const nomesDosGps: Record<string, string> = {
   'United States Grand Prix': 'GP dos Estados Unidos',
 };
 
-const paises: Record<string, string> = {
-  Australia: 'Austrália',
-  Austria: 'Áustria',
-  Azerbaijan: 'Azerbaijão',
-  Bahrain: 'Bahrein',
-  Belgium: 'Bélgica',
-  Brazil: 'Brasil',
-  Canada: 'Canadá',
-  China: 'China',
-  Hungary: 'Hungria',
-  Italy: 'Itália',
-  Japan: 'Japão',
-  Malaysia: 'Malásia',
-  Mexico: 'México',
-  Monaco: 'Mônaco',
-  Netherlands: 'Holanda',
-  Qatar: 'Catar',
-  'Saudi Arabia': 'Arábia Saudita',
-  Singapore: 'Singapura',
-  Spain: 'Espanha',
-  UAE: 'Emirados Árabes',
-  UK: 'Inglaterra',
-  USA: 'Estados Unidos',
+const paises: Record<string, { nome: string; codigo: string }> = {
+  Australia: { nome: 'Austrália', codigo: 'AU' },
+  Austria: { nome: 'Áustria', codigo: 'AT' },
+  Azerbaijan: { nome: 'Azerbaijão', codigo: 'AZ' },
+  Bahrain: { nome: 'Bahrein', codigo: 'BH' },
+  Belgium: { nome: 'Bélgica', codigo: 'BE' },
+  Brazil: { nome: 'Brasil', codigo: 'BR' },
+  Canada: { nome: 'Canadá', codigo: 'CA' },
+  China: { nome: 'China', codigo: 'CN' },
+  Hungary: { nome: 'Hungria', codigo: 'HU' },
+  Italy: { nome: 'Itália', codigo: 'IT' },
+  Japan: { nome: 'Japão', codigo: 'JP' },
+  Malaysia: { nome: 'Malásia', codigo: 'MY' },
+  Mexico: { nome: 'México', codigo: 'MX' },
+  Monaco: { nome: 'Mônaco', codigo: 'MC' },
+  Netherlands: { nome: 'Holanda', codigo: 'NL' },
+  Qatar: { nome: 'Catar', codigo: 'QA' },
+  'Saudi Arabia': { nome: 'Arábia Saudita', codigo: 'SA' },
+  Singapore: { nome: 'Singapura', codigo: 'SG' },
+  Spain: { nome: 'Espanha', codigo: 'ES' },
+  UAE: { nome: 'Emirados Árabes', codigo: 'AE' },
+  UK: { nome: 'Inglaterra', codigo: 'GB' },
+  USA: { nome: 'Estados Unidos', codigo: 'US' },
 };
 
 export function nomeDoGp(nome: string) {
@@ -58,12 +58,17 @@ export function nomeDoGp(nome: string) {
 }
 
 export function nomeDoPaisEmPortugues(pais: string) {
-  return paises[pais] ?? pais;
+  return paises[pais]?.nome ?? pais;
+}
+
+export function codigoDoPais(pais: string) {
+  return paises[pais]?.codigo ?? '';
 }
 
 const nomesDasEquipes: Record<string, string> = {
   'Alpine F1 Team': 'Alpine',
   'Cadillac F1 Team': 'Cadillac',
+  'Haas F1 Team': 'Haas',
   'RB F1 Team': 'Racing Bulls',
 };
 

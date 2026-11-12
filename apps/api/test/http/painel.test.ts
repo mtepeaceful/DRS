@@ -4,9 +4,10 @@ import { buildApp } from '../../src/app.js';
 import type { Campeonato } from '../../src/application/ports/fonte-do-campeonato.js';
 import {
   EquipeRepositoryEmMemoria,
+  ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
 } from '../../src/infra/memoria/repositorios-em-memoria.js';
-import { configuracaoDeTeste } from '../support/autenticacao.js';
+import { configuracaoDeTeste, semCalendario } from '../support/autenticacao.js';
 
 let app: FastifyInstance;
 
@@ -31,7 +32,11 @@ const campeonato: Campeonato = {
 async function criarApp(sobrescrita: Partial<typeof configuracaoDeTeste>) {
   const equipes = new EquipeRepositoryEmMemoria();
   app = await buildApp(
-    { equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) },
+    {
+      equipes,
+      pilotos: new PilotoRepositoryEmMemoria(equipes),
+      importacoes: new ImportacaoRepositoryEmMemoria(),
+    },
     { ...configuracaoDeTeste, ...sobrescrita },
   );
 }
@@ -41,7 +46,7 @@ afterEach(() => app.close());
 describe('GET /painel', () => {
   it('é público e devolve campeonato e notícias com cache no navegador', async () => {
     await criarApp({
-      campeonato: { buscarCampeonato: async () => campeonato },
+      campeonato: { buscarCampeonato: async () => campeonato, ...semCalendario },
       noticias: {
         buscarNoticias: async () => [
           {
@@ -74,7 +79,10 @@ describe('GET /painel', () => {
 
   it('continua respondendo quando uma das fontes falha', async () => {
     await criarApp({
-      campeonato: { buscarCampeonato: () => Promise.reject(new Error('fora do ar')) },
+      campeonato: {
+        buscarCampeonato: () => Promise.reject(new Error('fora do ar')),
+        ...semCalendario,
+      },
     });
 
     const resposta = await app.inject({ method: 'GET', url: '/painel' });

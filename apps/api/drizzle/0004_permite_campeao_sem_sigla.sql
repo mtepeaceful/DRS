@@ -1,0 +1,1 @@
+ALTER TABLE "campeoes" ALTER COLUMN "sigla" DROP NOT NULL;

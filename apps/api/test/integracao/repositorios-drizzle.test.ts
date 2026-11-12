@@ -6,12 +6,14 @@ import { EquipeJaExiste, EquipeInvalida, NumeroJaEmUso } from '../../src/domain/
 import type { DadosPiloto } from '../../src/domain/piloto.js';
 import { conectar } from '../../src/infra/database/client.js';
 import { EquipeRepositoryDrizzle } from '../../src/infra/database/equipe-repository-drizzle.js';
+import { ImportacaoRepositoryDrizzle } from '../../src/infra/database/importacao-repository-drizzle.js';
 import { PilotoRepositoryDrizzle } from '../../src/infra/database/piloto-repository-drizzle.js';
 import { dadosDaEquipe } from '../support/dados.js';
 
 const { db, fechar } = conectar(inject('databaseUrl'));
 const equipes = new EquipeRepositoryDrizzle(db);
 const pilotos = new PilotoRepositoryDrizzle(db);
+const importacoes = new ImportacaoRepositoryDrizzle(db);
 let mclaren: Equipe;
 
 function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
@@ -26,7 +28,7 @@ function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
 }
 
 beforeEach(async () => {
-  await db.execute(sql`truncate table pilotos, equipes`);
+  await db.execute(sql`truncate table pilotos, equipes, campeoes, importacoes`);
   mclaren = await equipes.criar(dadosDaEquipe('McLaren'));
 });
 
@@ -108,5 +110,40 @@ describe('PilotoRepositoryDrizzle', () => {
 
   it('não atualiza um piloto que não existe', async () => {
     await expect(pilotos.atualizar(randomUUID(), dados())).resolves.toBeNull();
+  });
+});
+
+describe('ImportacaoRepositoryDrizzle', () => {
+  it('guarda campeões sem duplicar anos já conhecidos', async () => {
+    await importacoes.guardarCampeoes([
+      { ano: 1996, sigla: null },
+      { ano: 2020, sigla: 'HAM' },
+    ]);
+    await importacoes.guardarCampeoes([
+      { ano: 2020, sigla: 'XXX' },
+      { ano: 2021, sigla: 'VER' },
+    ]);
+
+    const campeoes = await importacoes.listarCampeoes();
+
+    expect(campeoes.toSorted((a, b) => a.ano - b.ano)).toEqual([
+      { ano: 1996, sigla: null },
+      { ano: 2020, sigla: 'HAM' },
+      { ano: 2021, sigla: 'VER' },
+    ]);
+  });
+
+  it('recusa sigla fora do padrão', async () => {
+    await expect(importacoes.guardarCampeoes([{ ano: 2022, sigla: 'ver' }])).rejects.toThrow();
+  });
+
+  it('devolve a importação mais recente', async () => {
+    expect(await importacoes.ultimaImportacao()).toBeNull();
+
+    await importacoes.registrarImportacao(new Date('2026-11-10T08:00:00Z'));
+    await importacoes.registrarImportacao(new Date('2026-11-11T08:00:00Z'));
+    await importacoes.registrarImportacao(new Date('2026-11-09T08:00:00Z'));
+
+    expect(await importacoes.ultimaImportacao()).toEqual(new Date('2026-11-11T08:00:00Z'));
   });
 });

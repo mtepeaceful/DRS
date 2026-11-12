@@ -6,6 +6,7 @@ import { cabecalhoDeSessao, configuracaoDeTeste } from '../support/autenticacao.
 import type { Equipe } from '../../src/domain/equipe.js';
 import {
   EquipeRepositoryEmMemoria,
+  ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
 } from '../../src/infra/memoria/repositorios-em-memoria.js';
 import { dadosDaEquipe } from '../support/dados.js';
@@ -39,7 +40,11 @@ beforeEach(async () => {
   const equipes = new EquipeRepositoryEmMemoria();
   mclaren = await equipes.criar(dadosDaEquipe('McLaren'));
   app = await buildApp(
-    { equipes, pilotos: new PilotoRepositoryEmMemoria(equipes) },
+    {
+      equipes,
+      pilotos: new PilotoRepositoryEmMemoria(equipes),
+      importacoes: new ImportacaoRepositoryEmMemoria(),
+    },
     configuracaoDeTeste,
   );
 });

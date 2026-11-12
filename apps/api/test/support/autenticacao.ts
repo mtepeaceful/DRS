@@ -6,8 +6,14 @@ import { emitirToken } from '../../src/infra/seguranca/sessao.js';
 export const SENHA_DE_TESTE = 'senha-de-teste-bem-longa';
 const SEGREDO_DE_TESTE = 'segredo-de-teste-com-mais-de-32-caracteres';
 
+export const semCalendario = {
+  buscarCalendario: async () => [],
+  buscarResultado: async () => null,
+};
+
 const fonteVazia: FonteDeDadosDaF1 = {
   buscarTemporadaAtual: async () => ({ ano: 2026, equipes: [], pilotos: [] }),
+  buscarCampeoes: async () => [],
 };
 
 export const configuracaoDeTeste: ConfiguracaoDoApp = {
@@ -22,6 +28,7 @@ export const configuracaoDeTeste: ConfiguracaoDoApp = {
       construtores: [],
       ultimaCorrida: null,
     }),
+    ...semCalendario,
   },
   noticias: { buscarNoticias: async () => [] },
   autenticacao: { hashDaSenha: await gerarHashDaSenha(SENHA_DE_TESTE), segredo: SEGREDO_DE_TESTE },

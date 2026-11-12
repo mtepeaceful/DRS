@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import styles from './AsaTraseira.module.css';
 
-function Carro({ className }: { className: string }) {
+function Carro({ className }: { className: string | undefined }) {
   return (
     <g className={className}>
       <path

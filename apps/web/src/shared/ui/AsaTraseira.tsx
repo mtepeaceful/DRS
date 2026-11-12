@@ -1,6 +1,21 @@
 import { useId } from 'react';
 import styles from './AsaTraseira.module.css';
 
+function Carro({ className }: { className: string }) {
+  return (
+    <g className={className}>
+      <path
+        className={styles.carroceria}
+        d="M2.4 4.4 9 3.8l2.8-1.3q3.2-1.4 6.2 0L20.3 4l8.6 1.1 1.6 1.2-28 .4Z"
+      />
+      <path className={styles.aerofolio} d="M0 .8h4v1.4H2.8v2.4H1.6V2.2H0Z" />
+      <path className={styles.capacete} d="M13.6 2.6q1.6-1.6 3.2 0Z" />
+      <circle className={styles.roda} cx="6" cy="6.2" r="2.1" />
+      <circle className={styles.roda} cx="24.6" cy="6.4" r="1.9" />
+    </g>
+  );
+}
+
 export function AsaTraseira({ aberta }: { aberta: boolean }) {
   const id = useId();
   const vermelho = `${id}-vermelho`;
@@ -35,16 +50,8 @@ export function AsaTraseira({ aberta }: { aberta: boolean }) {
       </defs>
 
       <g clipPath={`url(#${pista})`}>
-        <g className={styles.carro}>
-          <path
-            className={styles.carroceria}
-            d="M2.4 4.4 9 3.8l2.8-1.3q3.2-1.4 6.2 0L20.3 4l8.6 1.1 1.6 1.2-28 .4Z"
-          />
-          <path className={styles.aerofolio} d="M0 .8h4v1.4H2.8v2.4H1.6V2.2H0Z" />
-          <path className={styles.capacete} d="M13.6 2.6q1.6-1.6 3.2 0Z" />
-          <circle className={styles.roda} cx="6" cy="6.2" r="2.1" />
-          <circle className={styles.roda} cx="24.6" cy="6.4" r="1.9" />
-        </g>
+        <Carro className={styles.perseguidor} />
+        <Carro className={styles.lider} />
       </g>
 
       <path className={styles.pilar} d="M30 27h4l-0.6 10h-2.8z" fill={`url(#${carbono})`} />

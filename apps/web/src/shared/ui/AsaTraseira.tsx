@@ -1,17 +1,19 @@
 import { useId } from 'react';
 import styles from './AsaTraseira.module.css';
 
-function Carro({ className }: { className: string | undefined }) {
+function Perseguidor() {
   return (
-    <g className={className}>
-      <path
-        className={styles.carroceria}
-        d="M2.4 4.4 9 3.8l2.8-1.3q3.2-1.4 6.2 0L20.3 4l8.6 1.1 1.6 1.2-28 .4Z"
-      />
-      <path className={styles.aerofolio} d="M0 .8h4v1.4H2.8v2.4H1.6V2.2H0Z" />
-      <path className={styles.capacete} d="M13.6 2.6q1.6-1.6 3.2 0Z" />
-      <circle className={styles.roda} cx="6" cy="6.2" r="2.1" />
-      <circle className={styles.roda} cx="24.6" cy="6.4" r="1.9" />
+    <g className={styles.perseguidor}>
+      <path className={styles.pneuTraseiro} d="M-12.4-5.4h3.6v5.2h-3.6ZM8.8-5.4h3.6v5.2H8.8Z" />
+      <path className={styles.aerofolio} d="M-5.4-8.8h10.8v1.2H-5.4Z" />
+      <path className={styles.santoAntonio} d="M-.7-8.2h1.4v2H-.7Z" />
+      <path className={styles.carroceria} d="M-6.4-2.2q.8-3 4-3.4h4.8q3.2.4 4 3.4Z" />
+      <circle className={styles.capacete} cx="0" cy="-5.9" r="1.1" />
+      <path className={styles.halo} d="M-2-5.2Q0-7.8 2-5.2" />
+      <path className={styles.carroceria} d="M-1.3-1.4-.8-3.6H.8l.5 2.2Z" />
+      <path className={styles.pneu} d="M-9.6-4.4h3.2V0h-3.2ZM6.4-4.4h3.2V0H6.4Z" />
+      <path className={styles.asaDianteira} d="M-10.6-1.5h21.2v.9h-21.2Z" />
+      <path className={styles.aerofolio} d="M-10.8-2.6h.9v2h-.9ZM9.9-2.6h.9v2h-.9Z" />
     </g>
   );
 }
@@ -50,8 +52,7 @@ export function AsaTraseira({ aberta }: { aberta: boolean }) {
       </defs>
 
       <g clipPath={`url(#${pista})`}>
-        <Carro className={styles.perseguidor} />
-        <Carro className={styles.lider} />
+        <Perseguidor />
       </g>
 
       <path className={styles.pilar} d="M30 27h4l-0.6 10h-2.8z" fill={`url(#${carbono})`} />

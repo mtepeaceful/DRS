@@ -5,6 +5,8 @@ import { mensagemDoErro } from '../../shared/api/http';
 import { Aviso } from '../../shared/ui/Aviso';
 import botao from '../../shared/ui/botao.module.css';
 import { CORES_NEUTRAS } from '../calendario/cores';
+import { BotaoDeLembrete } from '../calendario/BotaoDeLembrete';
+import { compromissosDoFimDeSemana } from '../calendario/lembrete';
 import { Podio } from '../calendario/Podio';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { painel } from './api';
@@ -48,9 +50,16 @@ function ProximaCorrida({ corrida, total }: { corrida: Corrida; total: number })
           {corrida.circuito} · {corrida.cidade}, {nomeDoPaisEmPortugues(corrida.pais)}
         </p>
         <ContagemRegressiva ate={corrida.inicio} />
-        <Link to="/calendario" className={styles.linkDoCartao}>
-          Ver o calendário completo →
-        </Link>
+        <div className={styles.acoesDaCorrida}>
+          <BotaoDeLembrete
+            rotulo="Lembrar no meu calendário"
+            nomeDoArquivo={`drs-etapa-${corrida.rodada}.ics`}
+            compromissos={compromissosDoFimDeSemana(corrida)}
+          />
+          <Link to="/calendario" className={styles.linkDoCartao}>
+            Ver o calendário completo →
+          </Link>
+        </div>
       </div>
 
       <div className={styles.agenda}>

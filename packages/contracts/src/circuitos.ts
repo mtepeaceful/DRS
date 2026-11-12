@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { verbeteSchema } from './verbete.js';
 
 export const resumoDoCircuitoSchema = z.object({
   id: z.string(),
@@ -25,15 +26,7 @@ export const fichaDoCircuitoSchema = resumoDoCircuitoSchema.extend({
   ),
   maioresPilotos: z.array(maiorSchema),
   maioresEquipes: z.array(maiorSchema),
-  verbete: z
-    .object({
-      resumo: z.string(),
-      fonte: z.url({ protocol: /^https$/ }),
-      fundacao: z.number().int().nullable(),
-      fundadores: z.array(z.string()),
-      sede: z.string().nullable(),
-    })
-    .nullable(),
+  verbete: verbeteSchema.nullable(),
   proximaCorrida: z
     .object({ rodada: z.number().int(), nome: z.string(), inicio: z.iso.datetime() })
     .nullable(),

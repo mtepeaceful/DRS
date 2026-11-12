@@ -8,7 +8,9 @@ import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { calendario } from './api';
+import { BotaoDeLembrete } from './BotaoDeLembrete';
 import styles from './CalendarioPage.module.css';
+import { compromissosDaTemporada } from './lembrete';
 import { CORES_NEUTRAS } from './cores';
 
 const diaDoMes = new Intl.DateTimeFormat('pt-BR', { day: '2-digit' });
@@ -129,6 +131,11 @@ export function CalendarioPage() {
           <Link to="/classificacao">Classificação do campeonato →</Link>
           <Link to="/circuitos">Todos os circuitos →</Link>
         </nav>
+        <BotaoDeLembrete
+          rotulo="Lembrar das próximas corridas"
+          nomeDoArquivo={`drs-temporada-${ano}.ics`}
+          compromissos={compromissosDaTemporada(lista)}
+        />
       </header>
 
       <ol className={styles.etapas}>

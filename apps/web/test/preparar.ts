@@ -8,6 +8,8 @@ configure({ asyncUtilTimeout: 5000 });
 
 beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {});
+  Object.defineProperty(URL, 'createObjectURL', { value: () => 'blob:drs', writable: true });
+  Object.defineProperty(URL, 'revokeObjectURL', { value: () => {}, writable: true });
   vi.stubGlobal(
     'ResizeObserver',
     class {

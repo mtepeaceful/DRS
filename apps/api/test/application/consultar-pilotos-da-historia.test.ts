@@ -64,6 +64,7 @@ describe('ConsultarPilotosDaHistoria', () => {
       await criar(async () => ({
         resumo: 'Tricampeão mundial.',
         fonte: 'https://pt.wikipedia.org/wiki/Ayrton_Senna',
+        foto: null,
         fundacao: null,
         fundadores: [],
         sede: null,

@@ -108,4 +108,44 @@ describe('Pilotos da história', () => {
     );
     expect(screen.queryByRole('link', { name: 'Piloto Sem Ficha' })).not.toBeInTheDocument();
   });
+
+  it('mostra a foto do Commons com o crédito do autor e da licença', async () => {
+    servidor.use(
+      http.get('*/api/historia/pilotos/:id', () =>
+        HttpResponse.json({
+          ...piloto('senna', 'Ayrton Senna', 3),
+          temporadas: [1984, 1994],
+          corridas: 161,
+          vitorias: 41,
+          podios: 80,
+          poles: 65,
+          equipes: [],
+          anosDeTitulo: [],
+          verbete: {
+            resumo: 'Piloto brasileiro.',
+            fonte: 'https://pt.wikipedia.org/wiki/Ayrton_Senna',
+            foto: {
+              url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna.jpg/500px-Senna.jpg',
+              pagina: 'https://commons.wikimedia.org/wiki/File:Senna.jpg',
+              autor: 'Martin Lee',
+              licenca: 'CC BY-SA 2.0',
+            },
+            fundacao: null,
+            fundadores: [],
+            sede: null,
+          },
+        }),
+      ),
+    );
+    renderizar('/historia/pilotos/senna');
+
+    expect(await screen.findByRole('img', { name: 'Foto de Ayrton Senna' })).toHaveAttribute(
+      'src',
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna.jpg/500px-Senna.jpg',
+    );
+    expect(screen.getByRole('link', { name: /Foto: Martin Lee · CC BY-SA 2.0/ })).toHaveAttribute(
+      'href',
+      'https://commons.wikimedia.org/wiki/File:Senna.jpg',
+    );
+  });
 });

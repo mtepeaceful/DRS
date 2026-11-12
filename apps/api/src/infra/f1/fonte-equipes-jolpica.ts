@@ -59,7 +59,7 @@ export class FonteEquipesJolpica implements FonteDasEquipes {
       equipes.push(
         ...pagina.MRData.ConstructorTable.Constructors.map((equipe) => ({
           id: equipe.constructorId,
-          nome: equipe.name,
+          nome: equipe.name.replaceAll('&amp;', '&'),
           pais: paisDaNacionalidade(equipe.nationality),
           wikipedia: artigo(equipe.url),
         })),

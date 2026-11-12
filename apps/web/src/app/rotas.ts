@@ -67,6 +67,13 @@ export const rotas: RouteObject[] = [
               })),
           },
           {
+            path: 'equipes/gerenciar',
+            lazy: () =>
+              import('../features/equipes/GerenciarEquipesPage').then((m) => ({
+                Component: m.GerenciarEquipesPage,
+              })),
+          },
+          {
             path: 'pilotos/:id/editar',
             lazy: () =>
               import('../features/pilotos/PilotoFormPage').then((m) => ({
@@ -78,7 +85,14 @@ export const rotas: RouteObject[] = [
       {
         path: 'equipes',
         lazy: () =>
-          import('../features/equipes/EquipesPage').then((m) => ({ Component: m.EquipesPage })),
+          import('../features/dicionario/EquipesPage').then((m) => ({ Component: m.EquipesPage })),
+      },
+      {
+        path: 'equipes/:id',
+        lazy: () =>
+          import('../features/dicionario/FichaDaEquipePage').then((m) => ({
+            Component: m.FichaDaEquipePage,
+          })),
       },
       {
         path: 'historia',

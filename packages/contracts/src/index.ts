@@ -1,5 +1,6 @@
 export * from './calendario.js';
 export * from './desempenho.js';
+export * from './dicionario.js';
 export * from './equipe.js';
 export * from './historia.js';
 export * from './erro.js';

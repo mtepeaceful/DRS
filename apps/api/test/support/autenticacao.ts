@@ -36,6 +36,11 @@ export const configuracaoDeTeste: ConfiguracaoDoApp = {
     ...semCalendario,
   },
   noticias: { buscarNoticias: async () => [] },
+  equipesDaHistoria: {
+    listar: async () => [],
+    numeros: () => Promise.reject(new Error('sem equipes nos testes')),
+  },
+  enciclopedia: { verbete: async () => null },
   autenticacao: { hashDaSenha: await gerarHashDaSenha(SENHA_DE_TESTE), segredo: SEGREDO_DE_TESTE },
 };
 

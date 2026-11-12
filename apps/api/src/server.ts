@@ -3,9 +3,11 @@ import { loadEnv } from './env.js';
 import { criarRepositorios } from './infra/criar-repositorios.js';
 import { comCache, comCachePorChave } from './infra/cache/com-cache.js';
 import { FonteCampeonatoJolpica } from './infra/f1/fonte-campeonato-jolpica.js';
+import { FonteEquipesJolpica } from './infra/f1/fonte-equipes-jolpica.js';
 import { FonteHistoriaJolpica } from './infra/f1/fonte-historia-jolpica.js';
 import { FonteJolpicaOpenF1 } from './infra/f1/fonte-jolpica-openf1.js';
 import { FonteRssMotorsport } from './infra/noticias/fonte-rss-motorsport.js';
+import { EnciclopediaWikimedia } from './infra/wiki/enciclopedia-wikimedia.js';
 
 const env = loadEnv();
 const MINUTO = 60_000;
@@ -28,6 +30,16 @@ const carreiraEmCache = comCachePorChave(
   (nome: string) => historia.buscarCarreira(nome),
   24 * 60 * MINUTO,
 );
+const equipesDaHistoria = new FonteEquipesJolpica();
+const numerosDaEquipeEmCache = comCachePorChave(
+  (id: string) => equipesDaHistoria.numeros(id),
+  24 * 60 * MINUTO,
+);
+const enciclopedia = new EnciclopediaWikimedia();
+const verbeteEmCache = comCachePorChave(
+  (artigo: string) => enciclopedia.verbete(artigo),
+  7 * 24 * 60 * MINUTO,
+);
 const { repositorios, fechar } = criarRepositorios(env);
 const app = await buildApp(
   repositorios,
@@ -39,6 +51,11 @@ const app = await buildApp(
       buscarTemporada: temporadaHistoricaEmCache,
       buscarCarreira: carreiraEmCache,
     },
+    equipesDaHistoria: {
+      listar: () => equipesDaHistoria.listar(),
+      numeros: numerosDaEquipeEmCache,
+    },
+    enciclopedia: { verbete: verbeteEmCache },
     campeonato: {
       buscarCampeonato: campeonatoEmCache,
       buscarCalendario: calendarioEmCache,

@@ -9,6 +9,7 @@ import { ConsultarCalendario } from './application/calendario/consultar-calendar
 import { ConsultarDesempenho } from './application/desempenho/consultar-desempenho.js';
 import { AtualizarEquipe } from './application/equipes/atualizar-equipe.js';
 import { CadastrarEquipe } from './application/equipes/cadastrar-equipe.js';
+import { ConsultarDicionario } from './application/equipes/consultar-dicionario.js';
 import { ImportarTemporada } from './application/importacao/importar-temporada.js';
 import { ManterGridAtualizado } from './application/importacao/manter-grid-atualizado.js';
 import {
@@ -27,6 +28,7 @@ import { ObterPiloto } from './application/pilotos/obter-piloto.js';
 import type { CampeoesRepository } from './application/ports/campeoes-repository.js';
 import type { EquipeRepository } from './application/ports/equipe-repository.js';
 import type { FonteDaHistoria } from './application/ports/fonte-da-historia.js';
+import type { Enciclopedia, FonteDasEquipes } from './application/ports/fonte-das-equipes.js';
 import type { FonteDeDadosDaF1 } from './application/ports/fonte-de-dados-da-f1.js';
 import type { FonteDeNoticias } from './application/ports/fonte-de-noticias.js';
 import type { FonteDoCampeonato } from './application/ports/fonte-do-campeonato.js';
@@ -39,6 +41,7 @@ import {
   rotasDeSessao,
 } from './infra/http/autenticacao.js';
 import { rotasCalendario } from './infra/http/rotas-calendario.js';
+import { rotasDicionario } from './infra/http/rotas-dicionario.js';
 import { rotasDesempenho } from './infra/http/rotas-desempenho.js';
 import { rotasEquipes } from './infra/http/rotas-equipes.js';
 import { rotasHistoria } from './infra/http/rotas-historia.js';
@@ -58,6 +61,8 @@ export interface ConfiguracaoDoApp {
   autenticacao: ConfiguracaoDeAutenticacao;
   fonteDeDados: FonteDeDadosDaF1;
   historia: FonteDaHistoria;
+  equipesDaHistoria: FonteDasEquipes;
+  enciclopedia: Enciclopedia;
   campeonato: FonteDoCampeonato;
   noticias: FonteDeNoticias;
   origensPermitidas?: string[];
@@ -72,6 +77,8 @@ export async function buildApp(
     autenticacao,
     fonteDeDados,
     historia,
+    equipesDaHistoria,
+    enciclopedia,
     campeonato,
     noticias,
     origensPermitidas = [],
@@ -144,6 +151,10 @@ export async function buildApp(
   );
 
   await app.register(rotasImportacao, { prefix: '/importacoes', importar });
+  await app.register(rotasDicionario, {
+    prefix: '/historia/equipes',
+    dicionario: new ConsultarDicionario(equipesDaHistoria, enciclopedia, campeoes, campeonato),
+  });
   await app.register(rotasHistoria, {
     prefix: '/historia',
     historia: new ConsultarHistoria(campeoes, historia),

@@ -12,6 +12,7 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { fichaDoCircuito } from './api';
+import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './FichaDoCircuitoPage.module.css';
 
 const dataEHora = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeStyle: 'short' });
@@ -23,9 +24,11 @@ function plural(quantidade: number, singular: string, plural: string) {
 function Maiores({
   titulo,
   lista,
+  pilotos = false,
 }: {
   titulo: string;
   lista: FichaDoCircuitoDTO['maioresPilotos'];
+  pilotos?: boolean;
 }) {
   if (lista.length === 0) {
     return null;
@@ -37,7 +40,7 @@ function Maiores({
       <ol className={styles.ranking}>
         {lista.map((maior) => (
           <li key={maior.nome}>
-            <span>{nomeDaEquipe(maior.nome)}</span>
+            <span>{pilotos ? <NomeDoPiloto nome={maior.nome} /> : nomeDaEquipe(maior.nome)}</span>
             <span className={styles.numero}>{plural(maior.vitorias, 'vitória', 'vitórias')}</span>
           </li>
         ))}
@@ -184,7 +187,7 @@ export function FichaDoCircuitoPage() {
                         </Link>
                       </td>
                       <th scope="row" className={styles.piloto}>
-                        {vitoria.piloto}
+                        <NomeDoPiloto nome={vitoria.piloto} />
                         <span className={styles.equipeNoCelular}>
                           {nomeDaEquipe(vitoria.equipe)}
                         </span>
@@ -199,7 +202,7 @@ export function FichaDoCircuitoPage() {
         </div>
 
         <div className={styles.pilha}>
-          <Maiores titulo="Quem mais venceu aqui" lista={dados.maioresPilotos} />
+          <Maiores titulo="Quem mais venceu aqui" lista={dados.maioresPilotos} pilotos />
           <Maiores titulo="Equipes que mais venceram" lista={dados.maioresEquipes} />
         </div>
       </div>

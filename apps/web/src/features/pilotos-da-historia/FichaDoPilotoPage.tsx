@@ -9,7 +9,7 @@ import botao from '../../shared/ui/botao.module.css';
 import { fichaDoPilotoDaF1 } from './api';
 import styles from './FichaDoPilotoPage.module.css';
 
-const dataLonga = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeZone: 'UTC' });
+const dataCurta = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeZone: 'UTC' });
 
 export function FichaDoPilotoPage() {
   const { id = '' } = useParams();
@@ -56,7 +56,7 @@ export function FichaDoPilotoPage() {
   const primeira = dados.temporadas[0];
   const ultima = dados.temporadas.at(-1);
   const numeros = [
-    ['Nascimento', dados.nascimento ? dataLonga.format(new Date(dados.nascimento)) : null],
+    ['Nascimento', dados.nascimento ? dataCurta.format(new Date(dados.nascimento)) : null],
     ['Temporadas', dados.temporadas.length],
     ['Corridas', dados.corridas],
     ['Vitórias', dados.vitorias],

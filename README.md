@@ -1,12 +1,12 @@
 # DRS
 
-Painel da temporada de Fórmula 1 e gerenciador de pilotos, com dados reais da temporada e uma interface inspirada na identidade visual das corridas.
+**Data Retrieval System**: busca os dados da Fórmula 1 (pilotos, equipes, corridas e a história desde 1950) e apresenta tudo num painel com interface inspirada na identidade visual das corridas.
 
 **Acesse:** https://drs-umcj.onrender.com
 
 ![Página inicial do DRS com a contagem regressiva para o GP de Las Vegas, a classificação do campeonato e as últimas notícias](docs/home.png)
 
-O nome vem do Drag Reduction System, a asa traseira móvel que abre na reta. No logo, o flap da asa abre sempre que a aplicação busca dados.
+A sigla é um trocadilho com o DRS da F1, o Drag Reduction System, a asa traseira móvel que abre na reta. Por isso o logo é uma asa, e o flap abre sempre que a aplicação busca dados.
 
 ## Funcionalidades
 

@@ -63,7 +63,7 @@ export function Layout() {
       </main>
 
       <footer className={styles.rodape}>
-        <p>DRS · gerenciamento de pilotos de Fórmula 1</p>
+        <p>DRS · Data Retrieval System da Fórmula 1</p>
         <p className={styles.aviso}>
           Projeto pessoal, sem fins lucrativos e sem afiliação com a Fórmula 1, a FIA ou as equipes.
           Nomes, marcas e logos pertencem aos seus donos. Dados da OpenF1 e da Jolpica.

@@ -5,6 +5,7 @@ import { nomeDoPais } from '../../shared/lib/paises';
 import { nomeDaEquipe } from '../../shared/lib/traducoes';
 import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
+import { FotoDoCommons } from '../../shared/ui/FotoDoCommons';
 import botao from '../../shared/ui/botao.module.css';
 import { fichaDoPilotoDaF1 } from './api';
 import styles from './FichaDoPilotoPage.module.css';
@@ -71,19 +72,28 @@ export function FichaDoPilotoPage() {
       {voltar}
 
       <header className={dados.anosDeTitulo.length > 0 ? styles.destaqueCampeao : styles.destaque}>
-        <p className={styles.sobretitulo}>
-          {primeira === undefined
-            ? 'Piloto de Fórmula 1'
-            : primeira === ultima
-              ? `Correu em ${primeira}`
-              : `Correu de ${primeira} a ${ultima}`}
-        </p>
-        <h1 className={styles.titulo}>{dados.nome}</h1>
-        {dados.pais && (
-          <p className={styles.pais}>
-            <Bandeira pais={dados.pais} />
-            {nomeDoPais(dados.pais)}
+        <div className={styles.identidade}>
+          <p className={styles.sobretitulo}>
+            {primeira === undefined
+              ? 'Piloto de Fórmula 1'
+              : primeira === ultima
+                ? `Correu em ${primeira}`
+                : `Correu de ${primeira} a ${ultima}`}
           </p>
+          <h1 className={styles.titulo}>{dados.nome}</h1>
+          {dados.pais && (
+            <p className={styles.pais}>
+              <Bandeira pais={dados.pais} />
+              {nomeDoPais(dados.pais)}
+            </p>
+          )}
+        </div>
+        {dados.verbete?.foto && (
+          <FotoDoCommons
+            foto={dados.verbete.foto}
+            descricao={`Foto de ${dados.nome}`}
+            className={styles.foto}
+          />
         )}
       </header>
 

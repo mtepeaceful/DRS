@@ -18,9 +18,17 @@ export interface FonteDasEquipes {
   numeros(id: string): Promise<NumerosDaEquipe>;
 }
 
+export interface Foto {
+  url: string;
+  pagina: string;
+  autor: string | null;
+  licenca: string | null;
+}
+
 export interface Verbete {
   resumo: string;
   fonte: string;
+  foto: Foto | null;
   fundacao: number | null;
   fundadores: string[];
   sede: string | null;

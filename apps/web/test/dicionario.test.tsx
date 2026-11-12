@@ -82,6 +82,7 @@ describe('Dicionário de equipes', () => {
       verbete: {
         resumo: 'Equipe criada por Colin Chapman.',
         fonte: 'https://pt.wikipedia.org/wiki/Team_Lotus',
+        foto: null,
         fundacao: 1954,
         fundadores: ['Colin Chapman'],
         sede: null,

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { verbeteSchema } from './verbete.js';
 
 const pilotoDaF1Schema = z.object({
   id: z.string(),
@@ -18,15 +19,7 @@ export const fichaDoPilotoDaF1Schema = pilotoDaF1Schema.extend({
   poles: z.number().int(),
   equipes: z.array(z.object({ id: z.string(), nome: z.string() })),
   anosDeTitulo: z.array(z.number().int()),
-  verbete: z
-    .object({
-      resumo: z.string(),
-      fonte: z.url({ protocol: /^https$/ }),
-      fundacao: z.number().int().nullable(),
-      fundadores: z.array(z.string()),
-      sede: z.string().nullable(),
-    })
-    .nullable(),
+  verbete: verbeteSchema.nullable(),
 });
 
 export type ResumoDoPilotoDaF1DTO = z.infer<typeof resumoDoPilotoDaF1Schema>;

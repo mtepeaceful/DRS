@@ -1,0 +1,27 @@
+.foto {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.imagem {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-superficie-alta);
+}
+
+.credito {
+  color: var(--cor-texto-suave);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.credito a {
+  color: inherit;
+  text-decoration-color: var(--cor-linha-forte);
+  overflow-wrap: anywhere;
+}

@@ -148,6 +148,7 @@ describe('EnciclopediaWikimedia', () => {
     expect(await new EnciclopediaWikimedia().verbete('Scuderia Ferrari')).toEqual({
       resumo: 'A Scuderia Ferrari é a equipe mais antiga em atividade.',
       fonte: 'https://pt.wikipedia.org/wiki/Scuderia_Ferrari',
+      foto: null,
       fundacao: 1929,
       fundadores: ['Enzo Ferrari'],
       sede: 'Maranello',
@@ -254,5 +255,69 @@ describe('FonteCircuitosJolpica', () => {
       '/ergast/f1/circuits/monza/results/1.json',
       '/ergast/f1/circuits/monza/results/1.json',
     ]);
+  });
+});
+
+describe('EnciclopediaWikimedia · fotos', () => {
+  function simular(miniatura: string) {
+    return responder((url) => {
+      if (url.hostname === 'www.wikidata.org') {
+        return Response.json({ entities: { Q1: { claims: {}, sitelinks: {} } } });
+      }
+
+      if (url.hostname === 'commons.wikimedia.org') {
+        return Response.json({
+          query: {
+            pages: {
+              '1': {
+                imageinfo: [
+                  {
+                    extmetadata: {
+                      Artist: { value: '<a href="//flickr.com/x">Martin Lee</a> from London' },
+                      LicenseShortName: { value: 'CC BY-SA 2.0' },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        });
+      }
+
+      return Response.json({
+        extract: 'Piloto brasileiro.',
+        content_urls: { desktop: { page: 'https://en.wikipedia.org/wiki/Ayrton_Senna' } },
+        thumbnail: { source: miniatura },
+      });
+    });
+  }
+
+  it('usa a foto do Commons em tamanho maior, com autor e licença', async () => {
+    const pedidos = simular(
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/330px-Senna_1993.jpg?utm_source=pt.wikipedia.org',
+    );
+
+    const verbete = await new EnciclopediaWikimedia().verbete('Ayrton Senna');
+
+    expect(verbete?.foto).toEqual({
+      url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/500px-Senna_1993.jpg',
+      pagina: 'https://commons.wikimedia.org/wiki/File:Senna_1993.jpg',
+      autor: 'Martin Lee from London',
+      licenca: 'CC BY-SA 2.0',
+    });
+    expect(
+      pedidos.find((url) => url.hostname === 'commons.wikimedia.org')?.searchParams.get('titles'),
+    ).toBe('File:Senna_1993.jpg');
+  });
+
+  it('recusa imagem que não está no Commons, como as de uso justo', async () => {
+    const pedidos = simular(
+      'https://upload.wikimedia.org/wikipedia/en/thumb/a/ab/Logo.png/330px-Logo.png',
+    );
+
+    const verbete = await new EnciclopediaWikimedia().verbete('Equipe');
+
+    expect(verbete?.foto).toBeNull();
+    expect(pedidos.some((url) => url.hostname === 'commons.wikimedia.org')).toBe(false);
   });
 });

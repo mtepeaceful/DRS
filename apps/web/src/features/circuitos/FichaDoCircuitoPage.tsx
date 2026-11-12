@@ -10,6 +10,7 @@ import {
 } from '../../shared/lib/traducoes';
 import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
+import { FotoDoCommons } from '../../shared/ui/FotoDoCommons';
 import botao from '../../shared/ui/botao.module.css';
 import { fichaDoCircuito } from './api';
 import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
@@ -143,6 +144,9 @@ export function FichaDoCircuitoPage() {
               <h2 id="historia-do-circuito" className={styles.tituloDoCartao}>
                 História
               </h2>
+              {dados.verbete.foto && (
+                <FotoDoCommons foto={dados.verbete.foto} descricao={`Foto de ${dados.nome}`} />
+              )}
               <p className={styles.texto}>{dados.verbete.resumo}</p>
               <p className={styles.fonte}>
                 Texto da{' '}

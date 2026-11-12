@@ -71,6 +71,7 @@ describe('Circuitos', () => {
       verbete: {
         resumo: 'Pista perto de Milão.',
         fonte: 'https://pt.wikipedia.org/wiki/Monza',
+        foto: null,
         fundacao: 1922,
         fundadores: [],
         sede: null,

@@ -322,6 +322,22 @@ describe('EnciclopediaWikimedia · fotos', () => {
     );
   });
 
+  it('busca só a foto com o resumo em inglês, sem consultar o Wikidata', async () => {
+    const pedidos = simular(
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/330px-Senna_1993.jpg',
+    );
+
+    const foto = await new EnciclopediaWikimedia().foto('Ayrton Senna');
+
+    expect(foto?.url).toBe(
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/500px-Senna_1993.jpg',
+    );
+    expect(pedidos.map((url) => url.hostname)).toEqual([
+      'en.wikipedia.org',
+      'commons.wikimedia.org',
+    ]);
+  });
+
   it('recusa imagem que não está no Commons, como as de uso justo', async () => {
     const pedidos = simular(
       'https://upload.wikimedia.org/wikipedia/en/thumb/a/ab/Logo.png/330px-Logo.png',

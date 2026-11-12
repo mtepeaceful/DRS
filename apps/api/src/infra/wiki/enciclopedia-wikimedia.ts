@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import type { Enciclopedia, Foto, Verbete } from '../../application/ports/fonte-das-equipes.js';
+import type {
+  Enciclopedia,
+  Foto,
+  GaleriaDeFotos,
+  Verbete,
+} from '../../application/ports/fonte-das-equipes.js';
 import { buscarJson, buscarJsonSeExistir } from '../http-externo.js';
 
 const WIKIDATA = 'https://www.wikidata.org/w/api.php';
@@ -165,7 +170,13 @@ function resumoDaWikipedia(idioma: 'pt' | 'en', titulo: string) {
   );
 }
 
-export class EnciclopediaWikimedia implements Enciclopedia {
+export class EnciclopediaWikimedia implements Enciclopedia, GaleriaDeFotos {
+  async foto(artigoEmIngles: string): Promise<Foto | null> {
+    const texto = await resumoDaWikipedia('en', artigoEmIngles);
+
+    return fotoDoCommons(texto?.thumbnail?.source);
+  }
+
   async verbete(artigoEmIngles: string): Promise<Verbete | null> {
     const [equipe] = Object.values(
       await buscarEntidades({ sites: 'enwiki', titles: artigoEmIngles, props: 'claims|sitelinks' }),

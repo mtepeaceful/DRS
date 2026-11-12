@@ -31,7 +31,11 @@ import { ObterPiloto } from './application/pilotos/obter-piloto.js';
 import type { CampeoesRepository } from './application/ports/campeoes-repository.js';
 import type { EquipeRepository } from './application/ports/equipe-repository.js';
 import type { FonteDaHistoria } from './application/ports/fonte-da-historia.js';
-import type { Enciclopedia, FonteDasEquipes } from './application/ports/fonte-das-equipes.js';
+import type {
+  Enciclopedia,
+  FonteDasEquipes,
+  GaleriaDeFotos,
+} from './application/ports/fonte-das-equipes.js';
 import type { FonteDosCircuitos } from './application/ports/fonte-dos-circuitos.js';
 import type { FonteDeDadosDaF1 } from './application/ports/fonte-de-dados-da-f1.js';
 import type { FonteDeNoticias } from './application/ports/fonte-de-noticias.js';
@@ -70,6 +74,7 @@ export interface ConfiguracaoDoApp {
   equipesDaHistoria: FonteDasEquipes;
   circuitos: FonteDosCircuitos;
   enciclopedia: Enciclopedia;
+  galeria: GaleriaDeFotos;
   campeonato: FonteDoCampeonato;
   noticias: FonteDeNoticias;
   origensPermitidas?: string[];
@@ -87,6 +92,7 @@ export async function buildApp(
     equipesDaHistoria,
     circuitos,
     enciclopedia,
+    galeria,
     campeonato,
     noticias,
     origensPermitidas = [],
@@ -122,6 +128,8 @@ export async function buildApp(
 
   await app.register(rotasDeSessao, autenticacao);
 
+  const fotosDosPilotos = new FotosDosPilotos(pilotos, historia, galeria);
+
   await app.register(rotasPilotos, {
     prefix: '/pilotos',
     listar: new ListarPilotos(pilotos),
@@ -130,7 +138,7 @@ export async function buildApp(
     atualizar: new AtualizarPiloto(pilotos, equipes),
     excluir: new ExcluirPiloto(pilotos),
     carreira: new ConsultarCarreira(pilotos, campeoes, historia),
-    fotos: new FotosDosPilotos(pilotos, historia, enciclopedia),
+    fotos: fotosDosPilotos,
   });
 
   await app.register(rotasEquipes, {
@@ -189,6 +197,11 @@ export async function buildApp(
 
           return novos > 0 ? { temporadas: novos } : null;
         },
+      },
+      {
+        descricao: 'Fotos do grid em cache',
+        primeiraEmMs: 20_000,
+        executar: async () => ({ fotos: (await fotosDosPilotos.executar()).length }),
       },
       {
         descricao: 'Grid atualizado automaticamente',

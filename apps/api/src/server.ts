@@ -46,6 +46,10 @@ const verbeteEmCache = comCachePorChave(
   (artigo: string) => enciclopedia.verbete(artigo),
   7 * 24 * 60 * MINUTO,
 );
+const fotoEmCache = comCachePorChave(
+  (artigo: string) => enciclopedia.foto(artigo),
+  7 * 24 * 60 * MINUTO,
+);
 const { repositorios, fechar } = criarRepositorios(env);
 const app = await buildApp(
   repositorios,
@@ -67,6 +71,7 @@ const app = await buildApp(
       vencedores: vencedoresNoCircuitoEmCache,
     },
     enciclopedia: { verbete: verbeteEmCache },
+    galeria: { foto: fotoEmCache },
     campeonato: {
       buscarCampeonato: campeonatoEmCache,
       buscarCalendario: calendarioEmCache,

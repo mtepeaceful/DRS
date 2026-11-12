@@ -1,5 +1,5 @@
 import type { FonteDaHistoria } from '../ports/fonte-da-historia.js';
-import type { Enciclopedia, Foto } from '../ports/fonte-das-equipes.js';
+import type { Foto, GaleriaDeFotos } from '../ports/fonte-das-equipes.js';
 import type { PilotoRepository } from '../ports/piloto-repository.js';
 import { nomeComparavel } from './nome-comparavel.js';
 
@@ -15,7 +15,7 @@ export class FotosDosPilotos {
   constructor(
     private readonly pilotos: PilotoRepository,
     private readonly fonte: FonteDaHistoria,
-    private readonly enciclopedia: Enciclopedia,
+    private readonly galeria: GaleriaDeFotos,
   ) {}
 
   async executar(): Promise<FotoDoPiloto[]> {
@@ -37,12 +37,12 @@ export class FotosDosPilotos {
 
     for (let inicio = 0; inicio < pendentes.length; inicio += BUSCAS_SIMULTANEAS) {
       const lote = pendentes.slice(inicio, inicio + BUSCAS_SIMULTANEAS);
-      const verbetes = await Promise.all(
-        lote.map(({ artigo }) => this.enciclopedia.verbete(artigo).catch(() => null)),
+      const encontradas = await Promise.all(
+        lote.map(({ artigo }) => this.galeria.foto(artigo).catch(() => null)),
       );
 
       lote.forEach(({ id }, indice) => {
-        const foto = verbetes[indice]?.foto;
+        const foto = encontradas[indice];
 
         if (foto) fotos.push({ id, foto });
       });

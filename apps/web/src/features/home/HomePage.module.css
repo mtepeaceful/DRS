@@ -121,7 +121,7 @@
 
 .cartao {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   gap: 16px;
   min-width: 0;
   padding: 24px;

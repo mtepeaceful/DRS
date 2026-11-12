@@ -26,6 +26,13 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'classificacao',
+        lazy: () =>
+          import('../features/campeonato/ClassificacaoPage').then((m) => ({
+            Component: m.ClassificacaoPage,
+          })),
+      },
+      {
         path: 'comparar',
         lazy: () =>
           import('../features/comparar/ComparacaoPage').then((m) => ({

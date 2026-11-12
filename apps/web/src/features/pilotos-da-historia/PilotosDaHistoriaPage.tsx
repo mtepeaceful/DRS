@@ -5,15 +5,28 @@ import { mensagemDoErro } from '../../shared/api/http';
 import { semAcento } from '../../shared/lib/texto';
 import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
+import chip from '../../shared/ui/chip.module.css';
 import botao from '../../shared/ui/botao.module.css';
 import { pilotosDaHistoria } from './api';
 import styles from './PilotosDaHistoriaPage.module.css';
 
-const LIMITE_DA_BUSCA = 60;
+const POR_PAGINA = 60;
+
+type Filtro = 'todos' | 'campeoes';
+
+const FILTROS: Record<Filtro, string> = { todos: 'Todos', campeoes: 'Campeões' };
+
+function titulo(filtro: Filtro, termo: string, total: number) {
+  if (termo) return `${total} ${total === 1 ? 'piloto encontrado' : 'pilotos encontrados'}`;
+
+  return filtro === 'campeoes' ? 'Campeões mundiais' : 'Todos os pilotos';
+}
 
 export function PilotosDaHistoriaPage() {
   const pilotos = useQuery(pilotosDaHistoria);
   const [busca, setBusca] = useState('');
+  const [filtro, setFiltro] = useState<Filtro>('todos');
+  const [quantidade, setQuantidade] = useState(POR_PAGINA);
   const termo = semAcento(useDeferredValue(busca).trim());
 
   if (pilotos.isPending) {
@@ -40,12 +53,16 @@ export function PilotosDaHistoriaPage() {
     );
   }
 
+  const doFiltro =
+    filtro === 'campeoes'
+      ? pilotos.data
+          .filter((piloto) => piloto.titulos > 0)
+          .toSorted((a, b) => b.titulos - a.titulos || a.nome.localeCompare(b.nome, 'pt-BR'))
+      : pilotos.data.toSorted((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
   const encontrados = termo
-    ? pilotos.data.filter((piloto) => semAcento(piloto.nome).includes(termo))
-    : pilotos.data
-        .filter((piloto) => piloto.titulos > 0)
-        .toSorted((a, b) => b.titulos - a.titulos || a.nome.localeCompare(b.nome, 'pt-BR'));
-  const visiveis = encontrados.slice(0, LIMITE_DA_BUSCA);
+    ? doFiltro.filter((piloto) => semAcento(piloto.nome).includes(termo))
+    : doFiltro;
+  const visiveis = encontrados.slice(0, quantidade);
 
   return (
     <>
@@ -69,20 +86,32 @@ export function PilotosDaHistoriaPage() {
         placeholder="Buscar piloto pelo nome"
         maxLength={60}
         value={busca}
-        onChange={(evento) => setBusca(evento.target.value)}
+        onChange={(evento) => {
+          setBusca(evento.target.value);
+          setQuantidade(POR_PAGINA);
+        }}
       />
 
+      <div className={styles.filtros} role="group" aria-label="Mostrar">
+        {(Object.entries(FILTROS) as [Filtro, string][]).map(([chave, nome]) => (
+          <button
+            key={chave}
+            type="button"
+            className={filtro === chave ? chip.chipAtivo : chip.chip}
+            aria-pressed={filtro === chave}
+            onClick={() => {
+              setFiltro(chave);
+              setQuantidade(POR_PAGINA);
+            }}
+          >
+            {nome}
+          </button>
+        ))}
+      </div>
+
       <h2 className={styles.tituloDaLista} aria-live="polite">
-        {termo
-          ? `${encontrados.length} ${encontrados.length === 1 ? 'piloto encontrado' : 'pilotos encontrados'}`
-          : 'Campeões mundiais'}
+        {titulo(filtro, termo, encontrados.length)}
       </h2>
-      {encontrados.length > LIMITE_DA_BUSCA && (
-        <p className={styles.aviso}>
-          Mostrando os {LIMITE_DA_BUSCA} primeiros. Digite mais do nome para encontrar quem você
-          procura.
-        </p>
-      )}
 
       <ul className={styles.lista}>
         {visiveis.map((piloto) => (
@@ -108,6 +137,23 @@ export function PilotosDaHistoriaPage() {
           </li>
         ))}
       </ul>
+
+      {encontrados.length > 0 && (
+        <div className={styles.rodapeDaLista}>
+          <p className={styles.aviso}>
+            Mostrando {visiveis.length} de {encontrados.length}
+          </p>
+          {visiveis.length < encontrados.length && (
+            <button
+              type="button"
+              className={botao.secundario}
+              onClick={() => setQuantidade((atual) => atual + POR_PAGINA)}
+            >
+              Mostrar mais pilotos
+            </button>
+          )}
+        </div>
+      )}
     </>
   );
 }

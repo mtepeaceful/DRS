@@ -41,35 +41,6 @@
   gap: 8px;
 }
 
-.categoria,
-.categoriaAtiva {
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--cor-linha-forte);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--cor-texto-suave);
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    color var(--transicao),
-    border-color var(--transicao),
-    background-color var(--transicao);
-}
-
-.categoria:hover,
-.categoria:focus-visible {
-  border-color: var(--cor-texto);
-  color: var(--cor-texto);
-}
-
-.categoriaAtiva {
-  border-color: var(--cor-corrida);
-  background: var(--cor-corrida-fundo);
-  color: #fff;
-}
-
 .contagem {
   margin: 18px 0 12px;
   color: var(--cor-texto-suave);

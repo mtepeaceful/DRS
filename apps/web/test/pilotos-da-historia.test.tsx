@@ -21,22 +21,66 @@ function responderLista() {
 }
 
 describe('Pilotos da história', () => {
-  it('começa pelos campeões, do maior para o menor, e busca qualquer piloto sem acento', async () => {
+  it('lista todos os pilotos em ordem alfabética e filtra os campeões', async () => {
     responderLista();
     const { usuario } = renderizar('/historia/pilotos');
 
-    expect(await screen.findByRole('heading', { name: 'Campeões mundiais' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Todos os pilotos' })).toBeVisible();
     expect(
-      screen.getAllByRole('link', { name: /títulos?/ }).map((link) => link.getAttribute('href')),
-    ).toEqual(['/historia/pilotos/fangio', '/historia/pilotos/senna', '/historia/pilotos/piquet']);
+      within(screen.getByRole('list'))
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual([
+      '/historia/pilotos/senna',
+      '/historia/pilotos/fangio',
+      '/historia/pilotos/piquet',
+      '/historia/pilotos/barrichello',
+    ]);
+    expect(screen.getByText('Mostrando 4 de 4')).toBeInTheDocument();
 
-    await usuario.type(screen.getByRole('searchbox'), 'RÚBENS');
+    await usuario.click(screen.getByRole('button', { name: 'Campeões' }));
+
+    expect(screen.getByRole('heading', { name: 'Campeões mundiais' })).toBeVisible();
+    expect(
+      within(screen.getByRole('list'))
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual(['/historia/pilotos/fangio', '/historia/pilotos/senna', '/historia/pilotos/piquet']);
+  });
+
+  it('busca qualquer piloto sem acento', async () => {
+    responderLista();
+    const { usuario } = renderizar('/historia/pilotos');
+
+    await usuario.type(await screen.findByRole('searchbox'), 'RÚBENS');
 
     expect(screen.getByRole('heading', { name: '1 piloto encontrado' })).toBeVisible();
     expect(screen.getByRole('link', { name: /Rubens Barrichello/ })).toHaveAttribute(
       'href',
       '/historia/pilotos/barrichello',
     );
+  });
+
+  it('mostra 60 pilotos por vez', async () => {
+    servidor.use(
+      http.get('*/api/historia/pilotos', () =>
+        HttpResponse.json(
+          Array.from({ length: 130 }, (_, indice) =>
+            piloto(`p${indice}`, `Piloto ${String(indice).padStart(3, '0')}`, 0),
+          ),
+        ),
+      ),
+    );
+    const { usuario } = renderizar('/historia/pilotos');
+
+    expect(await screen.findByText('Mostrando 60 de 130')).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('button', { name: 'Mostrar mais pilotos' }));
+    expect(screen.getByText('Mostrando 120 de 130')).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('button', { name: 'Mostrar mais pilotos' }));
+    expect(screen.getByText('Mostrando 130 de 130')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mostrar mais pilotos' })).not.toBeInTheDocument();
   });
 
   it('mostra a ficha com as equipes e os anos de título ligados ao resto do dicionário', async () => {

@@ -1,0 +1,28 @@
+.chip,
+.chipAtivo {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    color var(--transicao),
+    border-color var(--transicao),
+    background-color var(--transicao);
+}
+
+.chip:hover,
+.chip:focus-visible {
+  border-color: var(--cor-texto);
+  color: var(--cor-texto);
+}
+
+.chipAtivo {
+  border-color: var(--cor-corrida);
+  background: var(--cor-corrida-fundo);
+  color: #fff;
+}

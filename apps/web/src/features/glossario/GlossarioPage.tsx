@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { semAcento } from '../../shared/lib/texto';
+import chip from '../../shared/ui/chip.module.css';
 import styles from './GlossarioPage.module.css';
 import { CATEGORIAS, type Categoria, TERMOS } from './termos';
 
@@ -54,7 +55,7 @@ export function GlossarioPage() {
             <button
               key={chave}
               type="button"
-              className={categoria === chave ? styles.categoriaAtiva : styles.categoria}
+              className={categoria === chave ? chip.chipAtivo : chip.chip}
               aria-pressed={categoria === chave}
               onClick={() => setCategoria((atual) => (atual === chave ? null : chave))}
             >

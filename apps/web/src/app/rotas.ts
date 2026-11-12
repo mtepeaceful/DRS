@@ -1,40 +1,92 @@
 import type { RouteObject } from 'react-router';
-import { CalendarioPage } from '../features/calendario/CalendarioPage';
-import { ResultadoPage } from '../features/calendario/ResultadoPage';
-import { ComparacaoPage } from '../features/comparar/ComparacaoPage';
-import { EquipesPage } from '../features/equipes/EquipesPage';
-import { HistoriaPage } from '../features/historia/HistoriaPage';
-import { TemporadaHistoricaPage } from '../features/historia/TemporadaHistoricaPage';
 import { HomePage } from '../features/home/HomePage';
-import { PilotoDetalhesPage } from '../features/pilotos/PilotoDetalhesPage';
-import { PilotoFormPage } from '../features/pilotos/PilotoFormPage';
-import { PilotosPage } from '../features/pilotos/PilotosPage';
 import { ApenasAdministrador } from '../features/sessao/ApenasAdministrador';
-import { EntrarPage } from '../features/sessao/EntrarPage';
+import { CarregandoPagina } from '../shared/ui/CarregandoPagina';
 import { Layout } from '../shared/ui/Layout';
 import { NaoEncontrada } from '../shared/ui/NaoEncontrada';
 
 export const rotas: RouteObject[] = [
   {
     Component: Layout,
+    HydrateFallback: CarregandoPagina,
     children: [
       { index: true, Component: HomePage },
-      { path: 'calendario', Component: CalendarioPage },
-      { path: 'calendario/:rodada', Component: ResultadoPage },
-      { path: 'comparar', Component: ComparacaoPage },
-      { path: 'pilotos', Component: PilotosPage },
-      { path: 'pilotos/:id', Component: PilotoDetalhesPage },
-      { path: 'entrar', Component: EntrarPage },
+      {
+        path: 'calendario',
+        lazy: () =>
+          import('../features/calendario/CalendarioPage').then((m) => ({
+            Component: m.CalendarioPage,
+          })),
+      },
+      {
+        path: 'calendario/:rodada',
+        lazy: () =>
+          import('../features/calendario/ResultadoPage').then((m) => ({
+            Component: m.ResultadoPage,
+          })),
+      },
+      {
+        path: 'comparar',
+        lazy: () =>
+          import('../features/comparar/ComparacaoPage').then((m) => ({
+            Component: m.ComparacaoPage,
+          })),
+      },
+      {
+        path: 'pilotos',
+        lazy: () =>
+          import('../features/pilotos/PilotosPage').then((m) => ({ Component: m.PilotosPage })),
+      },
+      {
+        path: 'pilotos/:id',
+        lazy: () =>
+          import('../features/pilotos/PilotoDetalhesPage').then((m) => ({
+            Component: m.PilotoDetalhesPage,
+          })),
+      },
+      {
+        path: 'entrar',
+        lazy: () =>
+          import('../features/sessao/EntrarPage').then((m) => ({ Component: m.EntrarPage })),
+      },
       {
         Component: ApenasAdministrador,
         children: [
-          { path: 'pilotos/novo', Component: PilotoFormPage },
-          { path: 'pilotos/:id/editar', Component: PilotoFormPage },
+          {
+            path: 'pilotos/novo',
+            lazy: () =>
+              import('../features/pilotos/PilotoFormPage').then((m) => ({
+                Component: m.PilotoFormPage,
+              })),
+          },
+          {
+            path: 'pilotos/:id/editar',
+            lazy: () =>
+              import('../features/pilotos/PilotoFormPage').then((m) => ({
+                Component: m.PilotoFormPage,
+              })),
+          },
         ],
       },
-      { path: 'equipes', Component: EquipesPage },
-      { path: 'historia', Component: HistoriaPage },
-      { path: 'historia/:ano', Component: TemporadaHistoricaPage },
+      {
+        path: 'equipes',
+        lazy: () =>
+          import('../features/equipes/EquipesPage').then((m) => ({ Component: m.EquipesPage })),
+      },
+      {
+        path: 'historia',
+        lazy: () =>
+          import('../features/historia/HistoriaPage').then((m) => ({
+            Component: m.HistoriaPage,
+          })),
+      },
+      {
+        path: 'historia/:ano',
+        lazy: () =>
+          import('../features/historia/TemporadaHistoricaPage').then((m) => ({
+            Component: m.TemporadaHistoricaPage,
+          })),
+      },
       { path: '*', Component: NaoEncontrada },
     ],
   },

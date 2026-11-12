@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import type { Verbete } from '../../src/application/ports/fonte-das-equipes.js';
 import { FotosDosPilotos } from '../../src/application/pilotos/fotos-dos-pilotos.js';
 import {
   EquipeRepositoryEmMemoria,
@@ -7,21 +6,12 @@ import {
 } from '../../src/infra/memoria/repositorios-em-memoria.js';
 import { dadosDaEquipe } from '../support/dados.js';
 
-function verbete(arquivo: string | null): Verbete {
+function foto(arquivo: string) {
   return {
-    resumo: 'Piloto.',
-    fonte: 'https://en.wikipedia.org/wiki/Piloto',
-    foto: arquivo
-      ? {
-          url: `https://upload.wikimedia.org/wikipedia/commons/${arquivo}`,
-          pagina: `https://commons.wikimedia.org/wiki/File:${arquivo}`,
-          autor: null,
-          licenca: 'CC BY 2.0',
-        }
-      : null,
-    fundacao: null,
-    fundadores: [],
-    sede: null,
+    url: `https://upload.wikimedia.org/wikipedia/commons/${arquivo}`,
+    pagina: `https://commons.wikimedia.org/wiki/File:${arquivo}`,
+    autor: null,
+    licenca: 'CC BY 2.0',
   };
 }
 
@@ -55,10 +45,10 @@ describe('Fotos dos pilotos do grid', () => {
         ],
       },
       {
-        verbete: async (artigo) => {
+        foto: async (artigo) => {
           pedidos.push(artigo);
 
-          return verbete(artigo === 'Senna' ? 'Senna.jpg' : null);
+          return artigo === 'Senna' ? foto('Senna.jpg') : null;
         },
       },
     ).executar();
@@ -91,7 +81,7 @@ describe('Fotos dos pilotos do grid', () => {
           { id: 'senna', nome: 'Ayrton Senna', pais: 'BR', nascimento: null, wikipedia: 'Senna' },
         ],
       },
-      { verbete: () => Promise.reject(new Error('Wikipédia fora do ar')) },
+      { foto: () => Promise.reject(new Error('Wikipédia fora do ar')) },
     ).executar();
 
     expect(fotos).toEqual([]);

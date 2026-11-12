@@ -34,6 +34,10 @@ export interface Verbete {
   sede: string | null;
 }
 
+export interface GaleriaDeFotos {
+  foto(artigoEmIngles: string): Promise<Foto | null>;
+}
+
 export interface Enciclopedia {
   verbete(artigoEmIngles: string): Promise<Verbete | null>;
 }

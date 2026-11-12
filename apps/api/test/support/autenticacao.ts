@@ -46,6 +46,7 @@ export const configuracaoDeTeste: ConfiguracaoDoApp = {
     vencedores: () => Promise.reject(new Error('sem circuitos nos testes')),
   },
   enciclopedia: { verbete: async () => null },
+  galeria: { foto: async () => null },
   autenticacao: { hashDaSenha: await gerarHashDaSenha(SENHA_DE_TESTE), segredo: SEGREDO_DE_TESTE },
 };
 

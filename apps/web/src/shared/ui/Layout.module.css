@@ -29,16 +29,16 @@
   gap: 12px 28px;
   max-width: var(--largura-maxima);
   margin: 0 auto;
-  padding: 12px 20px;
+  padding: 14px 20px;
 }
 
 .marca {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-family: var(--fonte-display);
   font-weight: 800;
-  font-size: 1.35rem;
+  font-size: 1.8rem;
   letter-spacing: 0.12em;
   text-decoration: none;
 }

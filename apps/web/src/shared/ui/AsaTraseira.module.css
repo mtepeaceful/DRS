@@ -1,7 +1,7 @@
 .asa {
   flex: none;
-  width: 58px;
-  height: 34px;
+  width: 84px;
+  height: 50px;
   overflow: visible;
   filter: drop-shadow(0 2px 6px rgb(220 0 0 / 0.35));
 }
@@ -32,7 +32,9 @@
 
 .perseguidor {
   opacity: 0;
-  transform: translate(32px, 20.6px) scale(0.3);
+  transform: translate(30px, 20.6px) scale(0.7);
+  transition: opacity 240ms ease;
+  animation: perseguicao 3200ms ease-in-out infinite paused;
 }
 
 .carroceria {
@@ -105,45 +107,30 @@ a:focus-visible > .asa .fenda {
   animation: fluxo 900ms linear infinite;
 }
 
-.asa[data-aberta] .perseguidor {
-  animation: perseguicao 2600ms ease-in-out 200ms infinite;
-}
-
-a:hover > .asa:not([data-aberta]) .perseguidor,
-a:focus-visible > .asa:not([data-aberta]) .perseguidor {
-  animation: perseguicao 2000ms ease-in-out 160ms both;
+.asa[data-aberta] .perseguidor,
+a:hover > .asa .perseguidor,
+a:focus-visible > .asa .perseguidor {
+  opacity: 1;
+  transition-delay: 140ms;
+  animation-play-state: running;
 }
 
 @keyframes perseguicao {
-  0% {
-    opacity: 0;
-    transform: translate(32px, 20.6px) scale(0.3);
-  }
-
-  12% {
-    opacity: 1;
-  }
-
-  35% {
-    transform: translate(31px, 20.6px) scale(0.55);
-  }
-
-  52% {
-    transform: translate(38px, 20.6px) scale(0.72);
-  }
-
-  68% {
-    transform: translate(26px, 20.6px) scale(0.86);
-  }
-
-  84% {
-    opacity: 1;
-    transform: translate(37px, 20.6px) scale(0.95);
-  }
-
+  0%,
   100% {
-    opacity: 0;
-    transform: translate(60px, 20.6px) scale(1.15);
+    transform: translate(30px, 20.6px) scale(0.7);
+  }
+
+  25% {
+    transform: translate(37px, 20.6px) scale(0.82);
+  }
+
+  50% {
+    transform: translate(32px, 20.6px) scale(0.95);
+  }
+
+  75% {
+    transform: translate(26px, 20.6px) scale(0.82);
   }
 }
 

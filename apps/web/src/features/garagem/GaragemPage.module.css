@@ -1,0 +1,118 @@
+.voltar {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  color: var(--cor-texto-suave);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.voltar:hover {
+  color: var(--cor-texto);
+}
+
+.topo {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sobretitulo {
+  color: var(--cor-corrida);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.titulo {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.resumo {
+  color: var(--cor-texto-suave);
+}
+
+.vitrine {
+  display: grid;
+  gap: 16px;
+  padding: clamp(12px, 3vw, 24px);
+  border: 1px solid var(--cor-linha);
+  border-radius: calc(var(--raio) * 1.5);
+  background:
+    radial-gradient(700px 320px at 50% 0%, rgb(255 42 20 / 0.14), transparent 70%),
+    var(--cor-superficie);
+}
+
+.palco {
+  width: 100%;
+  height: clamp(320px, 56vw, 560px);
+  border-radius: var(--raio);
+  cursor: grab;
+  touch-action: none;
+}
+
+.palco:active {
+  cursor: grabbing;
+}
+
+.ilustracao {
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  margin: 24px auto;
+}
+
+.ilustracao g {
+  transition: transform 300ms ease;
+}
+
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.drs,
+.drsAtivo {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--fonte-display);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    background-color var(--transicao),
+    border-color var(--transicao);
+}
+
+.drsAtivo {
+  border-color: var(--cor-sucesso);
+  background: color-mix(in srgb, var(--cor-sucesso) 22%, transparent);
+  color: var(--cor-sucesso);
+}
+
+.dica {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.esqueleto {
+  min-height: 520px;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ilustracao g {
+    transition: none;
+  }
+}

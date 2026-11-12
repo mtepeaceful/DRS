@@ -22,6 +22,8 @@ function esperaAntesDeTentarDeNovo(resposta: Response, tentativa: number) {
     : 1000 * 2 ** tentativa;
 }
 
+class NaoEncontrado extends Error {}
+
 async function buscar(url: string, aceita: string) {
   for (let tentativa = 0; ; tentativa++) {
     const resposta = await fetch(url, {
@@ -32,6 +34,10 @@ async function buscar(url: string, aceita: string) {
     if (STATUS_TEMPORARIOS.has(resposta.status) && tentativa < TENTATIVAS_EXTRAS) {
       await esperar(esperaAntesDeTentarDeNovo(resposta, tentativa));
       continue;
+    }
+
+    if (resposta.status === 404) {
+      throw new NaoEncontrado(`HTTP 404`);
     }
 
     if (!resposta.ok) {
@@ -48,6 +54,23 @@ export async function buscarJson<Schema extends z.ZodType>(url: string, schema: 
 
     return schema.parse(await resposta.json()) as z.output<Schema>;
   } catch (erro) {
+    throw new FonteIndisponivel(url, erro);
+  }
+}
+
+export async function buscarJsonSeExistir<Schema extends z.ZodType>(
+  url: string,
+  schema: Schema,
+): Promise<z.output<Schema> | null> {
+  try {
+    const resposta = await buscar(url, 'application/json');
+
+    return schema.parse(await resposta.json()) as z.output<Schema>;
+  } catch (erro) {
+    if (erro instanceof NaoEncontrado) {
+      return null;
+    }
+
     throw new FonteIndisponivel(url, erro);
   }
 }

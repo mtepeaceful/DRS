@@ -21,7 +21,7 @@ test('cadastra equipe e piloto, edita e exclui', async ({ page }) => {
   await entrar(page);
   await expect(page.getByRole('button', { name: 'Sair' })).toBeVisible();
 
-  await page.getByRole('navigation').getByRole('link', { name: 'Equipes' }).click();
+  await page.goto('/equipes/gerenciar');
   await page.getByLabel('Nova equipe').fill(equipe);
   await page.getByRole('button', { name: 'Adicionar' }).click();
   await expect(page.getByText(equipe, { exact: true })).toBeVisible();

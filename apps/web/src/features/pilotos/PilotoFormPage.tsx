@@ -42,7 +42,7 @@ function Conteudo({ id }: { id: string | undefined }) {
       <Aviso
         titulo="Cadastre uma equipe primeiro"
         acao={
-          <Link to="/equipes" className={botao.primario}>
+          <Link to="/equipes/gerenciar" className={botao.primario}>
             Ir para equipes
           </Link>
         }

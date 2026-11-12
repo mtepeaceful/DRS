@@ -8,7 +8,10 @@ test('navega pelo menu até o grid e as equipes', async ({ page }) => {
   await page.getByRole('navigation').getByRole('link', { name: 'Equipes' }).click();
 
   await expect(page).toHaveURL(/\/equipes$/);
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Equipes', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
 });
 
 test('pede login para cadastrar e lembra de onde a pessoa veio', async ({ page }) => {

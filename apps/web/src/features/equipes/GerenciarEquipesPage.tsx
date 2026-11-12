@@ -8,17 +8,20 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { listaDeEquipes } from './api';
 import { SimboloDaEquipe } from './SimboloDaEquipe';
 import { EquipeForm } from './EquipeForm';
-import styles from './EquipesPage.module.css';
+import styles from './GerenciarEquipesPage.module.css';
 
-export function EquipesPage() {
+export function GerenciarEquipesPage() {
   const equipes = useQuery(listaDeEquipes);
   const [editando, setEditando] = useState<string | null>(null);
   const logado = useSessaoAtiva();
 
   return (
     <>
-      <title>Equipes · DRS</title>
-      <h1 className={styles.titulo}>Equipes</h1>
+      <title>Gerenciar equipes · DRS</title>
+      <Link to="/equipes" className={styles.voltar}>
+        ← Equipes
+      </Link>
+      <h1 className={styles.titulo}>Gerenciar equipes</h1>
       <p className={styles.resumo}>
         As cores de cada equipe aparecem no emblema e nos cartões dos seus pilotos. Equipes
         clássicas já chegam com as cores sugeridas.

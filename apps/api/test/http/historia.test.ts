@@ -91,3 +91,20 @@ describe('GET /historia/:ano', () => {
     expect((await app.inject({ method: 'GET', url: '/historia/abc' })).statusCode).toBe(400);
   });
 });
+
+describe('GET /historia/equipes', () => {
+  it('lista as equipes e devolve 404 para uma equipe que não existe', async () => {
+    await criarApp();
+
+    const lista = await app.inject({ method: 'GET', url: '/historia/equipes' });
+    const inexistente = await app.inject({ method: 'GET', url: '/historia/equipes/inventada' });
+    const invalida = await app.inject({ method: 'GET', url: '/historia/equipes/%3Cscript%3E' });
+
+    expect(lista.statusCode).toBe(200);
+    expect(lista.headers['cache-control']).toBe('public, max-age=3600');
+    expect(lista.json()).toEqual([]);
+    expect(inexistente.statusCode).toBe(404);
+    expect(inexistente.json()).toMatchObject({ codigo: 'EQUIPE_NAO_ENCONTRADA' });
+    expect(invalida.statusCode).toBe(400);
+  });
+});

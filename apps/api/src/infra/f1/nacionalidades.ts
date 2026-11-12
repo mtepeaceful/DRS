@@ -17,6 +17,7 @@ const paisPorNacionalidade: Record<string, string> = {
   Finnish: 'FI',
   French: 'FR',
   German: 'DE',
+  'Hong Kong': 'HK',
   Hungarian: 'HU',
   Indian: 'IN',
   Indonesian: 'ID',

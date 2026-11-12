@@ -112,6 +112,10 @@ export function HistoriaPage() {
           Todos os campeões desde 1950. Abra um ano para ver a classificação, as equipes e cada
           corrida daquela temporada.
         </p>
+        <nav aria-label="Dicionário" className={styles.atalhos}>
+          <Link to="/equipes">Todas as equipes →</Link>
+          <Link to="/circuitos">Todos os circuitos →</Link>
+        </nav>
         {faltando > 0 && (
           <p className={styles.carregando} role="status">
             Buscando o restante das temporadas: faltam {faltando}.

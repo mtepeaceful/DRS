@@ -38,6 +38,7 @@ const temporada1952: TemporadaHistoricaDTO = {
       rodada: 1,
       nome: 'Swiss Grand Prix',
       circuito: 'Bremgarten',
+      circuitoId: 'bremgarten',
       pais: 'Switzerland',
       data: '1952-05-18',
       vencedor: { nome: 'Piero Taruffi', equipe: 'Ferrari' },

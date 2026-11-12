@@ -137,7 +137,10 @@ function Corridas({ corridas }: { corridas: TemporadaHistoricaDTO['corridas'] })
                 {nomeDoGp(corrida.nome)}
               </span>
               <span className={styles.detalhe}>
-                {corrida.circuito} · {nomeDoPaisEmPortugues(corrida.pais)}
+                <Link to={`/circuitos/${corrida.circuitoId}`} className={styles.circuito}>
+                  {corrida.circuito}
+                </Link>{' '}
+                · {nomeDoPaisEmPortugues(corrida.pais)}
               </span>
             </span>
             <span className={styles.vencedor}>

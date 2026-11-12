@@ -87,6 +87,8 @@ export const servidor = setupServer(
 
   http.get('*/api/historia/equipes', () => HttpResponse.json([])),
 
+  http.get('*/api/circuitos', () => HttpResponse.json([])),
+
   http.get('*/api/pilotos/:id', ({ params }) => {
     const encontrado = banco.pilotos.find((p) => p.id === params.id);
 

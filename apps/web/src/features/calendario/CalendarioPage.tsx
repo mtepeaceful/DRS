@@ -125,6 +125,10 @@ export function CalendarioPage() {
           {disputadas} de {lista.length} etapas disputadas. Toque numa corrida encerrada para ver a
           classificação completa.
         </p>
+        <nav aria-label="Mais do calendário" className={styles.atalhos}>
+          <Link to="/classificacao">Classificação do campeonato →</Link>
+          <Link to="/circuitos">Todos os circuitos →</Link>
+        </nav>
       </header>
 
       <ol className={styles.etapas}>

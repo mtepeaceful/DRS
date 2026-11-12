@@ -73,6 +73,7 @@ describe('Página do piloto', () => {
             rodada: 1,
             nome: 'Australian Grand Prix',
             circuito: 'Albert Park',
+            circuitoId: 'albert_park',
             cidade: 'Melbourne',
             pais: 'Australia',
             inicio: '2026-03-08T04:00:00.000Z',

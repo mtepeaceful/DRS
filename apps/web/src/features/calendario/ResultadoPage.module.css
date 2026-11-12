@@ -254,3 +254,10 @@
     font-size: 0.85rem;
   }
 }
+
+.circuito {
+  color: var(--cor-texto);
+  font-weight: 700;
+  text-decoration-color: var(--cor-linha-forte);
+  text-underline-offset: 3px;
+}

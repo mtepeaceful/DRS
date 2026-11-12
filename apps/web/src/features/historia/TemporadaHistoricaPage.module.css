@@ -218,3 +218,8 @@
     grid-area: vencedor;
   }
 }
+
+.circuito {
+  color: inherit;
+  text-underline-offset: 3px;
+}

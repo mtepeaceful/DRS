@@ -12,6 +12,7 @@ O nome vem do Drag Reduction System, a asa traseira móvel que abre na reta. No 
 
 - **Página inicial:** próxima corrida com contagem regressiva e programação no fuso de quem visita, campeonato de pilotos e de construtores, último pódio, onde assistir no Brasil e últimas notícias
 - **Calendário da temporada:** todas as etapas com data, circuito e vencedor, e a classificação completa de cada GP com largada, posições ganhas, tempo, abandonos e volta mais rápida
+- **Comparar pilotos:** dois pilotos lado a lado, com quem terminou à frente nas corridas e no grid, os números da temporada e um gráfico dos pontos acumulados etapa a etapa
 - **Grid de pilotos:** busca ao vivo por piloto ou equipe, filtro por equipe e paginação
 - **Grid sempre atualizado:** a API reimporta a temporada sozinha quando a última importação passa de 24 horas, e o administrador ainda pode importar na hora com um clique. Os campeões das temporadas passadas ficam guardados no banco, então só os anos que faltam são consultados
 - **Cadastro e edição** de pilotos e equipes, com prévia em tempo real e acesso restrito ao administrador

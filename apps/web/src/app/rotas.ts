@@ -3,6 +3,8 @@ import { CalendarioPage } from '../features/calendario/CalendarioPage';
 import { ResultadoPage } from '../features/calendario/ResultadoPage';
 import { ComparacaoPage } from '../features/comparar/ComparacaoPage';
 import { EquipesPage } from '../features/equipes/EquipesPage';
+import { HistoriaPage } from '../features/historia/HistoriaPage';
+import { TemporadaHistoricaPage } from '../features/historia/TemporadaHistoricaPage';
 import { HomePage } from '../features/home/HomePage';
 import { PilotoDetalhesPage } from '../features/pilotos/PilotoDetalhesPage';
 import { PilotoFormPage } from '../features/pilotos/PilotoFormPage';
@@ -31,6 +33,8 @@ export const rotas: RouteObject[] = [
         ],
       },
       { path: 'equipes', Component: EquipesPage },
+      { path: 'historia', Component: HistoriaPage },
+      { path: 'historia/:ano', Component: TemporadaHistoricaPage },
       { path: '*', Component: NaoEncontrada },
     ],
   },

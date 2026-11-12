@@ -37,7 +37,7 @@ export default defineConfig({
         HOST: '127.0.0.1',
         LOG_LEVEL: 'warn',
         ARMAZENAMENTO: 'memoria',
-        ATUALIZAR_GRID_SOZINHO: 'false',
+        TAREFAS_EM_SEGUNDO_PLANO: 'false',
         ORIGENS_PERMITIDAS: SITE,
         ADMIN_SENHA_HASH: await gerarHashDaSenha(SENHA_DO_ADMINISTRADOR),
         SEGREDO_DA_SESSAO: 'segredo-dos-testes-de-ponta-a-ponta-com-folga',

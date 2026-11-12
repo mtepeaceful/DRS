@@ -1,0 +1,295 @@
+.topo {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.titulo {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.resumo {
+  max-width: 62ch;
+  color: var(--cor-texto-suave);
+}
+
+.carregando {
+  justify-self: start;
+  padding: 6px 12px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: 999px;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.secao {
+  display: grid;
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.tituloDaSecao {
+  font-size: 1.4rem;
+}
+
+.rankings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.cartao {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.tituloDoCartao {
+  font-size: 1.1rem;
+}
+
+.ranking {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recordista {
+  display: grid;
+  grid-template-columns: 2ch minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 10px 0;
+  border-top: 1px solid var(--cor-linha);
+}
+
+.recordista:first-child {
+  border-top: 0;
+}
+
+.posicao {
+  font-family: var(--fonte-display);
+  font-weight: 800;
+  color: var(--cor-texto-suave);
+  text-align: right;
+}
+
+.recordista:first-child .posicao {
+  color: var(--cor-ouro);
+}
+
+.quem {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nomeDoRecordista {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.anosDeTitulo {
+  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.titulos {
+  font-family: var(--fonte-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.decadas {
+  position: sticky;
+  top: 64px;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 0;
+  background: var(--cor-fundo);
+}
+
+.decada {
+  padding: 6px 14px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: 999px;
+  color: var(--cor-texto-suave);
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  transition:
+    color var(--transicao),
+    border-color var(--transicao);
+}
+
+.decada:hover,
+.decada:focus-visible {
+  border-color: var(--cor-texto);
+  color: var(--cor-texto);
+}
+
+.grupo {
+  display: grid;
+  gap: 10px;
+  scroll-margin-top: 130px;
+}
+
+.tituloDaDecada {
+  margin-top: 12px;
+  color: var(--cor-texto-suave);
+  font-family: var(--fonte-corpo);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.listaDeAnos {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ano {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) minmax(0, 15rem) 1rem;
+  align-items: center;
+  column-gap: 20px;
+  min-height: 72px;
+  padding: 12px 20px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  text-decoration: none;
+  transition:
+    border-color var(--transicao),
+    background-color var(--transicao);
+}
+
+.ano:hover,
+.ano:focus-visible {
+  border-color: var(--cor-linha-forte);
+  background: var(--cor-superficie-alta);
+}
+
+.numeroDoAno {
+  font-family: var(--fonte-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.campeao {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nomeDoCampeao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.equipe {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.construtor {
+  display: grid;
+  gap: 2px;
+  font-weight: 700;
+}
+
+.rotuloDoConstrutor {
+  color: var(--cor-texto-suave);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.seta {
+  color: var(--cor-texto-suave);
+  transition:
+    color var(--transicao),
+    transform var(--transicao);
+}
+
+.ano:hover .seta,
+.ano:focus-visible .seta {
+  color: var(--cor-texto);
+  transform: translateX(3px);
+}
+
+.esqueleto {
+  min-height: 640px;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+@media (max-width: 760px) {
+  .rankings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ano {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'ano seta'
+      'campeao seta'
+      'construtor seta';
+    gap: 6px 12px;
+    padding: 14px 16px;
+  }
+
+  .numeroDoAno {
+    grid-area: ano;
+    font-size: 1.2rem;
+  }
+
+  .campeao {
+    grid-area: campeao;
+  }
+
+  .construtor {
+    grid-area: construtor;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .seta {
+    grid-area: seta;
+  }
+
+  .decadas {
+    top: 104px;
+  }
+
+  .grupo {
+    scroll-margin-top: 190px;
+  }
+}

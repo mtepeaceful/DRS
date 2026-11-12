@@ -9,6 +9,10 @@ function classeDoLink({ isActive }: { isActive: boolean }) {
   return isActive ? `${styles.link} ${styles.linkAtivo}` : styles.link;
 }
 
+function classeDoInicio(estado: { isActive: boolean }) {
+  return `${classeDoLink(estado)} ${styles.inicio}`;
+}
+
 export function Layout() {
   const buscando = useIsFetching() > 0;
   const logado = useSessaoAtiva();
@@ -27,7 +31,7 @@ export function Layout() {
           </Link>
 
           <nav aria-label="Principal" className={styles.nav}>
-            <NavLink to="/" end className={classeDoLink}>
+            <NavLink to="/" end className={classeDoInicio}>
               Início
             </NavLink>
             <NavLink to="/calendario" className={classeDoLink}>
@@ -38,6 +42,9 @@ export function Layout() {
             </NavLink>
             <NavLink to="/equipes" className={classeDoLink}>
               Equipes
+            </NavLink>
+            <NavLink to="/historia" className={classeDoLink}>
+              História
             </NavLink>
           </nav>
 

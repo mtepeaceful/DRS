@@ -120,6 +120,10 @@
     margin: 0 -12px;
   }
 
+  .inicio {
+    display: none;
+  }
+
   .conteudo {
     padding-top: 28px;
   }

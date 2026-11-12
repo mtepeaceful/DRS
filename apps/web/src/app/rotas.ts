@@ -33,6 +33,13 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'carro',
+        lazy: () =>
+          import('../features/carro-explicado/CarroExplicadoPage').then((m) => ({
+            Component: m.CarroExplicadoPage,
+          })),
+      },
+      {
         path: 'circuitos',
         lazy: () =>
           import('../features/circuitos/CircuitosPage').then((m) => ({

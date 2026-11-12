@@ -6,6 +6,7 @@ import { nomeDoPais } from '../../shared/lib/paises';
 import { nomeDaEquipe } from '../../shared/lib/traducoes';
 import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
+import { FotoDoCommons } from '../../shared/ui/FotoDoCommons';
 import botao from '../../shared/ui/botao.module.css';
 import { CORES_NEUTRAS } from '../calendario/cores';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
@@ -176,6 +177,9 @@ export function FichaDaEquipePage() {
               <h2 id="historia-da-equipe" className={styles.tituloDoCartao}>
                 História
               </h2>
+              {dados.verbete.foto && (
+                <FotoDoCommons foto={dados.verbete.foto} descricao={`Foto ligada a ${nome}`} />
+              )}
               <p className={styles.texto}>{dados.verbete.resumo}</p>
               <p className={styles.fonte}>
                 Texto da{' '}

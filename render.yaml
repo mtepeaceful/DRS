@@ -58,7 +58,7 @@ services:
           style-src 'self' https://fonts.googleapis.com;
           style-src-attr 'unsafe-inline';
           font-src https://fonts.gstatic.com;
-          img-src 'self' data:;
+          img-src 'self' data: https://thumb.wikimedia.org https://upload.wikimedia.org;
           connect-src 'self' https://drs-api-s9e1.onrender.com;
           frame-ancestors 'none';
           base-uri 'self';

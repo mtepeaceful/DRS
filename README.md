@@ -11,6 +11,8 @@ A sigla é um trocadilho com o DRS da F1, o Drag Reduction System, a asa traseir
 ## Funcionalidades
 
 - **Página inicial:** próxima corrida com contagem regressiva e programação no fuso de quem visita, campeonato de pilotos e de construtores, último pódio, onde assistir no Brasil e últimas notícias
+- **Lembrete antes da corrida:** um botão adiciona o fim de semana ou as próximas corridas ao calendário do celular ou do computador (arquivo `.ics`), com aviso uma hora antes da largada e meia hora antes da classificação e da sprint
+- **Fotos de uso livre:** as fichas de pilotos, equipes e circuitos mostram a foto principal do artigo da Wikipédia quando ela está no Wikimedia Commons, com autor e licença
 - **Calendário e fim de semana:** todas as etapas com data, circuito e vencedor; em cada GP, a corrida (largada, posições ganhas, tempo, abandonos e volta mais rápida), a sprint e a classificação com Q1, Q2 e Q3
 - **Campeonato completo:** classificação de todos os pilotos e construtores
 - **História da F1:** os campeões de pilotos e de construtores de cada ano desde 1950, o ranking dos maiores campeões e a página de qualquer temporada encerrada, com classificação, equipes e o vencedor de cada corrida. A API guarda os campeões no banco na primeira vez e não consulta de novo

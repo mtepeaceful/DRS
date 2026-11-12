@@ -1,0 +1,317 @@
+.topo {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.titulo {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.resumo {
+  color: var(--cor-texto-suave);
+}
+
+.escolhas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.escolha {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--cor-linha);
+  border-top: 3px solid;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.rotuloDaEscolha {
+  display: grid;
+  gap: 8px;
+  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.seletor {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-superficie-alta);
+  color: var(--cor-texto);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.identidade {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-height: 132px;
+  align-content: center;
+  text-align: center;
+}
+
+.nome {
+  margin-top: 6px;
+  font-family: var(--fonte-display);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.equipe {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.trocar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition:
+    background-color var(--transicao),
+    transform var(--transicao);
+}
+
+.trocar:hover {
+  background: var(--cor-superficie-alta);
+  transform: rotate(180deg);
+}
+
+.cartao {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 24px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.tituloDoCartao {
+  font-size: 1.1rem;
+}
+
+.detalhe {
+  margin-top: -10px;
+  color: var(--cor-texto-suave);
+  font-size: 0.88rem;
+}
+
+.duelo {
+  display: grid;
+  gap: 8px;
+}
+
+.tituloDoDuelo {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.placar {
+  display: grid;
+  grid-template-columns: 3ch minmax(0, 1fr) 3ch;
+  align-items: center;
+  gap: 14px;
+}
+
+.numeroDoPlacar {
+  font-family: var(--fonte-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.barra {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+}
+
+.barra > span {
+  min-width: 4px;
+  border-radius: 4px;
+}
+
+.barraVazia {
+  flex-grow: 1;
+  background: var(--cor-linha);
+}
+
+.numeros {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.numeros td,
+.numeros th {
+  padding: 12px 8px;
+  border-top: 1px solid var(--cor-linha);
+}
+
+.numeros tbody tr:first-child > * {
+  border-top: 0;
+}
+
+.metrica {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.valor,
+.melhorA,
+.melhorB {
+  width: 30%;
+  font-family: var(--fonte-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.valor {
+  color: var(--cor-texto-suave);
+  opacity: 0.75;
+}
+
+.numeros tr > :first-child {
+  text-align: left;
+}
+
+.numeros tr > :last-child {
+  text-align: right;
+}
+
+.melhorA::before,
+.melhorB::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 8px;
+  border-radius: 2px;
+  vertical-align: 2px;
+}
+
+.melhorA::before {
+  margin-left: 0;
+  background: var(--cor-piloto-a);
+}
+
+.melhorB::after {
+  margin-right: 0;
+  background: var(--cor-piloto-b);
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: -6px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.legenda li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.amostra {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.tabela summary {
+  width: fit-content;
+  color: var(--cor-texto-suave);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tabela table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela th,
+.tabela td {
+  padding: 6px 8px;
+  border-top: 1px solid var(--cor-linha);
+  text-align: right;
+}
+
+.tabela th:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.esqueleto {
+  min-height: 640px;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+@media (max-width: 640px) {
+  .escolhas {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .trocar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+  }
+
+  .escolha {
+    padding: 14px;
+  }
+
+  .identidade {
+    min-height: 110px;
+  }
+
+  .cartao {
+    padding: 18px 14px;
+  }
+
+  .valor,
+  .melhorA,
+  .melhorB {
+    font-size: 1rem;
+  }
+}

@@ -1,4 +1,5 @@
 export * from './calendario.js';
+export * from './desempenho.js';
 export * from './equipe.js';
 export * from './erro.js';
 export * from './idioma.js';

@@ -98,6 +98,10 @@ export function PilotosPage() {
               : `${total} ${total === 1 ? 'piloto' : 'pilotos'} no grid`)}
         </p>
 
+        <Link to="/comparar" className={styles.comparar}>
+          Comparar dois pilotos da temporada →
+        </Link>
+
         {logado && <ImportarTemporada />}
 
         <form role="search" className={styles.busca} onSubmit={aplicarBusca}>

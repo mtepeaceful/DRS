@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router';
 import { CalendarioPage } from '../features/calendario/CalendarioPage';
 import { ResultadoPage } from '../features/calendario/ResultadoPage';
+import { ComparacaoPage } from '../features/comparar/ComparacaoPage';
 import { EquipesPage } from '../features/equipes/EquipesPage';
 import { HomePage } from '../features/home/HomePage';
 import { PilotoDetalhesPage } from '../features/pilotos/PilotoDetalhesPage';
@@ -18,6 +19,7 @@ export const rotas: RouteObject[] = [
       { index: true, Component: HomePage },
       { path: 'calendario', Component: CalendarioPage },
       { path: 'calendario/:rodada', Component: ResultadoPage },
+      { path: 'comparar', Component: ComparacaoPage },
       { path: 'pilotos', Component: PilotosPage },
       { path: 'pilotos/:id', Component: PilotoDetalhesPage },
       { path: 'entrar', Component: EntrarPage },

@@ -5,6 +5,7 @@ import type {
   Etapa,
   FonteDoCampeonato,
   LinhaDoResultado,
+  Participacao,
   ResultadoDaEtapa,
   Sessao,
 } from '../../application/ports/fonte-do-campeonato.js';
@@ -129,6 +130,50 @@ const resultadosDaTemporada = z.object({
   }),
 });
 
+const POR_PAGINA = 100;
+
+const paginaDeResultados = z.object({
+  MRData: z.object({
+    total: z.coerce.number().int().min(0),
+    RaceTable: z.object({
+      Races: z.array(
+        z.object({
+          round: z.coerce.number().int(),
+          Results: z.array(linhaDoResultado).optional(),
+          SprintResults: z.array(linhaDoResultado).optional(),
+        }),
+      ),
+    }),
+  }),
+});
+
+async function todasAsPaginas(recurso: 'results' | 'sprint') {
+  const corridas: z.infer<typeof paginaDeResultados>['MRData']['RaceTable']['Races'] = [];
+  let total = Number.POSITIVE_INFINITY;
+
+  for (let offset = 0; offset < total; offset += POR_PAGINA) {
+    const pagina = await buscarJson(
+      `${JOLPICA}/${recurso}.json?limit=${POR_PAGINA}&offset=${offset}`,
+      paginaDeResultados,
+    );
+    total = pagina.MRData.total;
+    corridas.push(...pagina.MRData.RaceTable.Races);
+  }
+
+  return corridas.flatMap((corrida) =>
+    (corrida.Results ?? corrida.SprintResults ?? []).map((linha): Participacao => ({
+      rodada: corrida.round,
+      tipo: recurso === 'results' ? 'corrida' : 'sprint',
+      nome: nome(linha.Driver),
+      equipe: linha.Constructor.name,
+      posicao: linha.position,
+      classificado: /^\d+$/.test(linha.positionText),
+      largada: linha.grid,
+      pontos: linha.points,
+    })),
+  );
+}
+
 const SITUACOES: Record<string, string> = {
   Finished: 'Completou',
   Lapped: 'Retardatário',
@@ -239,6 +284,13 @@ export class FonteCampeonatoJolpica implements FonteDoCampeonato {
       etapa: paraCorrida(corrida),
       classificacao: linhas.map((linha) => paraLinha(linha, voltasDoVencedor)),
     };
+  }
+
+  async buscarParticipacoes(): Promise<Participacao[]> {
+    const corridas = await todasAsPaginas('results');
+    const sprints = await todasAsPaginas('sprint');
+
+    return [...corridas, ...sprints];
   }
 
   async buscarCampeonato(agora: Date): Promise<Campeonato> {

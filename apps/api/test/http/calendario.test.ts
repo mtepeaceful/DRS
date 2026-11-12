@@ -112,3 +112,15 @@ describe('GET /calendario/:rodada', () => {
     expect(resposta.statusCode).toBe(400);
   });
 });
+
+describe('GET /temporada/pilotos', () => {
+  it('é pública e devolve o desempenho de cada piloto', async () => {
+    await criarApp();
+
+    const resposta = await app.inject({ method: 'GET', url: '/temporada/pilotos' });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(resposta.headers['cache-control']).toBe('public, max-age=300');
+    expect(resposta.json()).toEqual({ ano: 2026, rodadasDisputadas: 0, pilotos: [] });
+  });
+});

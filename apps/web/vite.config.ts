@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       setupFiles: ['./test/preparar.ts'],
-      include: ['test/**/*.test.tsx'],
+      include: ['test/**/*.test.{ts,tsx}'],
       restoreMocks: true,
     },
     build: {

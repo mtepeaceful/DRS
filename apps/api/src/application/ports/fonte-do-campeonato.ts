@@ -68,8 +68,20 @@ export interface ResultadoDaEtapa {
   classificacao: LinhaDoResultado[];
 }
 
+export interface Participacao {
+  rodada: number;
+  tipo: 'corrida' | 'sprint';
+  nome: string;
+  equipe: string;
+  posicao: number;
+  classificado: boolean;
+  largada: number;
+  pontos: number;
+}
+
 export interface FonteDoCampeonato {
   buscarCampeonato(agora: Date): Promise<Campeonato>;
   buscarCalendario(): Promise<Etapa[]>;
   buscarResultado(rodada: number): Promise<ResultadoDaEtapa | null>;
+  buscarParticipacoes(): Promise<Participacao[]>;
 }

@@ -6,6 +6,7 @@ const WIKIDATA = 'https://www.wikidata.org/w/api.php';
 const FUNDADOR = 'P112';
 const SEDE = 'P159';
 const FUNDACAO = 'P571';
+const INAUGURACAO = 'P1619';
 const EMPRESA_MAE = 'P749';
 
 const valor = z
@@ -43,7 +44,9 @@ function referencias(entidade: Entidade | undefined, propriedade: string) {
 }
 
 function ano(entidade: Entidade | undefined) {
-  const lido = momento.safeParse(entidade?.claims?.[FUNDACAO]?.[0]);
+  const lido = momento.safeParse(
+    entidade?.claims?.[FUNDACAO]?.[0] ?? entidade?.claims?.[INAUGURACAO]?.[0],
+  );
 
   return lido.success ? Number.parseInt(lido.data.time.slice(1, 5), 10) : null;
 }

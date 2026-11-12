@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { FonteCircuitosJolpica } from '../../src/infra/f1/fonte-circuitos-jolpica.js';
 import { FonteEquipesJolpica } from '../../src/infra/f1/fonte-equipes-jolpica.js';
 import { buscarJsonSeExistir, FonteIndisponivel } from '../../src/infra/http-externo.js';
 import { EnciclopediaWikimedia } from '../../src/infra/wiki/enciclopedia-wikimedia.js';
@@ -156,7 +157,14 @@ describe('EnciclopediaWikimedia', () => {
   it('cai para a Wikipédia em inglês quando não há artigo em português', async () => {
     const pedidos = responder((url) => {
       if (url.hostname === 'www.wikidata.org') {
-        return wikidata({ Q1: { claims: {}, sitelinks: {} } });
+        return wikidata({
+          Q1: {
+            claims: {
+              P1619: [{ mainsnak: { datavalue: { value: { time: '+1922-00-00T00:00:00Z' } } } }],
+            },
+            sitelinks: {},
+          },
+        });
       }
 
       return Response.json({
@@ -169,9 +177,82 @@ describe('EnciclopediaWikimedia', () => {
 
     expect(verbete).toMatchObject({
       resumo: 'EMW was an East German team.',
+      fundacao: 1922,
       fundadores: [],
       sede: null,
     });
     expect(pedidos.map((url) => url.hostname)).toEqual(['www.wikidata.org', 'en.wikipedia.org']);
+  });
+});
+
+describe('FonteCircuitosJolpica', () => {
+  it('lista os circuitos com coordenadas e o artigo da Wikipédia', async () => {
+    responder(() =>
+      Response.json({
+        MRData: {
+          total: '1',
+          CircuitTable: {
+            Circuits: [
+              {
+                circuitId: 'monza',
+                circuitName: 'Autodromo Nazionale di Monza',
+                url: 'https://en.wikipedia.org/wiki/Monza_Circuit',
+                Location: { lat: '45.6156', long: '9.28111', locality: 'Monza', country: 'Italy' },
+              },
+            ],
+          },
+        },
+      }),
+    );
+
+    expect(await new FonteCircuitosJolpica().listar()).toEqual([
+      {
+        id: 'monza',
+        nome: 'Autodromo Nazionale di Monza',
+        cidade: 'Monza',
+        pais: 'Italy',
+        latitude: 45.6156,
+        longitude: 9.28111,
+        wikipedia: 'Monza Circuit',
+      },
+    ]);
+  });
+
+  it('junta os vencedores de todas as páginas', async () => {
+    const pedidos = responder((url) => {
+      const offset = Number(url.searchParams.get('offset'));
+
+      return Response.json({
+        MRData: {
+          total: '101',
+          RaceTable: {
+            Races: [
+              {
+                season: String(offset === 0 ? 1950 : 2025),
+                round: '14',
+                raceName: 'Italian Grand Prix',
+                Results: [
+                  {
+                    Driver: { givenName: 'Nino', familyName: offset === 0 ? 'Farina' : 'Norris' },
+                    Constructor: { name: offset === 0 ? 'Alfa Romeo' : 'McLaren' },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      });
+    });
+
+    const vitorias = await new FonteCircuitosJolpica().vencedores('monza');
+
+    expect(vitorias.map((v) => [v.ano, v.piloto, v.equipe])).toEqual([
+      [1950, 'Nino Farina', 'Alfa Romeo'],
+      [2025, 'Nino Norris', 'McLaren'],
+    ]);
+    expect(pedidos.map((url) => url.pathname)).toEqual([
+      '/ergast/f1/circuits/monza/results/1.json',
+      '/ergast/f1/circuits/monza/results/1.json',
+    ]);
   });
 });

@@ -20,6 +20,7 @@ const campeonato: Campeonato = {
     rodada: 21,
     nome: 'Las Vegas Grand Prix',
     circuito: 'Las Vegas Strip Street Circuit',
+    circuitoId: 'vegas',
     cidade: 'Las Vegas',
     pais: 'USA',
     inicio: new Date('2026-11-22T04:00:00Z'),

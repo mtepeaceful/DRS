@@ -33,6 +33,7 @@ export const temporadaHistoricaSchema = z.object({
       rodada: z.number().int(),
       nome: z.string(),
       circuito: z.string(),
+      circuitoId: z.string(),
       pais: z.string(),
       data: z.iso.date(),
       vencedor: z.object({ nome: z.string(), equipe: z.string() }).nullable(),

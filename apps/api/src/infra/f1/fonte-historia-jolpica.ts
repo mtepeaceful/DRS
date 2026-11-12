@@ -62,6 +62,7 @@ const corridas = z.object({
           raceName: z.string(),
           date: z.iso.date(),
           Circuit: z.object({
+            circuitId: z.string().regex(/^[A-Za-z0-9_-]+$/),
             circuitName: z.string(),
             Location: z.object({ country: z.string() }),
           }),
@@ -246,6 +247,7 @@ export class FonteHistoriaJolpica implements FonteDaHistoria {
           rodada: corrida.round,
           nome: corrida.raceName,
           circuito: corrida.Circuit.circuitName,
+          circuitoId: corrida.Circuit.circuitId,
           pais: corrida.Circuit.Location.country,
           data: corrida.date,
           vencedor: vencedor

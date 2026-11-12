@@ -16,6 +16,7 @@ const corrida: Corrida = {
   rodada: 20,
   nome: 'São Paulo Grand Prix',
   circuito: 'Autódromo José Carlos Pace',
+  circuitoId: 'interlagos',
   cidade: 'São Paulo',
   pais: 'Brazil',
   inicio: new Date('2026-11-08T17:00:00Z'),

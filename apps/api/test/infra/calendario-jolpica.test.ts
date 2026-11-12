@@ -7,6 +7,7 @@ const etapa = (rodada: number, nome: string, data: string) => ({
   date: data,
   time: '17:00:00Z',
   Circuit: {
+    circuitId: `circuito_${rodada}`,
     circuitName: `Circuito ${rodada}`,
     Location: { locality: 'Cidade', country: 'Brasil' },
   },

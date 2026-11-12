@@ -108,3 +108,17 @@ describe('GET /historia/equipes', () => {
     expect(invalida.statusCode).toBe(400);
   });
 });
+
+describe('GET /circuitos', () => {
+  it('é pública e responde 404 para circuito inexistente', async () => {
+    await criarApp();
+
+    const lista = await app.inject({ method: 'GET', url: '/circuitos' });
+    const inexistente = await app.inject({ method: 'GET', url: '/circuitos/inventado' });
+
+    expect(lista.statusCode).toBe(200);
+    expect(lista.json()).toEqual([]);
+    expect(inexistente.statusCode).toBe(404);
+    expect(inexistente.json()).toMatchObject({ codigo: 'CIRCUITO_NAO_ENCONTRADO' });
+  });
+});

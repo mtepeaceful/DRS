@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FonteCampeonatoJolpica } from '../../src/infra/f1/fonte-campeonato-jolpica.js';
 
 const circuito = (cidade: string) => ({
+  circuitId: cidade === 'São Paulo' ? 'interlagos' : 'albert_park',
   circuitName: `Circuito de ${cidade}`,
   Location: { locality: cidade, country: 'Brasil' },
 });

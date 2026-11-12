@@ -9,8 +9,9 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { Confirmacao } from '../../shared/ui/Confirmacao';
+import { FotoDoCommons } from '../../shared/ui/FotoDoCommons';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
-import { detalheDoPiloto, useExcluirPiloto } from './api';
+import { detalheDoPiloto, useExcluirPiloto, useFotoDoPiloto } from './api';
 import styles from './PilotoDetalhesPage.module.css';
 import { CarreiraDoPiloto, TemporadaDoPiloto } from './RaioXDoPiloto';
 
@@ -24,6 +25,7 @@ export function PilotoDetalhesPage() {
   const excluir = useExcluirPiloto();
   const [confirmando, setConfirmando] = useState(false);
   const logado = useSessaoAtiva();
+  const foto = useFotoDoPiloto()(id);
 
   if (piloto.isPending) {
     return (
@@ -81,13 +83,21 @@ export function PilotoDetalhesPage() {
           {numero}
         </span>
 
-        <header className={styles.cabecalho}>
-          <Link to={`/pilotos?busca=${encodeURIComponent(equipe.nome)}`} className={styles.equipe}>
-            <SimboloDaEquipe {...equipe} tamanho="grande" />
-            {equipe.nome}
-          </Link>
-          <h1 className={styles.nome}>{nome}</h1>
-        </header>
+        <div className={styles.topo}>
+          <header className={styles.cabecalho}>
+            <Link
+              to={`/pilotos?busca=${encodeURIComponent(equipe.nome)}`}
+              className={styles.equipe}
+            >
+              <SimboloDaEquipe {...equipe} tamanho="grande" />
+              {equipe.nome}
+            </Link>
+            <h1 className={styles.nome}>{nome}</h1>
+          </header>
+          {foto && (
+            <FotoDoCommons foto={foto} descricao={`Foto de ${nome}`} className={styles.foto} />
+          )}
+        </div>
 
         <dl className={styles.dados}>
           <div className={styles.dado}>

@@ -1,10 +1,17 @@
 import {
   carreiraSchema,
   type DadosPilotoDTO,
+  fotosDosPilotosSchema,
   paginaDePilotosSchema,
   pilotoSchema,
 } from '@drs/contracts';
-import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { buscar, enviar } from '../../shared/api/http';
 
 export const PILOTOS_POR_PAGINA = 12;
@@ -32,6 +39,21 @@ export function listaDePilotos(busca: string, pagina: number) {
     },
     placeholderData: keepPreviousData,
   });
+}
+
+const fotosDosPilotos = queryOptions({
+  queryKey: ['pilotos', 'fotos'],
+  queryFn: ({ signal }) => buscar('/pilotos/fotos', fotosDosPilotosSchema, { signal }),
+  staleTime: 60 * 60_000,
+});
+
+export function useFotoDoPiloto() {
+  const { data } = useQuery({
+    ...fotosDosPilotos,
+    select: (fotos) => new Map(fotos.map(({ id, foto }) => [id, foto])),
+  });
+
+  return (id: string) => data?.get(id);
 }
 
 export function detalheDoPiloto(id: string) {

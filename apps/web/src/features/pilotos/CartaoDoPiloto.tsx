@@ -1,4 +1,4 @@
-import type { EquipeDTO } from '@drs/contracts';
+import type { EquipeDTO, FotoDTO } from '@drs/contracts';
 import { Link } from 'react-router';
 import { estiloDaEquipe } from '../../shared/lib/equipe';
 import { nomeDoPais } from '../../shared/lib/paises';
@@ -14,9 +14,10 @@ interface Props {
   titulos: number;
   equipe: EquipeDTO | undefined;
   para?: string;
+  foto?: FotoDTO | undefined;
 }
 
-export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para }: Props) {
+export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto }: Props) {
   const numeroValido = numero !== undefined && Number.isInteger(numero);
 
   return (
@@ -24,6 +25,18 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para }: Pr
       <span className={styles.numero} aria-hidden="true">
         {numeroValido ? numero : '–'}
       </span>
+
+      {foto && (
+        <img
+          src={foto.url}
+          alt=""
+          title={['Foto', foto.autor, foto.licenca].filter(Boolean).join(' · ')}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          className={styles.retrato}
+        />
+      )}
 
       <div className={styles.corpo}>
         <p className={styles.equipe}>

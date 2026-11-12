@@ -2,6 +2,7 @@ import {
   carreiraSchema,
   dadosPilotoSchema,
   erroSchema,
+  fotosDosPilotosSchema,
   listarPilotosQuerySchema,
   paginaDePilotosSchema,
   pilotoSchema,
@@ -11,6 +12,7 @@ import { z } from 'zod';
 import type { AtualizarPiloto } from '../../application/pilotos/atualizar-piloto.js';
 import type { CadastrarPiloto } from '../../application/pilotos/cadastrar-piloto.js';
 import type { ConsultarCarreira } from '../../application/pilotos/consultar-carreira.js';
+import type { FotosDosPilotos } from '../../application/pilotos/fotos-dos-pilotos.js';
 import type { ExcluirPiloto } from '../../application/pilotos/excluir-piloto.js';
 import type { ListarPilotos } from '../../application/pilotos/listar-pilotos.js';
 import type { ObterPiloto } from '../../application/pilotos/obter-piloto.js';
@@ -23,6 +25,7 @@ export interface CasosDeUsoDePilotos {
   atualizar: AtualizarPiloto;
   excluir: ExcluirPiloto;
   carreira: ConsultarCarreira;
+  fotos: FotosDosPilotos;
 }
 
 const parametros = z.object({ id: z.uuid() });
@@ -37,6 +40,16 @@ export const rotasPilotos: FastifyPluginAsyncZod<CasosDeUsoDePilotos> = async (a
       },
     },
     async (request) => apresentarPaginaDePilotos(await casos.listar.executar(request.query)),
+  );
+
+  app.get(
+    '/fotos',
+    { schema: { response: { 200: fotosDosPilotosSchema } } },
+    async (_request, reply) => {
+      reply.header('cache-control', 'public, max-age=3600');
+
+      return casos.fotos.executar();
+    },
   );
 
   app.get(

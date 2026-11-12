@@ -4,6 +4,7 @@ import { buildApp } from '../../src/app.js';
 import type { FonteDeDadosDaF1 } from '../../src/application/ports/fonte-de-dados-da-f1.js';
 import { FonteIndisponivel } from '../../src/infra/http-externo.js';
 import {
+  CampeoesRepositoryEmMemoria,
   EquipeRepositoryEmMemoria,
   ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -19,6 +20,7 @@ async function criarApp(fonteDeDados: FonteDeDadosDaF1) {
       equipes,
       pilotos: new PilotoRepositoryEmMemoria(equipes),
       importacoes: new ImportacaoRepositoryEmMemoria(),
+      campeoes: new CampeoesRepositoryEmMemoria(),
     },
     { ...configuracaoDeTeste, fonteDeDados },
   );
@@ -32,7 +34,6 @@ const fonte: FonteDeDadosDaF1 = {
     equipes: [{ nome: 'Ferrari', cor: '#ed1131', corSecundaria: '#ffffff' }],
     pilotos: [{ nome: 'Lewis Hamilton', sigla: 'HAM', numero: 44, pais: 'GB', equipe: 'Ferrari' }],
   }),
-  buscarCampeoes: async () => [],
 };
 
 function importar(headers: Record<string, string> = cabecalhoDeSessao) {
@@ -62,7 +63,6 @@ describe('POST /importacoes/temporada-atual', () => {
       buscarTemporadaAtual: async () => {
         throw new FonteIndisponivel('https://api.openf1.org/v1/drivers', new Error('timeout'));
       },
-      buscarCampeoes: async () => [],
     });
 
     const resposta = await importar();

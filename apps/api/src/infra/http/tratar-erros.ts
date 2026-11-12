@@ -10,6 +10,7 @@ const statusPorCodigo: Record<CodigoDeErro, number> = {
   NUMERO_JA_EM_USO: 409,
   EQUIPE_JA_EXISTE: 409,
   ETAPA_NAO_ENCONTRADA: 404,
+  TEMPORADA_NAO_ENCONTRADA: 404,
 };
 
 export function tratarErros(app: FastifyInstance) {

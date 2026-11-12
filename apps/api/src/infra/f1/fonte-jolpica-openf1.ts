@@ -1,7 +1,5 @@
-import { setTimeout as esperar } from 'node:timers/promises';
 import { z } from 'zod';
 import type {
-  Campeao,
   FonteDeDadosDaF1,
   PilotoDaTemporada,
   Temporada,
@@ -12,8 +10,6 @@ import { paisDaNacionalidade } from './nacionalidades.js';
 
 const JOLPICA = 'https://api.jolpi.ca/ergast/f1';
 const OPENF1 = 'https://api.openf1.org/v1';
-const CONSULTAS_POR_LOTE = 2;
-const PAUSA_ENTRE_LOTES_EM_MS = 1100;
 
 const pilotosOpenF1 = z.array(
   z.object({
@@ -40,16 +36,6 @@ const pilotosJolpica = z.object({
     DriverTable: z.object({
       season: z.coerce.number().int(),
       Drivers: z.array(pilotoJolpica),
-    }),
-  }),
-});
-
-const campeaoJolpica = z.object({
-  MRData: z.object({
-    StandingsTable: z.object({
-      StandingsLists: z.array(
-        z.object({ DriverStandings: z.array(z.object({ Driver: pilotoJolpica })).min(1) }),
-      ),
     }),
   }),
 });
@@ -104,32 +90,5 @@ export class FonteJolpicaOpenF1 implements FonteDeDadosDaF1 {
     }
 
     return { ano, equipes: [...equipes.values()], pilotos };
-  }
-
-  async buscarCampeoes(anos: number[]): Promise<Campeao[]> {
-    const campeoes: Campeao[] = [];
-
-    for (let inicio = 0; inicio < anos.length; inicio += CONSULTAS_POR_LOTE) {
-      const lote = anos.slice(inicio, inicio + CONSULTAS_POR_LOTE);
-      const respostas = await Promise.all(
-        lote.map((ano) => buscarJson(`${JOLPICA}/${ano}/driverstandings/1.json`, campeaoJolpica)),
-      );
-
-      respostas.forEach((resposta, indice) => {
-        const ano = lote[indice];
-        const sigla =
-          resposta.MRData.StandingsTable.StandingsLists[0]?.DriverStandings[0]?.Driver.code;
-
-        if (ano !== undefined) {
-          campeoes.push({ ano, sigla: sigla ?? null });
-        }
-      });
-
-      if (inicio + CONSULTAS_POR_LOTE < anos.length) {
-        await esperar(PAUSA_ENTRE_LOTES_EM_MS);
-      }
-    }
-
-    return campeoes;
   }
 }

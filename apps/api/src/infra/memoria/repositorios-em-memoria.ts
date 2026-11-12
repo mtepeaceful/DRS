@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { EquipeRepository } from '../../application/ports/equipe-repository.js';
-import type { Campeao } from '../../application/ports/fonte-de-dados-da-f1.js';
+import type { CampeoesRepository } from '../../application/ports/campeoes-repository.js';
+import type { Campeao } from '../../application/ports/fonte-da-historia.js';
 import type { ImportacaoRepository } from '../../application/ports/importacao-repository.js';
 import type {
   FiltroDePilotos,
@@ -118,20 +119,7 @@ export class PilotoRepositoryEmMemoria implements PilotoRepository {
 }
 
 export class ImportacaoRepositoryEmMemoria implements ImportacaoRepository {
-  private readonly campeoes = new Map<number, string | null>();
   private ultima: Date | null = null;
-
-  async listarCampeoes(): Promise<Campeao[]> {
-    return [...this.campeoes].map(([ano, sigla]) => ({ ano, sigla }));
-  }
-
-  async guardarCampeoes(novos: Campeao[]): Promise<void> {
-    for (const { ano, sigla } of novos) {
-      if (!this.campeoes.has(ano)) {
-        this.campeoes.set(ano, sigla);
-      }
-    }
-  }
 
   async ultimaImportacao(): Promise<Date | null> {
     return this.ultima;
@@ -140,6 +128,22 @@ export class ImportacaoRepositoryEmMemoria implements ImportacaoRepository {
   async registrarImportacao(executadaEm: Date): Promise<void> {
     if (!this.ultima || executadaEm > this.ultima) {
       this.ultima = executadaEm;
+    }
+  }
+}
+
+export class CampeoesRepositoryEmMemoria implements CampeoesRepository {
+  private readonly porAno = new Map<number, Campeao>();
+
+  async listar(): Promise<Campeao[]> {
+    return [...this.porAno.values()];
+  }
+
+  async guardar(novos: Campeao[]): Promise<void> {
+    for (const campeao of novos) {
+      if (!this.porAno.has(campeao.ano)) {
+        this.porAno.set(campeao.ano, campeao);
+      }
     }
   }
 }

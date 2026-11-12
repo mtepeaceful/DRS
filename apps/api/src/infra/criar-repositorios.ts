@@ -1,10 +1,12 @@
 import type { Repositorios } from '../app.js';
 import type { ConfiguracaoDeArmazenamento } from '../env.js';
 import { conectar } from './database/client.js';
+import { CampeoesRepositoryDrizzle } from './database/campeoes-repository-drizzle.js';
 import { EquipeRepositoryDrizzle } from './database/equipe-repository-drizzle.js';
 import { ImportacaoRepositoryDrizzle } from './database/importacao-repository-drizzle.js';
 import { PilotoRepositoryDrizzle } from './database/piloto-repository-drizzle.js';
 import {
+  CampeoesRepositoryEmMemoria,
   EquipeRepositoryEmMemoria,
   ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -25,6 +27,7 @@ export function criarRepositorios(configuracao: ConfiguracaoDeArmazenamento): Ar
           pilotos: new PilotoRepositoryDrizzle(db),
           equipes: new EquipeRepositoryDrizzle(db),
           importacoes: new ImportacaoRepositoryDrizzle(db),
+          campeoes: new CampeoesRepositoryDrizzle(db),
         },
         fechar,
       };
@@ -38,6 +41,7 @@ export function criarRepositorios(configuracao: ConfiguracaoDeArmazenamento): Ar
           pilotos: new PilotoRepositoryEmMemoria(equipes),
           equipes,
           importacoes: new ImportacaoRepositoryEmMemoria(),
+          campeoes: new CampeoesRepositoryEmMemoria(),
         },
         fechar: async () => {},
       };

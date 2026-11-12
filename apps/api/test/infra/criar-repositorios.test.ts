@@ -44,14 +44,14 @@ describe('loadEnv', () => {
     ).toThrow();
   });
 
-  it('atualiza o grid sozinho a menos que seja desligado', () => {
+  it('roda as tarefas em segundo plano a menos que sejam desligadas', () => {
     const memoria = { ...credenciais, ARMAZENAMENTO: 'memoria' };
 
-    expect(loadEnv(memoria).ATUALIZAR_GRID_SOZINHO).toBe(true);
-    expect(loadEnv({ ...memoria, ATUALIZAR_GRID_SOZINHO: 'false' }).ATUALIZAR_GRID_SOZINHO).toBe(
-      false,
-    );
-    expect(() => loadEnv({ ...memoria, ATUALIZAR_GRID_SOZINHO: 'talvez' })).toThrow();
+    expect(loadEnv(memoria).TAREFAS_EM_SEGUNDO_PLANO).toBe(true);
+    expect(
+      loadEnv({ ...memoria, TAREFAS_EM_SEGUNDO_PLANO: 'false' }).TAREFAS_EM_SEGUNDO_PLANO,
+    ).toBe(false);
+    expect(() => loadEnv({ ...memoria, TAREFAS_EM_SEGUNDO_PLANO: 'talvez' })).toThrow();
   });
 
   it('recusa um armazenamento desconhecido', () => {

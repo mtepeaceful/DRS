@@ -5,6 +5,7 @@ import { buildApp } from '../../src/app.js';
 import { cabecalhoDeSessao, configuracaoDeTeste } from '../support/autenticacao.js';
 import type { Equipe } from '../../src/domain/equipe.js';
 import {
+  CampeoesRepositoryEmMemoria,
   EquipeRepositoryEmMemoria,
   ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -44,6 +45,7 @@ beforeEach(async () => {
       equipes,
       pilotos: new PilotoRepositoryEmMemoria(equipes),
       importacoes: new ImportacaoRepositoryEmMemoria(),
+      campeoes: new CampeoesRepositoryEmMemoria(),
     },
     configuracaoDeTeste,
   );

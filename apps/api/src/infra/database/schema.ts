@@ -4,6 +4,7 @@ import {
   check,
   index,
   pgTable,
+  real,
   smallint,
   timestamp,
   uniqueIndex,
@@ -54,6 +55,14 @@ export const campeoes = pgTable(
   {
     ano: smallint().primaryKey(),
     sigla: char({ length: 3 }),
+    piloto: varchar({ length: 255 }).notNull(),
+    pais: char({ length: 2 }),
+    equipe: varchar({ length: 100 }).notNull(),
+    pontos: real().notNull(),
+    vitorias: smallint().notNull(),
+    construtor: varchar({ length: 100 }),
+    construtorPontos: real('construtor_pontos'),
+    construtorVitorias: smallint('construtor_vitorias'),
   },
   (tabela) => [
     check('campeoes_ano_valido', sql`${tabela.ano} between 1950 and 2100`),

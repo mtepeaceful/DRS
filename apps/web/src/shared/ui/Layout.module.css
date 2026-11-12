@@ -104,6 +104,25 @@
   font-size: 0.85rem;
 }
 
+.dicionario {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 4px 0 6px;
+}
+
+.dicionario a {
+  color: var(--cor-texto);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dicionario a:hover,
+.dicionario a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 @media (max-width: 560px) {
   .barra {
     flex-wrap: wrap;

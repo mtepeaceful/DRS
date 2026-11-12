@@ -114,6 +114,13 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'glossario',
+        lazy: () =>
+          import('../features/glossario/GlossarioPage').then((m) => ({
+            Component: m.GlossarioPage,
+          })),
+      },
+      {
         path: 'historia',
         lazy: () =>
           import('../features/historia/HistoriaPage').then((m) => ({

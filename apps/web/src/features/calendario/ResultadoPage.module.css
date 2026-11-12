@@ -92,6 +92,24 @@
   background: var(--cor-superficie);
 }
 
+.siglas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 12px;
+  font-size: 0.82rem;
+}
+
+.siglas a {
+  color: var(--cor-texto-suave);
+  text-underline-offset: 3px;
+}
+
+.siglas a:hover,
+.siglas a:focus-visible {
+  color: var(--cor-texto);
+}
+
 .tabela {
   width: 100%;
   border-collapse: collapse;

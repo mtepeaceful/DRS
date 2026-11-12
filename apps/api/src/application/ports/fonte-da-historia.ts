@@ -13,6 +13,7 @@ export interface CorridaHistorica {
   rodada: number;
   nome: string;
   circuito: string;
+  circuitoId: string;
   pais: string;
   data: string;
   vencedor: { nome: string; equipe: string } | null;

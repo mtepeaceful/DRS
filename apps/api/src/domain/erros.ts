@@ -5,7 +5,8 @@ export type CodigoDeErro =
   | 'NUMERO_JA_EM_USO'
   | 'EQUIPE_JA_EXISTE'
   | 'ETAPA_NAO_ENCONTRADA'
-  | 'TEMPORADA_NAO_ENCONTRADA';
+  | 'TEMPORADA_NAO_ENCONTRADA'
+  | 'CIRCUITO_NAO_ENCONTRADO';
 
 export abstract class ErroDeDominio extends Error {
   abstract readonly codigo: CodigoDeErro;
@@ -69,5 +70,13 @@ export class TemporadaNaoEncontrada extends ErroDeDominio {
 
   constructor() {
     super('Temporada fora do histórico: escolha um ano entre 1950 e o ano passado.');
+  }
+}
+
+export class CircuitoNaoEncontrado extends ErroDeDominio {
+  readonly codigo = 'CIRCUITO_NAO_ENCONTRADO';
+
+  constructor() {
+    super('Circuito não encontrado.');
   }
 }

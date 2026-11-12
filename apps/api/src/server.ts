@@ -3,6 +3,7 @@ import { loadEnv } from './env.js';
 import { criarRepositorios } from './infra/criar-repositorios.js';
 import { comCache, comCachePorChave } from './infra/cache/com-cache.js';
 import { FonteCampeonatoJolpica } from './infra/f1/fonte-campeonato-jolpica.js';
+import { FonteCircuitosJolpica } from './infra/f1/fonte-circuitos-jolpica.js';
 import { FonteEquipesJolpica } from './infra/f1/fonte-equipes-jolpica.js';
 import { FonteHistoriaJolpica } from './infra/f1/fonte-historia-jolpica.js';
 import { FonteJolpicaOpenF1 } from './infra/f1/fonte-jolpica-openf1.js';
@@ -35,6 +36,11 @@ const numerosDaEquipeEmCache = comCachePorChave(
   (id: string) => equipesDaHistoria.numeros(id),
   24 * 60 * MINUTO,
 );
+const circuitos = new FonteCircuitosJolpica();
+const vencedoresNoCircuitoEmCache = comCachePorChave(
+  (id: string) => circuitos.vencedores(id),
+  24 * 60 * MINUTO,
+);
 const enciclopedia = new EnciclopediaWikimedia();
 const verbeteEmCache = comCachePorChave(
   (artigo: string) => enciclopedia.verbete(artigo),
@@ -54,6 +60,10 @@ const app = await buildApp(
     equipesDaHistoria: {
       listar: () => equipesDaHistoria.listar(),
       numeros: numerosDaEquipeEmCache,
+    },
+    circuitos: {
+      listar: () => circuitos.listar(),
+      vencedores: vencedoresNoCircuitoEmCache,
     },
     enciclopedia: { verbete: verbeteEmCache },
     campeonato: {

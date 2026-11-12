@@ -32,6 +32,7 @@ const corridaJolpica = z.object({
   date: z.iso.date(),
   time: z.string().optional(),
   Circuit: z.object({
+    circuitId: z.string().regex(/^[A-Za-z0-9_-]+$/),
     circuitName: z.string(),
     Location: z.object({ locality: z.string(), country: z.string() }),
   }),
@@ -278,6 +279,7 @@ function paraCorrida(corrida: z.infer<typeof corridaJolpica>): Corrida {
     rodada: corrida.round,
     nome: corrida.raceName,
     circuito: corrida.Circuit.circuitName,
+    circuitoId: corrida.Circuit.circuitId,
     cidade: corrida.Circuit.Location.locality,
     pais: corrida.Circuit.Location.country,
     inicio,

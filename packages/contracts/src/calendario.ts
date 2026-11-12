@@ -6,6 +6,7 @@ export const corridaSchema = z.object({
   rodada: z.number().int(),
   nome: z.string(),
   circuito: z.string(),
+  circuitoId: z.string(),
   cidade: z.string(),
   pais: z.string(),
   inicio: z.iso.datetime(),

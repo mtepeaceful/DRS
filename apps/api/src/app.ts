@@ -6,6 +6,7 @@ import Fastify from 'fastify';
 import type { FastifyServerOptions } from 'fastify';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import { ConsultarCalendario } from './application/calendario/consultar-calendario.js';
+import { ConsultarCircuitos } from './application/circuitos/consultar-circuitos.js';
 import { ConsultarDesempenho } from './application/desempenho/consultar-desempenho.js';
 import { AtualizarEquipe } from './application/equipes/atualizar-equipe.js';
 import { CadastrarEquipe } from './application/equipes/cadastrar-equipe.js';
@@ -29,6 +30,7 @@ import type { CampeoesRepository } from './application/ports/campeoes-repository
 import type { EquipeRepository } from './application/ports/equipe-repository.js';
 import type { FonteDaHistoria } from './application/ports/fonte-da-historia.js';
 import type { Enciclopedia, FonteDasEquipes } from './application/ports/fonte-das-equipes.js';
+import type { FonteDosCircuitos } from './application/ports/fonte-dos-circuitos.js';
 import type { FonteDeDadosDaF1 } from './application/ports/fonte-de-dados-da-f1.js';
 import type { FonteDeNoticias } from './application/ports/fonte-de-noticias.js';
 import type { FonteDoCampeonato } from './application/ports/fonte-do-campeonato.js';
@@ -41,6 +43,7 @@ import {
   rotasDeSessao,
 } from './infra/http/autenticacao.js';
 import { rotasCalendario } from './infra/http/rotas-calendario.js';
+import { rotasCircuitos } from './infra/http/rotas-circuitos.js';
 import { rotasDicionario } from './infra/http/rotas-dicionario.js';
 import { rotasDesempenho } from './infra/http/rotas-desempenho.js';
 import { rotasEquipes } from './infra/http/rotas-equipes.js';
@@ -62,6 +65,7 @@ export interface ConfiguracaoDoApp {
   fonteDeDados: FonteDeDadosDaF1;
   historia: FonteDaHistoria;
   equipesDaHistoria: FonteDasEquipes;
+  circuitos: FonteDosCircuitos;
   enciclopedia: Enciclopedia;
   campeonato: FonteDoCampeonato;
   noticias: FonteDeNoticias;
@@ -78,6 +82,7 @@ export async function buildApp(
     fonteDeDados,
     historia,
     equipesDaHistoria,
+    circuitos,
     enciclopedia,
     campeonato,
     noticias,
@@ -151,6 +156,10 @@ export async function buildApp(
   );
 
   await app.register(rotasImportacao, { prefix: '/importacoes', importar });
+  await app.register(rotasCircuitos, {
+    prefix: '/circuitos',
+    circuitos: new ConsultarCircuitos(circuitos, enciclopedia, campeonato),
+  });
   await app.register(rotasDicionario, {
     prefix: '/historia/equipes',
     dicionario: new ConsultarDicionario(equipesDaHistoria, enciclopedia, campeoes, campeonato),

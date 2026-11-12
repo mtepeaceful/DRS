@@ -10,6 +10,24 @@
   letter-spacing: 0.01em;
 }
 
+.atalhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.atalhos a {
+  color: var(--cor-texto-suave);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.atalhos a:hover,
+.atalhos a:focus-visible {
+  color: var(--cor-texto);
+}
+
 .resumo {
   max-width: 60ch;
   color: var(--cor-texto-suave);

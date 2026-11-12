@@ -33,6 +33,20 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'circuitos',
+        lazy: () =>
+          import('../features/circuitos/CircuitosPage').then((m) => ({
+            Component: m.CircuitosPage,
+          })),
+      },
+      {
+        path: 'circuitos/:id',
+        lazy: () =>
+          import('../features/circuitos/FichaDoCircuitoPage').then((m) => ({
+            Component: m.FichaDoCircuitoPage,
+          })),
+      },
+      {
         path: 'comparar',
         lazy: () =>
           import('../features/comparar/ComparacaoPage').then((m) => ({
@@ -50,6 +64,11 @@ export const rotas: RouteObject[] = [
           import('../features/pilotos/PilotoDetalhesPage').then((m) => ({
             Component: m.PilotoDetalhesPage,
           })),
+      },
+      {
+        path: 'pilotos/:id/garagem',
+        lazy: () =>
+          import('../features/garagem/GaragemPage').then((m) => ({ Component: m.GaragemPage })),
       },
       {
         path: 'entrar',

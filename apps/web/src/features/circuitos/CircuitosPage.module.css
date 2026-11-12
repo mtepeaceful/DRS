@@ -1,0 +1,133 @@
+.topo {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.titulo {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.resumo {
+  max-width: 62ch;
+  color: var(--cor-texto-suave);
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+.busca {
+  flex: 1 1 280px;
+  max-width: 480px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--cor-linha-forte);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+}
+
+.busca::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+.opcao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.opcao input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cor-corrida);
+}
+
+.contagem {
+  margin: 14px 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.88rem;
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    'nome selo seta'
+    'local selo seta';
+  align-items: center;
+  gap: 4px 12px;
+  height: 100%;
+  min-height: 68px;
+  padding: 12px 16px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-superficie);
+  text-decoration: none;
+  transition: border-color var(--transicao);
+}
+
+.linha:hover,
+.linha:focus-visible {
+  border-color: var(--cor-linha-forte);
+}
+
+.nome {
+  grid-area: nome;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-weight: 700;
+}
+
+.local {
+  grid-area: local;
+  padding-left: 34px;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.selo {
+  grid-area: selo;
+  padding: 2px 10px;
+  border: 1px solid color-mix(in srgb, var(--cor-corrida) 60%, transparent);
+  border-radius: 999px;
+  color: var(--cor-corrida);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.seta {
+  grid-area: seta;
+  color: var(--cor-texto-suave);
+}
+
+.esqueleto {
+  min-height: 640px;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+@media (max-width: 480px) {
+  .lista {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

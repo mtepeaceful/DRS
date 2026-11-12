@@ -7,6 +7,7 @@ export interface Corrida {
   rodada: number;
   nome: string;
   circuito: string;
+  circuitoId: string;
   cidade: string;
   pais: string;
   inicio: Date;

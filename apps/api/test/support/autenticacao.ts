@@ -40,6 +40,10 @@ export const configuracaoDeTeste: ConfiguracaoDoApp = {
     listar: async () => [],
     numeros: () => Promise.reject(new Error('sem equipes nos testes')),
   },
+  circuitos: {
+    listar: async () => [],
+    vencedores: () => Promise.reject(new Error('sem circuitos nos testes')),
+  },
   enciclopedia: { verbete: async () => null },
   autenticacao: { hashDaSenha: await gerarHashDaSenha(SENHA_DE_TESTE), segredo: SEGREDO_DE_TESTE },
 };

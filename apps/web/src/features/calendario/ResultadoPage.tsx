@@ -248,7 +248,12 @@ export function ResultadoPage() {
         <h1 className={styles.nomeDoGp}>{titulo}</h1>
         <p className={styles.local}>
           <Bandeira pais={codigoDoPais(etapa.pais)} />
-          {etapa.circuito} · {etapa.cidade}, {nomeDoPaisEmPortugues(etapa.pais)}
+          <span>
+            <Link to={`/circuitos/${etapa.circuitoId}`} className={styles.circuito}>
+              {etapa.circuito}
+            </Link>{' '}
+            · {etapa.cidade}, {nomeDoPaisEmPortugues(etapa.pais)}
+          </span>
         </p>
       </header>
 

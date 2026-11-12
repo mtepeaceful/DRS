@@ -15,8 +15,10 @@ A sigla é um trocadilho com o DRS da F1, o Drag Reduction System, a asa traseir
 - **Campeonato completo:** classificação de todos os pilotos e construtores
 - **História da F1:** os campeões de pilotos e de construtores de cada ano desde 1950, o ranking dos maiores campeões e a página de qualquer temporada encerrada, com classificação, equipes e o vencedor de cada corrida. A API guarda os campeões no banco na primeira vez e não consulta de novo
 - **Dicionário de equipes:** as 214 equipes que já correram na F1, com busca e o grid atual em destaque. Cada equipe tem ficha com fundação, fundador e sede (do Wikidata, quando existem), estreia, corridas, vitórias, pódios, poles, títulos de construtores e de pilotos, a temporada atual e um resumo da história com o crédito da Wikipédia
+- **Dicionário de circuitos:** as 78 pistas que já receberam a F1, com inauguração, quantos GPs recebeu, quem mais venceu (pilotos e equipes), o vencedor de cada ano e a próxima corrida no calendário. Ligado ao resultado de cada GP e às temporadas antigas
 - **Comparar pilotos:** dois pilotos lado a lado, com quem terminou à frente nas corridas e no grid, os números da temporada e um gráfico dos pontos acumulados etapa a etapa
 - **Grid de pilotos:** busca ao vivo por piloto ou equipe, filtro por equipe e paginação
+- **Garagem 3D:** o carro de cada piloto em estilo low-poly, nas cores da equipe e com o número dele, montado em código com three.js. Dá para girar, aproximar e abrir o DRS. Em aparelho modesto, para quem prefere menos movimento ou sem WebGL, aparece uma ilustração parada, e a biblioteca 3D só é baixada nessa página
 - **Página do piloto:** a temporada corrida a corrida e os números da carreira (estreia, corridas, vitórias, pódios, poles e anos de título)
 - **Grid sempre atualizado:** a API reimporta a temporada sozinha quando a última importação passa de 24 horas, e o administrador ainda pode importar na hora com um clique. Os campeões das temporadas passadas ficam guardados no banco, então só os anos que faltam são consultados
 - **Cadastro e edição** de pilotos e equipes, com prévia em tempo real e acesso restrito ao administrador

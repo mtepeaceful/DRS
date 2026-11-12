@@ -10,6 +10,7 @@ function etapa(rodada: number, nome: string, vencedor: EtapaDTO['vencedor']): Et
     rodada,
     nome,
     circuito: `Circuito ${rodada}`,
+    circuitoId: `circuito_${rodada}`,
     cidade: 'Cidade',
     pais: 'Brazil',
     inicio: `2026-11-${String(rodada).padStart(2, '0')}T17:00:00.000Z`,

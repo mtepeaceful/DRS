@@ -125,6 +125,7 @@ export function HistoriaPage() {
           <Link to="/historia/pilotos">Todos os pilotos →</Link>
           <Link to="/equipes">Todas as equipes →</Link>
           <Link to="/circuitos">Todos os circuitos →</Link>
+          <Link to="/historia/carros">A evolução dos carros →</Link>
         </nav>
         {faltando > 0 && (
           <p className={styles.carregando} role="status">

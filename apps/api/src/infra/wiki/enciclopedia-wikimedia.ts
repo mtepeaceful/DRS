@@ -83,7 +83,10 @@ function arquivoDoCommons(endereco: string) {
   url.search = '';
 
   if (miniatura) {
-    partes[partes.length - 1] = (partes.at(-1) ?? '').replace(/^\d+px-/, `${LARGURA_DA_FOTO}-`);
+    partes[partes.length - 1] = (partes.at(-1) ?? '').replace(
+      /^((?:lang[a-z-]+-)?)\d+px-/,
+      `$1${LARGURA_DA_FOTO}-`,
+    );
     url.pathname = partes.join('/');
   }
 

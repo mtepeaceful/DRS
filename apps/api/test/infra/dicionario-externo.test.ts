@@ -310,6 +310,18 @@ describe('EnciclopediaWikimedia · fotos', () => {
     ).toBe('File:Senna_1993.jpg');
   });
 
+  it('aumenta também os mapas em SVG, que chegam com o idioma no nome', async () => {
+    simular(
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Monza_track_map.svg/langpt-330px-Monza_track_map.svg.png',
+    );
+
+    const verbete = await new EnciclopediaWikimedia().verbete('Monza');
+
+    expect(verbete?.foto?.url).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Monza_track_map.svg/langpt-500px-Monza_track_map.svg.png',
+    );
+  });
+
   it('recusa imagem que não está no Commons, como as de uso justo', async () => {
     const pedidos = simular(
       'https://upload.wikimedia.org/wikipedia/en/thumb/a/ab/Logo.png/330px-Logo.png',

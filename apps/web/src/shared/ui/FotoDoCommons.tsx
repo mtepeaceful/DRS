@@ -7,8 +7,13 @@ interface Props {
   className?: string | undefined;
 }
 
+function ehDesenho(endereco: string) {
+  return /\.svg(\.png)?$/i.test(new URL(endereco).pathname);
+}
+
 export function FotoDoCommons({ foto, descricao, className }: Props) {
   const credito = [foto.autor, foto.licenca].filter(Boolean).join(' · ');
+  const desenho = ehDesenho(foto.url);
 
   return (
     <figure className={className ? `${styles.foto} ${className}` : styles.foto}>
@@ -18,11 +23,12 @@ export function FotoDoCommons({ foto, descricao, className }: Props) {
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
-        className={styles.imagem}
+        className={desenho ? styles.desenho : styles.imagem}
       />
       <figcaption className={styles.credito}>
         <a href={foto.pagina} target="_blank" rel="noopener noreferrer">
-          Foto{credito ? `: ${credito}` : ''}
+          {desenho ? 'Imagem' : 'Foto'}
+          {credito ? `: ${credito}` : ''}
           <span className="apenas-leitor"> (Wikimedia Commons, abre em nova aba)</span>
         </a>
       </figcaption>

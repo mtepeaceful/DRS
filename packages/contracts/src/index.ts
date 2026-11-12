@@ -10,4 +10,5 @@ export * from './importacao.js';
 export * from './paginacao.js';
 export * from './painel.js';
 export * from './piloto.js';
+export * from './pilotos-da-historia.js';
 export * from './sessao.js';

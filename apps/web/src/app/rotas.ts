@@ -121,6 +121,20 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'historia/pilotos',
+        lazy: () =>
+          import('../features/pilotos-da-historia/PilotosDaHistoriaPage').then((m) => ({
+            Component: m.PilotosDaHistoriaPage,
+          })),
+      },
+      {
+        path: 'historia/pilotos/:id',
+        lazy: () =>
+          import('../features/pilotos-da-historia/FichaDoPilotoPage').then((m) => ({
+            Component: m.FichaDoPilotoPage,
+          })),
+      },
+      {
         path: 'historia/:ano',
         lazy: () =>
           import('../features/historia/TemporadaHistoricaPage').then((m) => ({

@@ -63,7 +63,8 @@ beforeEach(() => {
       return campeoesReais.filter((c) => anos.includes(c.ano));
     },
     buscarTemporada: () => Promise.reject(new Error('não usado')),
-    buscarCarreira: async () => null,
+    listarPilotos: async () => [],
+    buscarCarreira: () => Promise.reject(new Error('não usado')),
   };
   campeoes = new CampeoesDaHistoria(new CampeoesRepositoryEmMemoria(), historia);
 });

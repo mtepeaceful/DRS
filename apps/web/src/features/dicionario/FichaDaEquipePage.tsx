@@ -10,6 +10,7 @@ import botao from '../../shared/ui/botao.module.css';
 import { CORES_NEUTRAS } from '../calendario/cores';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { fichaDaEquipe } from './api';
+import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './FichaDaEquipePage.module.css';
 
 function periodo({ temporadas, noGridAtual }: FichaDaEquipeDTO) {
@@ -91,7 +92,7 @@ function Titulos({ ficha }: { ficha: FichaDaEquipeDTO }) {
                 <Link to={`/historia/${ano}`} className={styles.ano}>
                   {ano}
                 </Link>
-                {piloto}
+                <NomeDoPiloto nome={piloto} />
               </li>
             ))}
           </ul>

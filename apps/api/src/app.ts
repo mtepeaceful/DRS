@@ -18,6 +18,7 @@ import {
   temporadasEncerradas,
 } from './application/historia/campeoes-da-historia.js';
 import { ConsultarHistoria } from './application/historia/consultar-historia.js';
+import { ConsultarPilotosDaHistoria } from './application/historia/consultar-pilotos-da-historia.js';
 import { MontarPainel } from './application/painel/montar-painel.js';
 import { ListarEquipes } from './application/equipes/listar-equipes.js';
 import { AtualizarPiloto } from './application/pilotos/atualizar-piloto.js';
@@ -50,6 +51,7 @@ import { rotasEquipes } from './infra/http/rotas-equipes.js';
 import { rotasHistoria } from './infra/http/rotas-historia.js';
 import { rotasImportacao } from './infra/http/rotas-importacao.js';
 import { rotasPainel } from './infra/http/rotas-painel.js';
+import { rotasPilotosDaHistoria } from './infra/http/rotas-pilotos-da-historia.js';
 import { rotasPilotos } from './infra/http/rotas-pilotos.js';
 import { tratarErros } from './infra/http/tratar-erros.js';
 
@@ -159,6 +161,10 @@ export async function buildApp(
   await app.register(rotasCircuitos, {
     prefix: '/circuitos',
     circuitos: new ConsultarCircuitos(circuitos, enciclopedia, campeonato),
+  });
+  await app.register(rotasPilotosDaHistoria, {
+    prefix: '/historia/pilotos',
+    pilotos: new ConsultarPilotosDaHistoria(historia, campeoes, enciclopedia),
   });
   await app.register(rotasDicionario, {
     prefix: '/historia/equipes',

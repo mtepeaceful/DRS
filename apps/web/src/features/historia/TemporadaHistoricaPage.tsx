@@ -13,6 +13,7 @@ import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { temporadaHistorica } from './api';
 import { pontos } from './numeros';
+import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './TemporadaHistoricaPage.module.css';
 
 const PRIMEIRO_CAMPEONATO_DE_CONSTRUTORES = 1958;
@@ -50,7 +51,7 @@ function Pilotos({ pilotos }: { pilotos: TemporadaHistoricaDTO['pilotos'] }) {
               <th scope="row" className={styles.nome}>
                 <span className={styles.comBandeira}>
                   {piloto.pais && <Bandeira pais={piloto.pais} />}
-                  {piloto.nome}
+                  <NomeDoPiloto nome={piloto.nome} />
                 </span>
                 <span className={styles.detalhe}>
                   {piloto.equipes.map(nomeDaEquipe).join(', ')}
@@ -147,7 +148,7 @@ function Corridas({ corridas }: { corridas: TemporadaHistoricaDTO['corridas'] })
               {corrida.vencedor ? (
                 <>
                   <span className="apenas-leitor">Vencedor: </span>
-                  {corrida.vencedor.nome}
+                  <NomeDoPiloto nome={corrida.vencedor.nome} />
                   <span className={styles.detalhe}>{nomeDaEquipe(corrida.vencedor.equipe)}</span>
                 </>
               ) : (

@@ -7,6 +7,7 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { campeoesDaHistoria } from './api';
+import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './HistoriaPage.module.css';
 import { pontos } from './numeros';
 
@@ -17,7 +18,15 @@ function decadaDe(ano: number) {
   return Math.floor(ano / 10) * 10;
 }
 
-function Ranking({ titulo, recordistas }: { titulo: string; recordistas: Recordista[] }) {
+function Ranking({
+  titulo,
+  recordistas,
+  pilotos = false,
+}: {
+  titulo: string;
+  recordistas: Recordista[];
+  pilotos?: boolean;
+}) {
   return (
     <section className={styles.cartao} aria-labelledby={`ranking-${titulo}`}>
       <h3 id={`ranking-${titulo}`} className={styles.tituloDoCartao}>
@@ -30,7 +39,7 @@ function Ranking({ titulo, recordistas }: { titulo: string; recordistas: Recordi
             <span className={styles.quem}>
               <span className={styles.nomeDoRecordista}>
                 {recordista.pais && <Bandeira pais={recordista.pais} />}
-                {nomeDaEquipe(recordista.nome)}
+                {pilotos ? <NomeDoPiloto nome={recordista.nome} /> : nomeDaEquipe(recordista.nome)}
               </span>
               <span className={styles.anosDeTitulo}>{recordista.anos.join(' · ')}</span>
             </span>
@@ -113,6 +122,7 @@ export function HistoriaPage() {
           corrida daquela temporada.
         </p>
         <nav aria-label="Dicionário" className={styles.atalhos}>
+          <Link to="/historia/pilotos">Todos os pilotos →</Link>
           <Link to="/equipes">Todas as equipes →</Link>
           <Link to="/circuitos">Todos os circuitos →</Link>
         </nav>
@@ -129,7 +139,7 @@ export function HistoriaPage() {
             Maiores campeões
           </h2>
           <div className={styles.rankings}>
-            <Ranking titulo="Pilotos" recordistas={maioresPilotos} />
+            <Ranking titulo="Pilotos" recordistas={maioresPilotos} pilotos />
             <Ranking titulo="Construtores" recordistas={maioresConstrutores} />
           </div>
         </section>

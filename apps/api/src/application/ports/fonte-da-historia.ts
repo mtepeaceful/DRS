@@ -42,18 +42,26 @@ export interface TemporadaHistorica {
   construtores: ConstrutorDaHistoria[];
 }
 
-export interface Carreira {
+export interface PilotoDaF1 {
+  id: string;
+  nome: string;
+  pais: string | null;
   nascimento: string | null;
-  estreia: number;
-  temporadas: number;
+  wikipedia: string | null;
+}
+
+export interface CarreiraNaF1 {
+  temporadas: number[];
   corridas: number;
   vitorias: number;
   podios: number;
   poles: number;
+  equipes: { id: string; nome: string }[];
 }
 
 export interface FonteDaHistoria {
   buscarCampeoes(anos: number[]): Promise<Campeao[]>;
   buscarTemporada(ano: number): Promise<TemporadaHistorica>;
-  buscarCarreira(nome: string): Promise<Carreira | null>;
+  listarPilotos(): Promise<PilotoDaF1[]>;
+  buscarCarreira(id: string): Promise<CarreiraNaF1>;
 }

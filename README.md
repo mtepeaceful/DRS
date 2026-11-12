@@ -11,14 +11,18 @@ A sigla é um trocadilho com o DRS da F1, o Drag Reduction System, a asa traseir
 ## Funcionalidades
 
 - **Página inicial:** próxima corrida com contagem regressiva e programação no fuso de quem visita, campeonato de pilotos e de construtores, último pódio, onde assistir no Brasil e últimas notícias
-- **Calendário da temporada:** todas as etapas com data, circuito e vencedor, e a classificação completa de cada GP com largada, posições ganhas, tempo, abandonos e volta mais rápida
+- **Calendário e fim de semana:** todas as etapas com data, circuito e vencedor; em cada GP, a corrida (largada, posições ganhas, tempo, abandonos e volta mais rápida), a sprint e a classificação com Q1, Q2 e Q3
+- **Campeonato completo:** classificação de todos os pilotos e construtores
 - **História da F1:** os campeões de pilotos e de construtores de cada ano desde 1950, o ranking dos maiores campeões e a página de qualquer temporada encerrada, com classificação, equipes e o vencedor de cada corrida. A API guarda os campeões no banco na primeira vez e não consulta de novo
 - **Comparar pilotos:** dois pilotos lado a lado, com quem terminou à frente nas corridas e no grid, os números da temporada e um gráfico dos pontos acumulados etapa a etapa
 - **Grid de pilotos:** busca ao vivo por piloto ou equipe, filtro por equipe e paginação
+- **Página do piloto:** a temporada corrida a corrida e os números da carreira (estreia, corridas, vitórias, pódios, poles e anos de título)
 - **Grid sempre atualizado:** a API reimporta a temporada sozinha quando a última importação passa de 24 horas, e o administrador ainda pode importar na hora com um clique. Os campeões das temporadas passadas ficam guardados no banco, então só os anos que faltam são consultados
 - **Cadastro e edição** de pilotos e equipes, com prévia em tempo real e acesso restrito ao administrador
 - Logo e cores de cada equipe, e bandeira do país de cada piloto
 - Validação compartilhada entre API e interface, com mensagens em português
+- Pode ser instalado no celular como app e mostra uma prévia com imagem quando o link é compartilhado
+- Cada página carrega só quando é aberta, e um aviso explica a espera quando o servidor gratuito está acordando
 
 ## Tecnologias
 

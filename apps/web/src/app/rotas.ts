@@ -128,6 +128,13 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'historia/carros',
+        lazy: () =>
+          import('../features/carros/HistoriaDosCarrosPage').then((m) => ({
+            Component: m.HistoriaDosCarrosPage,
+          })),
+      },
+      {
         path: 'historia/pilotos',
         lazy: () =>
           import('../features/pilotos-da-historia/PilotosDaHistoriaPage').then((m) => ({

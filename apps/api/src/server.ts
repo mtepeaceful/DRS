@@ -28,7 +28,7 @@ const temporadaHistoricaEmCache = comCachePorChave(
   24 * 60 * MINUTO,
 );
 const carreiraEmCache = comCachePorChave(
-  (nome: string) => historia.buscarCarreira(nome),
+  (id: string) => historia.buscarCarreira(id),
   24 * 60 * MINUTO,
 );
 const equipesDaHistoria = new FonteEquipesJolpica();
@@ -55,6 +55,7 @@ const app = await buildApp(
     historia: {
       buscarCampeoes: (anos) => historia.buscarCampeoes(anos),
       buscarTemporada: temporadaHistoricaEmCache,
+      listarPilotos: () => historia.listarPilotos(),
       buscarCarreira: carreiraEmCache,
     },
     equipesDaHistoria: {

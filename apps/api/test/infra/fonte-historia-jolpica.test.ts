@@ -177,8 +177,8 @@ describe('FonteHistoriaJolpica', () => {
   });
 });
 
-describe('FonteHistoriaJolpica · carreira', () => {
-  function simularCarreira() {
+describe('FonteHistoriaJolpica · pilotos', () => {
+  function simularPilotos() {
     const pedidos: string[] = [];
     const totais: Record<string, number> = {
       '/drivers/perez/results.json': 290,
@@ -203,6 +203,8 @@ describe('FonteHistoriaJolpica · carreira', () => {
                   givenName: 'Sergio',
                   familyName: 'Pérez',
                   dateOfBirth: '1990-01-26',
+                  nationality: 'Mexican',
+                  url: 'https://en.wikipedia.org/wiki/Sergio_P%C3%A9rez',
                 },
               ];
 
@@ -217,6 +219,19 @@ describe('FonteHistoriaJolpica · carreira', () => {
         });
       }
 
+      if (caminho === '/drivers/perez/constructors.json') {
+        return Response.json({
+          MRData: {
+            ConstructorTable: {
+              Constructors: [
+                { constructorId: 'sauber', name: 'Sauber' },
+                { constructorId: 'red_bull', name: 'Red Bull' },
+              ],
+            },
+          },
+        });
+      }
+
       return caminho in totais
         ? Response.json({ MRData: { total: String(totais[caminho]) } })
         : new Response(null, { status: 404 });
@@ -225,28 +240,37 @@ describe('FonteHistoriaJolpica · carreira', () => {
     return pedidos;
   }
 
-  it('acha o piloto pelo nome mesmo sem acento e soma os pódios', async () => {
-    simularCarreira();
+  it('lista todos os pilotos de todas as páginas, com país e artigo da Wikipédia', async () => {
+    const pedidos = simularPilotos();
 
-    const carreira = await new FonteHistoriaJolpica().buscarCarreira('Sergio Perez');
+    const pilotos = await new FonteHistoriaJolpica().listarPilotos();
 
-    expect(carreira).toEqual({
-      nascimento: '1990-01-26',
-      estreia: 2011,
-      temporadas: 3,
+    expect(pilotos).toEqual([
+      { id: 'senna', nome: 'Ayrton Senna', pais: null, nascimento: null, wikipedia: null },
+      {
+        id: 'perez',
+        nome: 'Sergio Pérez',
+        pais: 'MX',
+        nascimento: '1990-01-26',
+        wikipedia: 'Sergio Pérez',
+      },
+    ]);
+    expect(pedidos).toEqual(['/drivers.json', '/drivers.json']);
+  });
+
+  it('monta a carreira com pódios somados e as equipes do piloto', async () => {
+    simularPilotos();
+
+    expect(await new FonteHistoriaJolpica().buscarCarreira('perez')).toEqual({
+      temporadas: [2011, 2012, 2026],
       corridas: 290,
       vitorias: 6,
       podios: 39,
       poles: 3,
+      equipes: [
+        { id: 'sauber', nome: 'Sauber' },
+        { id: 'red_bull', nome: 'Red Bull' },
+      ],
     });
-  });
-
-  it('devolve nulo para quem nunca correu na F1 e reaproveita a lista de pilotos', async () => {
-    const pedidos = simularCarreira();
-    const fonte = new FonteHistoriaJolpica();
-
-    expect(await fonte.buscarCarreira('Piloto Inventado')).toBeNull();
-    expect(await fonte.buscarCarreira('Outro Inventado')).toBeNull();
-    expect(pedidos.filter((caminho) => caminho === '/drivers.json')).toHaveLength(2);
   });
 });

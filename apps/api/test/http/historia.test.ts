@@ -38,7 +38,8 @@ async function criarApp() {
       historia: {
         buscarCampeoes: async () => [],
         buscarTemporada: async (ano) => ({ ano, corridas: [], pilotos: [], construtores: [] }),
-        buscarCarreira: async () => null,
+        listarPilotos: async () => [],
+        buscarCarreira: () => Promise.reject(new Error('não usado')),
       },
     },
   );
@@ -120,5 +121,18 @@ describe('GET /circuitos', () => {
     expect(lista.json()).toEqual([]);
     expect(inexistente.statusCode).toBe(404);
     expect(inexistente.json()).toMatchObject({ codigo: 'CIRCUITO_NAO_ENCONTRADO' });
+  });
+});
+
+describe('GET /historia/pilotos', () => {
+  it('é pública e responde 404 para piloto inexistente', async () => {
+    await criarApp();
+
+    const lista = await app.inject({ method: 'GET', url: '/historia/pilotos' });
+    const inexistente = await app.inject({ method: 'GET', url: '/historia/pilotos/inventado' });
+
+    expect(lista.statusCode).toBe(200);
+    expect(lista.json()).toEqual([]);
+    expect(inexistente.statusCode).toBe(404);
   });
 });

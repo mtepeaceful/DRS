@@ -2,6 +2,7 @@ import type { Equipe } from '../../domain/equipe.js';
 import type { EquipeRepository } from '../ports/equipe-repository.js';
 import type { FonteDeDadosDaF1, PilotoDaTemporada } from '../ports/fonte-de-dados-da-f1.js';
 import type { ImportacaoRepository } from '../ports/importacao-repository.js';
+import type { CampeoesDaHistoria } from '../historia/campeoes-da-historia.js';
 import type { PilotoRepository } from '../ports/piloto-repository.js';
 
 const TEMPORADAS_PARA_CONTAR_TITULOS = 30;
@@ -22,6 +23,7 @@ export class ImportarTemporada {
     private readonly pilotos: PilotoRepository,
     private readonly equipes: EquipeRepository,
     private readonly importacoes: ImportacaoRepository,
+    private readonly historia: CampeoesDaHistoria,
     private readonly fonte: FonteDeDadosDaF1,
     private readonly agora: () => Date = () => new Date(),
   ) {}
@@ -81,25 +83,10 @@ export class ImportarTemporada {
       { length: TEMPORADAS_PARA_CONTAR_TITULOS },
       (_, i) => anoAtual - TEMPORADAS_PARA_CONTAR_TITULOS + i,
     );
-    const campeaoPorAno = new Map(
-      (await this.importacoes.listarCampeoes()).map(({ ano, sigla }) => [ano, sigla]),
-    );
-    const faltando = anos.filter((ano) => !campeaoPorAno.has(ano));
-
-    if (faltando.length > 0) {
-      const novos = await this.fonte.buscarCampeoes(faltando);
-      await this.importacoes.guardarCampeoes(novos);
-
-      for (const { ano, sigla } of novos) {
-        campeaoPorAno.set(ano, sigla);
-      }
-    }
-
+    const { campeoes } = await this.historia.garantir(anos);
     const titulos = new Map<string, number>();
 
-    for (const ano of anos) {
-      const sigla = campeaoPorAno.get(ano);
-
+    for (const { sigla } of campeoes) {
       if (sigla) {
         titulos.set(sigla, (titulos.get(sigla) ?? 0) + 1);
       }

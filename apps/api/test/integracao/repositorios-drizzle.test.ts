@@ -5,6 +5,7 @@ import type { Equipe } from '../../src/domain/equipe.js';
 import { EquipeJaExiste, EquipeInvalida, NumeroJaEmUso } from '../../src/domain/erros.js';
 import type { DadosPiloto } from '../../src/domain/piloto.js';
 import { conectar } from '../../src/infra/database/client.js';
+import { CampeoesRepositoryDrizzle } from '../../src/infra/database/campeoes-repository-drizzle.js';
 import { EquipeRepositoryDrizzle } from '../../src/infra/database/equipe-repository-drizzle.js';
 import { ImportacaoRepositoryDrizzle } from '../../src/infra/database/importacao-repository-drizzle.js';
 import { PilotoRepositoryDrizzle } from '../../src/infra/database/piloto-repository-drizzle.js';
@@ -14,6 +15,7 @@ const { db, fechar } = conectar(inject('databaseUrl'));
 const equipes = new EquipeRepositoryDrizzle(db);
 const pilotos = new PilotoRepositoryDrizzle(db);
 const importacoes = new ImportacaoRepositoryDrizzle(db);
+const campeoes = new CampeoesRepositoryDrizzle(db);
 let mclaren: Equipe;
 
 function dados(sobrescrita: Partial<DadosPiloto> = {}): DadosPiloto {
@@ -114,29 +116,6 @@ describe('PilotoRepositoryDrizzle', () => {
 });
 
 describe('ImportacaoRepositoryDrizzle', () => {
-  it('guarda campeões sem duplicar anos já conhecidos', async () => {
-    await importacoes.guardarCampeoes([
-      { ano: 1996, sigla: null },
-      { ano: 2020, sigla: 'HAM' },
-    ]);
-    await importacoes.guardarCampeoes([
-      { ano: 2020, sigla: 'XXX' },
-      { ano: 2021, sigla: 'VER' },
-    ]);
-
-    const campeoes = await importacoes.listarCampeoes();
-
-    expect(campeoes.toSorted((a, b) => a.ano - b.ano)).toEqual([
-      { ano: 1996, sigla: null },
-      { ano: 2020, sigla: 'HAM' },
-      { ano: 2021, sigla: 'VER' },
-    ]);
-  });
-
-  it('recusa sigla fora do padrão', async () => {
-    await expect(importacoes.guardarCampeoes([{ ano: 2022, sigla: 'ver' }])).rejects.toThrow();
-  });
-
   it('devolve a importação mais recente', async () => {
     expect(await importacoes.ultimaImportacao()).toBeNull();
 
@@ -145,5 +124,39 @@ describe('ImportacaoRepositoryDrizzle', () => {
     await importacoes.registrarImportacao(new Date('2026-11-09T08:00:00Z'));
 
     expect(await importacoes.ultimaImportacao()).toEqual(new Date('2026-11-11T08:00:00Z'));
+  });
+});
+
+describe('CampeoesRepositoryDrizzle', () => {
+  const senna = {
+    ano: 1988,
+    sigla: 'SEN',
+    piloto: 'Ayrton Senna',
+    pais: 'BR',
+    equipe: 'McLaren',
+    pontos: 90,
+    vitorias: 8,
+    construtor: { nome: 'McLaren', pontos: 199, vitorias: 15 },
+  };
+  const ascari = {
+    ano: 1952,
+    sigla: null,
+    piloto: 'Alberto Ascari',
+    pais: 'IT',
+    equipe: 'Ferrari',
+    pontos: 36,
+    vitorias: 6,
+    construtor: null,
+  };
+
+  it('guarda e devolve o campeão com o construtor, sem duplicar o ano', async () => {
+    await campeoes.guardar([senna, ascari]);
+    await campeoes.guardar([{ ...senna, piloto: 'Outro' }]);
+
+    expect((await campeoes.listar()).toSorted((a, b) => a.ano - b.ano)).toEqual([ascari, senna]);
+  });
+
+  it('recusa sigla fora do padrão', async () => {
+    await expect(campeoes.guardar([{ ...senna, ano: 1989, sigla: 'pro' }])).rejects.toThrow();
   });
 });

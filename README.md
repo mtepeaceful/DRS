@@ -1,17 +1,18 @@
 # DRS
 
-Painel da temporada de Fórmula 1 e gerenciador de pilotos, com dados reais da temporada e uma interface inspirada na identidade visual das corridas.
+**Data Retrieval System**: busca os dados da Fórmula 1 (pilotos, equipes, corridas e a história desde 1950) e apresenta tudo num painel com interface inspirada na identidade visual das corridas.
 
 **Acesse:** https://drs-umcj.onrender.com
 
 ![Página inicial do DRS com a contagem regressiva para o GP de Las Vegas, a classificação do campeonato e as últimas notícias](docs/home.png)
 
-O nome vem do Drag Reduction System, a asa traseira móvel que abre na reta. No logo, o flap da asa abre sempre que a aplicação busca dados.
+A sigla é um trocadilho com o DRS da F1, o Drag Reduction System, a asa traseira móvel que abre na reta. Por isso o logo é uma asa, e o flap abre sempre que a aplicação busca dados.
 
 ## Funcionalidades
 
 - **Página inicial:** próxima corrida com contagem regressiva e programação no fuso de quem visita, campeonato de pilotos e de construtores, último pódio, onde assistir no Brasil e últimas notícias
 - **Calendário da temporada:** todas as etapas com data, circuito e vencedor, e a classificação completa de cada GP com largada, posições ganhas, tempo, abandonos e volta mais rápida
+- **História da F1:** os campeões de pilotos e de construtores de cada ano desde 1950, o ranking dos maiores campeões e a página de qualquer temporada encerrada, com classificação, equipes e o vencedor de cada corrida. A API guarda os campeões no banco na primeira vez e não consulta de novo
 - **Comparar pilotos:** dois pilotos lado a lado, com quem terminou à frente nas corridas e no grid, os números da temporada e um gráfico dos pontos acumulados etapa a etapa
 - **Grid de pilotos:** busca ao vivo por piloto ou equipe, filtro por equipe e paginação
 - **Grid sempre atualizado:** a API reimporta a temporada sozinha quando a última importação passa de 24 horas, e o administrador ainda pode importar na hora com um clique. Os campeões das temporadas passadas ficam guardados no banco, então só os anos que faltam são consultados

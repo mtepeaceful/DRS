@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import {
+  CampeoesRepositoryEmMemoria,
   EquipeRepositoryEmMemoria,
   ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -20,6 +21,7 @@ beforeEach(async () => {
       equipes,
       pilotos: new PilotoRepositoryEmMemoria(equipes),
       importacoes: new ImportacaoRepositoryEmMemoria(),
+      campeoes: new CampeoesRepositoryEmMemoria(),
     },
     configuracaoDeTeste,
   );

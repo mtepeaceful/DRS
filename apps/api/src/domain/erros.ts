@@ -4,7 +4,8 @@ export type CodigoDeErro =
   | 'EQUIPE_INVALIDA'
   | 'NUMERO_JA_EM_USO'
   | 'EQUIPE_JA_EXISTE'
-  | 'ETAPA_NAO_ENCONTRADA';
+  | 'ETAPA_NAO_ENCONTRADA'
+  | 'TEMPORADA_NAO_ENCONTRADA';
 
 export abstract class ErroDeDominio extends Error {
   abstract readonly codigo: CodigoDeErro;
@@ -60,5 +61,13 @@ export class EtapaNaoEncontrada extends ErroDeDominio {
 
   constructor() {
     super('Etapa não encontrada no calendário da temporada.');
+  }
+}
+
+export class TemporadaNaoEncontrada extends ErroDeDominio {
+  readonly codigo = 'TEMPORADA_NAO_ENCONTRADA';
+
+  constructor() {
+    super('Temporada fora do histórico: escolha um ano entre 1950 e o ano passado.');
   }
 }

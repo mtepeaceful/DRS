@@ -2,6 +2,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import { configuracaoDeTeste } from '../support/autenticacao.js';
 import {
+  CampeoesRepositoryEmMemoria,
   EquipeRepositoryEmMemoria,
   ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -13,6 +14,7 @@ const app = await buildApp(
     equipes,
     pilotos: new PilotoRepositoryEmMemoria(equipes),
     importacoes: new ImportacaoRepositoryEmMemoria(),
+    campeoes: new CampeoesRepositoryEmMemoria(),
   },
   { ...configuracaoDeTeste, origensPermitidas: ['https://drs.onrender.com'] },
 );

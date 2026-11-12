@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import type { Campeonato } from '../../src/application/ports/fonte-do-campeonato.js';
 import {
+  CampeoesRepositoryEmMemoria,
   EquipeRepositoryEmMemoria,
   ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -36,6 +37,7 @@ async function criarApp(sobrescrita: Partial<typeof configuracaoDeTeste>) {
       equipes,
       pilotos: new PilotoRepositoryEmMemoria(equipes),
       importacoes: new ImportacaoRepositoryEmMemoria(),
+      campeoes: new CampeoesRepositoryEmMemoria(),
     },
     { ...configuracaoDeTeste, ...sobrescrita },
   );

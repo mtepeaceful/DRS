@@ -11,6 +11,11 @@ import { AtualizarEquipe } from './application/equipes/atualizar-equipe.js';
 import { CadastrarEquipe } from './application/equipes/cadastrar-equipe.js';
 import { ImportarTemporada } from './application/importacao/importar-temporada.js';
 import { ManterGridAtualizado } from './application/importacao/manter-grid-atualizado.js';
+import {
+  CampeoesDaHistoria,
+  temporadasEncerradas,
+} from './application/historia/campeoes-da-historia.js';
+import { ConsultarHistoria } from './application/historia/consultar-historia.js';
 import { MontarPainel } from './application/painel/montar-painel.js';
 import { ListarEquipes } from './application/equipes/listar-equipes.js';
 import { AtualizarPiloto } from './application/pilotos/atualizar-piloto.js';
@@ -18,13 +23,15 @@ import { CadastrarPiloto } from './application/pilotos/cadastrar-piloto.js';
 import { ExcluirPiloto } from './application/pilotos/excluir-piloto.js';
 import { ListarPilotos } from './application/pilotos/listar-pilotos.js';
 import { ObterPiloto } from './application/pilotos/obter-piloto.js';
+import type { CampeoesRepository } from './application/ports/campeoes-repository.js';
 import type { EquipeRepository } from './application/ports/equipe-repository.js';
+import type { FonteDaHistoria } from './application/ports/fonte-da-historia.js';
 import type { FonteDeDadosDaF1 } from './application/ports/fonte-de-dados-da-f1.js';
 import type { FonteDeNoticias } from './application/ports/fonte-de-noticias.js';
 import type { FonteDoCampeonato } from './application/ports/fonte-do-campeonato.js';
 import type { ImportacaoRepository } from './application/ports/importacao-repository.js';
 import type { PilotoRepository } from './application/ports/piloto-repository.js';
-import { agendarAtualizacaoDoGrid } from './infra/agendar-atualizacao-do-grid.js';
+import { agendarTarefas } from './infra/agendar-tarefas.js';
 import {
   type ConfiguracaoDeAutenticacao,
   exigirSessaoNasEscritas,
@@ -33,6 +40,7 @@ import {
 import { rotasCalendario } from './infra/http/rotas-calendario.js';
 import { rotasDesempenho } from './infra/http/rotas-desempenho.js';
 import { rotasEquipes } from './infra/http/rotas-equipes.js';
+import { rotasHistoria } from './infra/http/rotas-historia.js';
 import { rotasImportacao } from './infra/http/rotas-importacao.js';
 import { rotasPainel } from './infra/http/rotas-painel.js';
 import { rotasPilotos } from './infra/http/rotas-pilotos.js';
@@ -42,28 +50,31 @@ export interface Repositorios {
   pilotos: PilotoRepository;
   equipes: EquipeRepository;
   importacoes: ImportacaoRepository;
+  campeoes: CampeoesRepository;
 }
 
 export interface ConfiguracaoDoApp {
   autenticacao: ConfiguracaoDeAutenticacao;
   fonteDeDados: FonteDeDadosDaF1;
+  historia: FonteDaHistoria;
   campeonato: FonteDoCampeonato;
   noticias: FonteDeNoticias;
   origensPermitidas?: string[];
-  atualizarGridSozinho?: boolean;
+  tarefasEmSegundoPlano?: boolean;
 }
 
 const TAMANHO_MAXIMO_DO_CORPO = 16 * 1024;
 
 export async function buildApp(
-  { pilotos, equipes, importacoes }: Repositorios,
+  { pilotos, equipes, importacoes, campeoes }: Repositorios,
   {
     autenticacao,
     fonteDeDados,
+    historia,
     campeonato,
     noticias,
     origensPermitidas = [],
-    atualizarGridSozinho = false,
+    tarefasEmSegundoPlano = false,
   }: ConfiguracaoDoApp,
   options: FastifyServerOptions = {},
 ) {
@@ -121,12 +132,51 @@ export async function buildApp(
     desempenho: new ConsultarDesempenho(campeonato),
   });
 
-  const importar = new ImportarTemporada(pilotos, equipes, importacoes, fonteDeDados);
+  const campeoesDaHistoria = new CampeoesDaHistoria(campeoes, historia);
+  const importar = new ImportarTemporada(
+    pilotos,
+    equipes,
+    importacoes,
+    campeoesDaHistoria,
+    fonteDeDados,
+  );
 
   await app.register(rotasImportacao, { prefix: '/importacoes', importar });
+  await app.register(rotasHistoria, {
+    prefix: '/historia',
+    historia: new ConsultarHistoria(campeoes, historia),
+  });
 
-  if (atualizarGridSozinho) {
-    agendarAtualizacaoDoGrid(app, new ManterGridAtualizado(importar, importacoes));
+  if (tarefasEmSegundoPlano) {
+    const manterGrid = new ManterGridAtualizado(importar, importacoes);
+
+    agendarTarefas(app, [
+      {
+        descricao: 'Campeões da história atualizados',
+        primeiraEmMs: 5_000,
+        executar: async () => {
+          const { novos } = await campeoesDaHistoria.garantir(temporadasEncerradas(new Date()));
+
+          return novos > 0 ? { temporadas: novos } : null;
+        },
+      },
+      {
+        descricao: 'Grid atualizado automaticamente',
+        primeiraEmMs: 15_000,
+        executar: async () => {
+          const resultado = await manterGrid.executarSeNecessario(new Date());
+
+          return (
+            resultado && {
+              ano: resultado.ano,
+              criados: resultado.pilotos.criados,
+              atualizados: resultado.pilotos.atualizados,
+              ignorados: resultado.pilotos.ignorados.length,
+            }
+          );
+        },
+      },
+    ]);
   }
 
   return app;

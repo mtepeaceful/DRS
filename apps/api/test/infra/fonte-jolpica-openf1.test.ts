@@ -33,22 +33,6 @@ const pilotosJolpica = {
   },
 };
 
-function campeao(sigla?: string) {
-  return {
-    MRData: {
-      StandingsTable: {
-        StandingsLists: [
-          {
-            DriverStandings: [
-              { Driver: { ...(sigla && { code: sigla }), givenName: 'X', familyName: 'Y' } },
-            ],
-          },
-        ],
-      },
-    },
-  };
-}
-
 function responder(respostas: (url: string) => unknown) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (entrada) => {
     const corpo = respostas(String(entrada));
@@ -81,51 +65,6 @@ describe('FonteJolpicaOpenF1', () => {
       { nome: 'Haas F1 Team', cor: '#8a8d96', corSecundaria: '#ffffff' },
     ]);
     expect(fetch).toHaveBeenCalledTimes(2);
-  });
-
-  it('busca o campeão de cada ano pedido', async () => {
-    const fetch = responder((url) => {
-      if (url.includes('/1996/')) return campeao();
-      return campeao(url.includes('/2020/') ? 'HAM' : 'VER');
-    });
-
-    const campeoes = await new FonteJolpicaOpenF1().buscarCampeoes([1996, 2020, 2021]);
-
-    expect(campeoes).toEqual([
-      { ano: 1996, sigla: null },
-      { ano: 2020, sigla: 'HAM' },
-      { ano: 2021, sigla: 'VER' },
-    ]);
-    expect(fetch).toHaveBeenCalledTimes(3);
-  });
-
-  it('espera e tenta de novo quando a API limita as requisições', async () => {
-    const tentativas = new Map<string, number>();
-
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (entrada) => {
-      const url = String(entrada);
-      const vez = (tentativas.get(url) ?? 0) + 1;
-      tentativas.set(url, vez);
-
-      if (url.includes('/2010/') && vez < 3) {
-        return new Response('devagar', { status: 429, headers: { 'retry-after': '1' } });
-      }
-
-      return Response.json(campeao('VET'));
-    });
-
-    const campeoes = await new FonteJolpicaOpenF1().buscarCampeoes([2010, 2011]);
-
-    expect(campeoes).toHaveLength(2);
-    expect(tentativas.get('https://api.jolpi.ca/ergast/f1/2010/driverstandings/1.json')).toBe(3);
-  });
-
-  it('desiste depois de três novas tentativas', async () => {
-    responder(() => undefined);
-
-    await expect(new FonteJolpicaOpenF1().buscarCampeoes([2010])).rejects.toThrow(
-      'Não foi possível obter os dados de api.jolpi.ca.',
-    );
   });
 
   it('recusa resposta fora do formato esperado', async () => {

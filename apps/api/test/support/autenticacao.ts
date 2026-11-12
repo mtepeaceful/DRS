@@ -14,11 +14,14 @@ export const semCalendario = {
 
 const fonteVazia: FonteDeDadosDaF1 = {
   buscarTemporadaAtual: async () => ({ ano: 2026, equipes: [], pilotos: [] }),
-  buscarCampeoes: async () => [],
 };
 
 export const configuracaoDeTeste: ConfiguracaoDoApp = {
   fonteDeDados: fonteVazia,
+  historia: {
+    buscarCampeoes: async () => [],
+    buscarTemporada: () => Promise.reject(new Error('sem histórico nos testes')),
+  },
   campeonato: {
     buscarCampeonato: async () => ({
       ano: 2026,

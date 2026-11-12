@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ImportarTemporada } from '../../src/application/importacao/importar-temporada.js';
+import { CampeoesDaHistoria } from '../../src/application/historia/campeoes-da-historia.js';
 import { ManterGridAtualizado } from '../../src/application/importacao/manter-grid-atualizado.js';
 import type {
-  Campeao,
   FonteDeDadosDaF1,
   Temporada,
 } from '../../src/application/ports/fonte-de-dados-da-f1.js';
+import type { Campeao, FonteDaHistoria } from '../../src/application/ports/fonte-da-historia.js';
 import {
+  CampeoesRepositoryEmMemoria,
   EquipeRepositoryEmMemoria,
   ImportacaoRepositoryEmMemoria,
   PilotoRepositoryEmMemoria,
@@ -24,38 +26,45 @@ const temporada: Temporada = {
   ],
 };
 
+function campeao(ano: number, sigla: string | null, piloto: string): Campeao {
+  return { ano, sigla, piloto, pais: 'GB', equipe: 'X', pontos: 1, vitorias: 1, construtor: null };
+}
+
 const campeoesReais: Campeao[] = [
-  { ano: 1996, sigla: null },
-  ...[2008, 2014, 2015, 2017, 2018, 2019, 2020].map((ano) => ({ ano, sigla: 'HAM' })),
-  { ano: 2025, sigla: 'NOR' },
+  campeao(1996, null, 'Damon Hill'),
+  ...[2008, 2014, 2015, 2017, 2018, 2019, 2020].map((ano) => campeao(ano, 'HAM', 'Lewis Hamilton')),
+  campeao(2025, 'NOR', 'Lando Norris'),
 ];
 
-function fonte(dados: Temporada): FonteDeDadosDaF1 & { anosConsultados: number[] } {
-  const anosConsultados: number[] = [];
-
-  return {
-    anosConsultados,
-    buscarTemporadaAtual: async () => dados,
-    buscarCampeoes: async (anos) => {
-      anosConsultados.push(...anos);
-
-      return campeoesReais.filter((campeao) => anos.includes(campeao.ano));
-    },
-  };
+function fonte(dados: Temporada): FonteDeDadosDaF1 {
+  return { buscarTemporadaAtual: async () => dados };
 }
 
 let equipes: EquipeRepositoryEmMemoria;
 let pilotos: PilotoRepositoryEmMemoria;
 let importacoes: ImportacaoRepositoryEmMemoria;
+let historia: FonteDaHistoria & { anosConsultados: number[] };
+let campeoes: CampeoesDaHistoria;
 
 function criar(origem: FonteDeDadosDaF1, agora = () => new Date('2026-11-11T12:00:00Z')) {
-  return new ImportarTemporada(pilotos, equipes, importacoes, origem, agora);
+  return new ImportarTemporada(pilotos, equipes, importacoes, campeoes, origem, agora);
 }
 
 beforeEach(() => {
   equipes = new EquipeRepositoryEmMemoria();
   pilotos = new PilotoRepositoryEmMemoria(equipes);
   importacoes = new ImportacaoRepositoryEmMemoria();
+  const anosConsultados: number[] = [];
+  historia = {
+    anosConsultados,
+    buscarCampeoes: async (anos) => {
+      anosConsultados.push(...anos);
+
+      return campeoesReais.filter((c) => anos.includes(c.ano));
+    },
+    buscarTemporada: () => Promise.reject(new Error('não usado')),
+  };
+  campeoes = new CampeoesDaHistoria(new CampeoesRepositoryEmMemoria(), historia);
 });
 
 describe('ImportarTemporada', () => {
@@ -141,19 +150,16 @@ describe('ImportarTemporada', () => {
     expect(await pilotos.buscarPorNumero(1)).toMatchObject({ titulos: 1 });
   });
 
-  it('guarda os campeões e só consulta os anos que ainda não conhece', async () => {
-    const primeira = fonte(temporada);
-    await criar(primeira).executar();
+  it('guarda os campeões e não consulta de novo os anos já conhecidos', async () => {
+    await criar(fonte(temporada)).executar();
+    const primeiraVez = [...historia.anosConsultados];
 
-    const segunda = fonte(temporada);
-    await criar(segunda).executar();
+    await criar(fonte(temporada)).executar();
 
-    expect(primeira.anosConsultados).toHaveLength(30);
-    expect(primeira.anosConsultados[0]).toBe(1996);
-    expect(segunda.anosConsultados).toEqual(
-      Array.from({ length: 30 }, (_, i) => 1996 + i).filter(
-        (ano) => !campeoesReais.some((campeao) => campeao.ano === ano),
-      ),
+    expect(primeiraVez).toHaveLength(30);
+    expect(primeiraVez[0]).toBe(1996);
+    expect(historia.anosConsultados).toEqual(
+      primeiraVez.concat(primeiraVez.filter((ano) => !campeoesReais.some((c) => c.ano === ano))),
     );
     expect(await pilotos.buscarPorNumero(44)).toMatchObject({ titulos: 7 });
   });

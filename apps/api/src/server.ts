@@ -3,6 +3,7 @@ import { loadEnv } from './env.js';
 import { criarRepositorios } from './infra/criar-repositorios.js';
 import { comCache, comCachePorChave } from './infra/cache/com-cache.js';
 import { FonteCampeonatoJolpica } from './infra/f1/fonte-campeonato-jolpica.js';
+import { FonteHistoriaJolpica } from './infra/f1/fonte-historia-jolpica.js';
 import { FonteJolpicaOpenF1 } from './infra/f1/fonte-jolpica-openf1.js';
 import { FonteRssMotorsport } from './infra/noticias/fonte-rss-motorsport.js';
 
@@ -18,12 +19,21 @@ const resultadoEmCache = comCachePorChave(
   (rodada: number) => campeonato.buscarResultado(rodada),
   30 * MINUTO,
 );
+const historia = new FonteHistoriaJolpica();
+const temporadaHistoricaEmCache = comCachePorChave(
+  (ano: number) => historia.buscarTemporada(ano),
+  24 * 60 * MINUTO,
+);
 const { repositorios, fechar } = criarRepositorios(env);
 const app = await buildApp(
   repositorios,
   {
     autenticacao: { hashDaSenha: env.ADMIN_SENHA_HASH, segredo: env.SEGREDO_DA_SESSAO },
     fonteDeDados: new FonteJolpicaOpenF1(),
+    historia: {
+      buscarCampeoes: (anos) => historia.buscarCampeoes(anos),
+      buscarTemporada: temporadaHistoricaEmCache,
+    },
     campeonato: {
       buscarCampeonato: campeonatoEmCache,
       buscarCalendario: calendarioEmCache,
@@ -32,7 +42,7 @@ const app = await buildApp(
     },
     noticias: { buscarNoticias: noticiasEmCache },
     origensPermitidas: env.ORIGENS_PERMITIDAS,
-    atualizarGridSozinho: env.ATUALIZAR_GRID_SOZINHO,
+    tarefasEmSegundoPlano: env.TAREFAS_EM_SEGUNDO_PLANO,
   },
   { logger: { level: env.LOG_LEVEL }, trustProxy: true },
 );

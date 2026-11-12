@@ -57,65 +57,75 @@ function Largada({ linha }: { linha: Linha }) {
 
 function Classificacao({ linhas, legenda }: { linhas: Linha[]; legenda: string }) {
   return (
-    <div className={styles.cartao}>
-      <table className={styles.tabela}>
-        <caption className="apenas-leitor">{legenda}</caption>
-        <thead>
-          <tr>
-            <th scope="col" className={styles.colunaPosicao}>
-              Pos
-            </th>
-            <th scope="col">Piloto</th>
-            <th scope="col" className={styles.opcional}>
-              Largada
-            </th>
-            <th scope="col" className={styles.opcional}>
-              Voltas
-            </th>
-            <th scope="col">Tempo</th>
-            <th scope="col" className={styles.colunaPontos}>
-              Pts
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {linhas.map((linha) => (
-            <tr key={linha.numero} className={linha.classificado ? undefined : styles.foraDaProva}>
-              <td className={styles.colunaPosicao}>
-                {linha.classificado ? linha.posicao : <abbr title="Não classificado">NC</abbr>}
-              </td>
-              <th scope="row" className={styles.colunaPiloto}>
-                <span className={styles.piloto}>
-                  <SimboloDaEquipe nome={linha.equipe} {...CORES_NEUTRAS} />
-                  <span className={styles.nomeDoPiloto}>
-                    <span>
-                      {linha.nome}
-                      {linha.voltaMaisRapida && (
-                        <span className={styles.voltaRapida} title="Volta mais rápida">
-                          <span aria-hidden="true">VR</span>
-                          <span className="apenas-leitor"> (volta mais rápida)</span>
-                        </span>
-                      )}
-                    </span>
-                    <span className={styles.equipe}>
-                      #{linha.numero} · {nomeDaEquipe(linha.equipe)}
+    <>
+      <div className={styles.cartao}>
+        <table className={styles.tabela}>
+          <caption className="apenas-leitor">{legenda}</caption>
+          <thead>
+            <tr>
+              <th scope="col" className={styles.colunaPosicao}>
+                Pos
+              </th>
+              <th scope="col">Piloto</th>
+              <th scope="col" className={styles.opcional}>
+                Largada
+              </th>
+              <th scope="col" className={styles.opcional}>
+                Voltas
+              </th>
+              <th scope="col">Tempo</th>
+              <th scope="col" className={styles.colunaPontos}>
+                Pts
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {linhas.map((linha) => (
+              <tr
+                key={linha.numero}
+                className={linha.classificado ? undefined : styles.foraDaProva}
+              >
+                <td className={styles.colunaPosicao}>
+                  {linha.classificado ? linha.posicao : <abbr title="Não classificado">NC</abbr>}
+                </td>
+                <th scope="row" className={styles.colunaPiloto}>
+                  <span className={styles.piloto}>
+                    <SimboloDaEquipe nome={linha.equipe} {...CORES_NEUTRAS} />
+                    <span className={styles.nomeDoPiloto}>
+                      <span>
+                        {linha.nome}
+                        {linha.voltaMaisRapida && (
+                          <span className={styles.voltaRapida} title="Volta mais rápida">
+                            <span aria-hidden="true">VR</span>
+                            <span className="apenas-leitor"> (volta mais rápida)</span>
+                          </span>
+                        )}
+                      </span>
+                      <span className={styles.equipe}>
+                        #{linha.numero} · {nomeDaEquipe(linha.equipe)}
+                      </span>
                     </span>
                   </span>
-                </span>
-              </th>
-              <td className={styles.opcional}>
-                <Largada linha={linha} />
-              </td>
-              <td className={styles.opcional}>{linha.voltas}</td>
-              <td className={styles.tempo}>
-                {linha.tempo ?? <span className={styles.situacao}>{linha.situacao}</span>}
-              </td>
-              <td className={styles.colunaPontos}>{linha.pontos}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                </th>
+                <td className={styles.opcional}>
+                  <Largada linha={linha} />
+                </td>
+                <td className={styles.opcional}>{linha.voltas}</td>
+                <td className={styles.tempo}>
+                  {linha.tempo ?? <span className={styles.situacao}>{linha.situacao}</span>}
+                </td>
+                <td className={styles.colunaPontos}>{linha.pontos}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className={styles.siglas}>
+        <Link to="/glossario#volta-mais-rapida">VR: volta mais rápida</Link>
+        <Link to="/glossario#nao-classificado">NC: não classificado</Link>
+        <Link to="/glossario#pontuacao">Como funcionam os pontos</Link>
+      </p>
+    </>
   );
 }
 

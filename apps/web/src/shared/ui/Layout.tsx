@@ -74,6 +74,13 @@ export function Layout() {
 
       <footer className={styles.rodape}>
         <p>DRS · Data Retrieval System da Fórmula 1</p>
+        <nav aria-label="Dicionário da F1" className={styles.dicionario}>
+          <Link to="/glossario">Glossário</Link>
+          <Link to="/circuitos">Circuitos</Link>
+          <Link to="/historia/pilotos">Pilotos da história</Link>
+          <Link to="/classificacao">Campeonato</Link>
+          <Link to="/comparar">Comparar pilotos</Link>
+        </nav>
         <p className={styles.aviso}>
           Projeto pessoal, sem fins lucrativos e sem afiliação com a Fórmula 1, a FIA ou as equipes.
           Nomes, marcas e logos pertencem aos seus donos. Dados da OpenF1 e da Jolpica.

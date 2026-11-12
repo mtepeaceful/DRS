@@ -105,6 +105,12 @@
   text-align: center;
 }
 
+.saibaMais {
+  color: var(--cor-texto);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
 .esqueleto {
   min-height: 520px;
   border-radius: var(--raio);

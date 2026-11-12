@@ -119,6 +119,11 @@ export function GaragemPage() {
           {modo === 'sem-3d' &&
             'Este navegador não consegue mostrar 3D, então mostramos o carro de lado.'}
         </p>
+        <p className={styles.dica}>
+          <Link to="/glossario#drs" className={styles.saibaMais}>
+            O que é o DRS e por que ele saiu em 2026
+          </Link>
+        </p>
       </section>
     </>
   );

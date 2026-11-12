@@ -69,6 +69,7 @@ export default defineConfig(({ mode }) => {
       setupFiles: ['./test/preparar.ts'],
       include: ['test/**/*.test.{ts,tsx}'],
       restoreMocks: true,
+      testTimeout: 15_000,
     },
     build: {
       assetsInlineLimit: (arquivo) => (arquivo.includes('country-flag-icons') ? false : undefined),

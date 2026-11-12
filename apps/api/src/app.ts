@@ -24,6 +24,7 @@ import { ListarEquipes } from './application/equipes/listar-equipes.js';
 import { AtualizarPiloto } from './application/pilotos/atualizar-piloto.js';
 import { CadastrarPiloto } from './application/pilotos/cadastrar-piloto.js';
 import { ConsultarCarreira } from './application/pilotos/consultar-carreira.js';
+import { FotosDosPilotos } from './application/pilotos/fotos-dos-pilotos.js';
 import { ExcluirPiloto } from './application/pilotos/excluir-piloto.js';
 import { ListarPilotos } from './application/pilotos/listar-pilotos.js';
 import { ObterPiloto } from './application/pilotos/obter-piloto.js';
@@ -129,6 +130,7 @@ export async function buildApp(
     atualizar: new AtualizarPiloto(pilotos, equipes),
     excluir: new ExcluirPiloto(pilotos),
     carreira: new ConsultarCarreira(pilotos, campeoes, historia),
+    fotos: new FotosDosPilotos(pilotos, historia, enciclopedia),
   });
 
   await app.register(rotasEquipes, {

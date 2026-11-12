@@ -77,6 +77,7 @@ export const servidor = setupServer(
     });
   }),
 
+  http.get('*/api/pilotos/fotos', () => HttpResponse.json([])),
   http.get('*/api/pilotos/:id/carreira', () => HttpResponse.json(null)),
 
   http.get('*/api/temporada/pilotos', () =>

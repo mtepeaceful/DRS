@@ -54,6 +54,19 @@
   color: color-mix(in srgb, var(--cor-equipe) 30%, transparent);
 }
 
+.retrato {
+  position: absolute;
+  top: 18px;
+  left: 24px;
+  width: 56px;
+  height: 56px;
+  border: 2px solid color-mix(in srgb, var(--cor-equipe) 70%, transparent);
+  border-radius: 50%;
+  background: var(--cor-superficie-alta);
+  object-fit: cover;
+  object-position: center 20%;
+}
+
 .corpo {
   display: grid;
   align-content: end;

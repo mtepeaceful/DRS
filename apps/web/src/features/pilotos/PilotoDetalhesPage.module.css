@@ -50,6 +50,18 @@
   user-select: none;
 }
 
+.topo {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  align-items: end;
+  gap: 24px;
+}
+
+.foto {
+  position: relative;
+}
+
 .cabecalho {
   position: relative;
   display: grid;
@@ -173,4 +185,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px 20px;
+}
+
+@media (max-width: 640px) {
+  .topo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .foto {
+    max-width: 280px;
+  }
 }

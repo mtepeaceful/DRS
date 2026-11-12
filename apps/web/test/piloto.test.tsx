@@ -11,7 +11,32 @@ function enderecoDoHamilton() {
   return `/pilotos/${hamilton?.id}`;
 }
 
+const foto = {
+  url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hamilton.jpg/500px-Hamilton.jpg',
+  pagina: 'https://commons.wikimedia.org/wiki/File:Hamilton.jpg',
+  autor: 'Fotógrafo',
+  licenca: 'CC BY-SA 4.0',
+};
+
 describe('Página do piloto', () => {
+  it('mostra a foto do Commons no grid e na página do piloto', async () => {
+    const endereco = enderecoDoHamilton();
+    const id = endereco.split('/').at(-1);
+    servidor.use(http.get('*/api/pilotos/fotos', () => HttpResponse.json([{ id, foto }])));
+    const { usuario } = renderizar('/pilotos');
+
+    await usuario.click(await screen.findByRole('link', { name: /Lewis Hamilton/ }));
+
+    expect(await screen.findByRole('img', { name: 'Foto de Lewis Hamilton' })).toHaveAttribute(
+      'src',
+      foto.url,
+    );
+    expect(screen.getByRole('link', { name: /Foto: Fotógrafo · CC BY-SA 4.0/ })).toHaveAttribute(
+      'href',
+      foto.pagina,
+    );
+  });
+
   it('mostra a carreira com os anos de título levando à história', async () => {
     servidor.use(
       http.get('*/api/pilotos/:id/carreira', () =>

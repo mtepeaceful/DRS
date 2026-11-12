@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { mensagemDoErro } from '../../shared/api/http';
 import { useSessaoAtiva } from '../../shared/api/sessao';
 import { nomeDaEquipe } from '../../shared/lib/traducoes';
+import { semAcento } from '../../shared/lib/texto';
 import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
@@ -12,10 +13,6 @@ import { CORES_NEUTRAS } from '../calendario/cores';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { equipesDaHistoria } from './api';
 import styles from './EquipesPage.module.css';
-
-function semAcento(texto: string) {
-  return texto.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
-}
 
 function Titulos({ equipe }: { equipe: ResumoDaEquipeDTO }) {
   if (equipe.titulosDeConstrutores === 0 && equipe.titulosDePilotos === 0) {

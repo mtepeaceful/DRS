@@ -3,15 +3,12 @@ import { useDeferredValue, useState } from 'react';
 import { Link } from 'react-router';
 import { mensagemDoErro } from '../../shared/api/http';
 import { codigoDoPais, nomeDoPaisEmPortugues } from '../../shared/lib/traducoes';
+import { semAcento } from '../../shared/lib/texto';
 import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { listaDeCircuitos } from './api';
 import styles from './CircuitosPage.module.css';
-
-function semAcento(texto: string) {
-  return texto.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
-}
 
 export function CircuitosPage() {
   const circuitos = useQuery(listaDeCircuitos);

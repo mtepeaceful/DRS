@@ -113,6 +113,7 @@ export function HistoriaPage() {
           corrida daquela temporada.
         </p>
         <nav aria-label="Dicionário" className={styles.atalhos}>
+          <Link to="/historia/pilotos">Todos os pilotos →</Link>
           <Link to="/equipes">Todas as equipes →</Link>
           <Link to="/circuitos">Todos os circuitos →</Link>
         </nav>

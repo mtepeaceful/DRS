@@ -167,3 +167,77 @@ describe('FonteHistoriaJolpica', () => {
     ]);
   });
 });
+
+describe('FonteHistoriaJolpica · carreira', () => {
+  function simularCarreira() {
+    const pedidos: string[] = [];
+    const totais: Record<string, number> = {
+      '/drivers/perez/results.json': 290,
+      '/drivers/perez/results/1.json': 6,
+      '/drivers/perez/results/2.json': 15,
+      '/drivers/perez/results/3.json': 18,
+      '/drivers/perez/grid/1/results.json': 3,
+    };
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (entrada) => {
+      const url = new URL(String(entrada));
+      const caminho = url.pathname.replace('/ergast/f1', '');
+      pedidos.push(caminho);
+
+      if (caminho === '/drivers.json') {
+        const offset = Number(url.searchParams.get('offset'));
+        const pilotos =
+          offset === 0
+            ? [{ driverId: 'senna', givenName: 'Ayrton', familyName: 'Senna' }]
+            : [
+                {
+                  driverId: 'perez',
+                  givenName: 'Sergio',
+                  familyName: 'Pérez',
+                  dateOfBirth: '1990-01-26',
+                },
+              ];
+
+        return Response.json({ MRData: { total: '101', DriverTable: { Drivers: pilotos } } });
+      }
+
+      if (caminho === '/drivers/perez/seasons.json') {
+        return Response.json({
+          MRData: {
+            SeasonTable: { Seasons: [2011, 2012, 2026].map((ano) => ({ season: String(ano) })) },
+          },
+        });
+      }
+
+      return caminho in totais
+        ? Response.json({ MRData: { total: String(totais[caminho]) } })
+        : new Response(null, { status: 404 });
+    });
+
+    return pedidos;
+  }
+
+  it('acha o piloto pelo nome mesmo sem acento e soma os pódios', async () => {
+    simularCarreira();
+
+    const carreira = await new FonteHistoriaJolpica().buscarCarreira('Sergio Perez');
+
+    expect(carreira).toEqual({
+      nascimento: '1990-01-26',
+      estreia: 2011,
+      temporadas: 3,
+      corridas: 290,
+      vitorias: 6,
+      podios: 39,
+      poles: 3,
+    });
+  });
+
+  it('devolve nulo para quem nunca correu na F1 e reaproveita a lista de pilotos', async () => {
+    const pedidos = simularCarreira();
+    const fonte = new FonteHistoriaJolpica();
+
+    expect(await fonte.buscarCarreira('Piloto Inventado')).toBeNull();
+    expect(await fonte.buscarCarreira('Outro Inventado')).toBeNull();
+    expect(pedidos.filter((caminho) => caminho === '/drivers.json')).toHaveLength(2);
+  });
+});

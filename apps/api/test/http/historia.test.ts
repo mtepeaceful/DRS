@@ -38,6 +38,7 @@ async function criarApp() {
       historia: {
         buscarCampeoes: async () => [],
         buscarTemporada: async (ano) => ({ ano, corridas: [], pilotos: [], construtores: [] }),
+        buscarCarreira: async () => null,
       },
     },
   );

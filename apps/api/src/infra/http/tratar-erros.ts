@@ -2,6 +2,7 @@ import type { ErroDTO } from '@drs/contracts';
 import type { FastifyError, FastifyInstance } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import { type CodigoDeErro, ErroDeDominio } from '../../domain/erros.js';
+import { FonteIndisponivel } from '../http-externo.js';
 
 const statusPorCodigo: Record<CodigoDeErro, number> = {
   PILOTO_NAO_ENCONTRADO: 404,
@@ -34,6 +35,14 @@ export function tratarErros(app: FastifyInstance) {
       return reply
         .status(statusPorCodigo[erro.codigo])
         .send({ codigo: erro.codigo, mensagem: erro.message } satisfies ErroDTO);
+    }
+
+    if (erro instanceof FonteIndisponivel) {
+      request.log.warn(erro);
+
+      return reply
+        .status(502)
+        .send({ codigo: 'FONTE_INDISPONIVEL', mensagem: erro.message } satisfies ErroDTO);
     }
 
     if (erro.statusCode && erro.statusCode < 500) {

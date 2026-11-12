@@ -44,7 +44,21 @@ export const listarPilotosQuerySchema = z.object({
 
 export const paginaDePilotosSchema = paginaSchema(pilotoSchema);
 
+export const carreiraSchema = z
+  .object({
+    nascimento: z.iso.date().nullable(),
+    estreia: z.number().int(),
+    temporadas: z.number().int(),
+    corridas: z.number().int(),
+    vitorias: z.number().int(),
+    podios: z.number().int(),
+    poles: z.number().int(),
+    titulos: z.array(z.number().int()),
+  })
+  .nullable();
+
 export type PilotoDTO = z.infer<typeof pilotoSchema>;
 export type DadosPilotoDTO = z.infer<typeof dadosPilotoSchema>;
 export type ListarPilotosQuery = z.infer<typeof listarPilotosQuerySchema>;
 export type PaginaDePilotosDTO = z.infer<typeof paginaDePilotosSchema>;
+export type CarreiraDTO = z.infer<typeof carreiraSchema>;

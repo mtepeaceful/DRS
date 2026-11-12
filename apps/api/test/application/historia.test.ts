@@ -32,6 +32,7 @@ function fonte(campeoes: Campeao[]) {
       return campeoes.filter((c) => anos.includes(c.ano));
     },
     buscarTemporada: async (ano) => ({ ano, corridas: [], pilotos: [], construtores: [] }),
+    buscarCarreira: async () => null,
   };
 
   return { historia, pedidos };

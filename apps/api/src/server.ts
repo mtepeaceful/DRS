@@ -24,6 +24,10 @@ const temporadaHistoricaEmCache = comCachePorChave(
   (ano: number) => historia.buscarTemporada(ano),
   24 * 60 * MINUTO,
 );
+const carreiraEmCache = comCachePorChave(
+  (nome: string) => historia.buscarCarreira(nome),
+  24 * 60 * MINUTO,
+);
 const { repositorios, fechar } = criarRepositorios(env);
 const app = await buildApp(
   repositorios,
@@ -33,6 +37,7 @@ const app = await buildApp(
     historia: {
       buscarCampeoes: (anos) => historia.buscarCampeoes(anos),
       buscarTemporada: temporadaHistoricaEmCache,
+      buscarCarreira: carreiraEmCache,
     },
     campeonato: {
       buscarCampeonato: campeonatoEmCache,

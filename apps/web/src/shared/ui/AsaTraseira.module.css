@@ -30,6 +30,44 @@
   stroke-width: 1.3;
 }
 
+.perseguidor {
+  transform: translate(-36px, 10.6px);
+}
+
+.lider {
+  transform: translate(22px, 11px);
+}
+
+.carroceria {
+  fill: #f1f2f5;
+}
+
+.aerofolio {
+  fill: #dc0000;
+}
+
+.capacete {
+  fill: #ffd400;
+}
+
+.lider .carroceria {
+  fill: #ff3b2b;
+}
+
+.lider .aerofolio {
+  fill: #f1f2f5;
+}
+
+.lider .capacete {
+  fill: #f1f2f5;
+}
+
+.roda {
+  fill: #111116;
+  stroke: rgb(255 255 255 / 0.55);
+  stroke-width: 0.5;
+}
+
 .flap {
   transform-box: fill-box;
   transform-origin: center top;
@@ -62,6 +100,45 @@ a:focus-visible > .asa .fenda {
   animation: fluxo 900ms linear infinite;
 }
 
+.asa[data-aberta] .perseguidor {
+  animation: perseguicao 2600ms ease-in-out 200ms infinite;
+}
+
+a:hover > .asa:not([data-aberta]) .perseguidor,
+a:focus-visible > .asa:not([data-aberta]) .perseguidor {
+  animation: perseguicao 2000ms ease-in-out 160ms both;
+}
+
+@keyframes perseguicao {
+  0% {
+    transform: translate(-36px, 10.6px);
+  }
+
+  30% {
+    transform: translate(-11px, 11px);
+  }
+
+  42% {
+    transform: translate(-9px, 11px);
+  }
+
+  50% {
+    transform: translate(-6px, 11px);
+  }
+
+  68% {
+    transform: translate(14px, 9.8px);
+  }
+
+  78% {
+    transform: translate(15px, 9.8px);
+  }
+
+  100% {
+    transform: translate(-36px, 10.6px);
+  }
+}
+
 @keyframes fluxo {
   from {
     stroke-dashoffset: 14;
@@ -73,6 +150,10 @@ a:focus-visible > .asa .fenda {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .asa .perseguidor {
+    animation: none;
+  }
+
   .asa[data-aberta] .fenda,
   a:hover > .asa .fenda,
   a:focus-visible > .asa .fenda {

@@ -45,6 +45,11 @@ describe('Calendário', () => {
     expect(disputada).toHaveTextContent('Lando Norris');
     expect(within(proxima as HTMLElement).queryByRole('link')).not.toBeInTheDocument();
     expect(proxima).toHaveTextContent('Próxima corrida');
+    expect(proxima).toHaveAttribute('id', 'proxima-corrida');
+    expect(screen.getByRole('link', { name: /Ir para a próxima corrida/ })).toHaveAttribute(
+      'href',
+      '#proxima-corrida',
+    );
     expect(futura).toHaveTextContent('Em breve');
   });
 

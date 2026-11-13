@@ -36,7 +36,7 @@ export const PECAS: Peca[] = [
   {
     id: 'volante',
     nome: 'Volante',
-    ponto: [0.35, 0.58, 0.16],
+    ponto: [0.55, 0.5, 0.32],
     texto:
       'Mais computador do que volante: dezenas de botões e seletores para o equilíbrio de freio, o diferencial, os modos de energia e o rádio. Sai do carro para o piloto entrar e sair do cockpit.',
     termos: ['ers'],
@@ -44,7 +44,7 @@ export const PECAS: Peca[] = [
   {
     id: 'halo',
     nome: 'Halo',
-    ponto: [0.05, 0.9, 0],
+    ponto: [-0.05, 0.98, 0],
     texto:
       'Arco de titânio sobre a cabeça do piloto, obrigatório desde 2018. Aguenta cargas de mais de 12 toneladas e já evitou ferimentos graves em vários acidentes.',
     termos: ['halo'],

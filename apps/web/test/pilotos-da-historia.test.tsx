@@ -27,7 +27,7 @@ describe('Pilotos da história', () => {
 
     expect(await screen.findByRole('heading', { name: 'Todos os pilotos' })).toBeVisible();
     expect(
-      within(screen.getByRole('list'))
+      within(within(screen.getByRole('main')).getByRole('list'))
         .getAllByRole('link')
         .map((link) => link.getAttribute('href')),
     ).toEqual([
@@ -42,7 +42,7 @@ describe('Pilotos da história', () => {
 
     expect(screen.getByRole('heading', { name: 'Campeões mundiais' })).toBeVisible();
     expect(
-      within(screen.getByRole('list'))
+      within(within(screen.getByRole('main')).getByRole('list'))
         .getAllByRole('link')
         .map((link) => link.getAttribute('href')),
     ).toEqual(['/historia/pilotos/fangio', '/historia/pilotos/senna', '/historia/pilotos/piquet']);

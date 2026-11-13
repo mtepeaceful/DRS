@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, ScrollRestoration, useNavigation } from 'react-r
 import { encerrarSessao, useSessaoAtiva } from '../api/sessao';
 import { AsaTraseira } from './AsaTraseira';
 import { AvisoDeEspera } from './AvisoDeEspera';
+import { BarraDoDicionario, BotaoDoDicionario } from './MenuDoDicionario';
 import botao from './botao.module.css';
 import styles from './Layout.module.css';
 
@@ -51,6 +52,10 @@ export function Layout() {
             </NavLink>
           </nav>
 
+          <div className={styles.atalhoDoDicionario}>
+            <BotaoDoDicionario />
+          </div>
+
           {logado ? (
             <div className={styles.sessao}>
               <Link to="/pilotos/novo" className={`${botao.primario} ${styles.acao}`}>
@@ -68,21 +73,17 @@ export function Layout() {
         </div>
       </header>
 
-      <main id="conteudo" className={styles.conteudo}>
-        <Outlet />
-      </main>
+      <div className={styles.corpo}>
+        <aside className={styles.lateral}>
+          <BarraDoDicionario />
+        </aside>
+        <main id="conteudo" className={styles.conteudo}>
+          <Outlet />
+        </main>
+      </div>
 
       <footer className={styles.rodape}>
         <p>DRS · Data Retrieval System da Fórmula 1</p>
-        <nav aria-label="Dicionário da F1" className={styles.dicionario}>
-          <Link to="/glossario">Glossário</Link>
-          <Link to="/circuitos">Circuitos</Link>
-          <Link to="/historia/pilotos">Pilotos da história</Link>
-          <Link to="/historia/carros">Evolução dos carros</Link>
-          <Link to="/carro">O carro por dentro</Link>
-          <Link to="/classificacao">Campeonato</Link>
-          <Link to="/comparar">Comparar pilotos</Link>
-        </nav>
         <p className={styles.aviso}>
           Projeto pessoal, sem fins lucrativos e sem afiliação com a Fórmula 1, a FIA ou as equipes.
           Nomes, marcas e logos pertencem aos seus donos. Dados da OpenF1 e da Jolpica.

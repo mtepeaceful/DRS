@@ -87,10 +87,45 @@
   background: var(--cor-corrida);
 }
 
-.conteudo {
+.corpo {
   max-width: var(--largura-maxima);
   margin: 0 auto;
+}
+
+.lateral {
+  display: none;
+}
+
+.conteudo {
+  min-width: 0;
   padding: 40px 20px 72px;
+}
+
+@media (min-width: 1180px) {
+  .corpo {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 12px;
+    max-width: calc(var(--largura-maxima) + 222px);
+  }
+
+  .lateral {
+    display: block;
+    padding: 40px 0 72px 20px;
+  }
+
+  .conteudo {
+    padding-left: 0;
+  }
+
+  .atalhoDoDicionario {
+    display: none;
+  }
+
+  .barra,
+  .rodape {
+    max-width: calc(var(--largura-maxima) + 222px);
+  }
 }
 
 .rodape {
@@ -104,28 +139,25 @@
   font-size: 0.85rem;
 }
 
-.dicionario {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  margin: 4px 0 6px;
-}
-
-.dicionario a {
-  color: var(--cor-texto);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.dicionario a:hover,
-.dicionario a:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 @media (max-width: 560px) {
   .barra {
     flex-wrap: wrap;
+    gap: 10px 12px;
+    padding: 12px 16px;
+  }
+
+  .marca {
+    gap: 8px;
+    font-size: 1.4rem;
+  }
+
+  .marca > svg {
+    width: 60px;
+    height: 36px;
+  }
+
+  .atalhoDoDicionario {
+    margin-left: auto;
   }
 
   .acao {
@@ -152,4 +184,23 @@
   max-width: 70ch;
   font-size: 0.78rem;
   opacity: 0.8;
+}
+
+@media (max-width: 400px) {
+  .barra {
+    gap: 10px 8px;
+  }
+
+  .marca {
+    font-size: 1.2rem;
+  }
+
+  .marca > svg {
+    width: 50px;
+    height: 30px;
+  }
+
+  .acao {
+    padding: 0 12px;
+  }
 }

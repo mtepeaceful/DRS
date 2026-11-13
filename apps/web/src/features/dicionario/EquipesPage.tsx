@@ -28,7 +28,10 @@ function Titulos({ equipe }: { equipe: ResumoDaEquipeDTO }) {
         </span>
       )}
       {equipe.titulosDePilotos > 0 && (
-        <span className={styles.seloSuave}>{equipe.titulosDePilotos} de pilotos</span>
+        <span className={styles.selo}>
+          {equipe.titulosDePilotos} {equipe.titulosDePilotos === 1 ? 'título' : 'títulos'} de
+          pilotos
+        </span>
       )}
     </span>
   );

@@ -38,7 +38,7 @@ function Tabela({ titulo, linhas, rotulo }: { titulo: string; linhas: Linha[]; r
             </th>
             <th scope="col">{rotulo}</th>
             <th scope="col" className={styles.numero}>
-              Vit
+              <abbr title="Vitórias">Vit</abbr>
             </th>
             <th scope="col" className={styles.numero}>
               Pts

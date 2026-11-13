@@ -87,7 +87,8 @@
   background: var(--cor-corrida);
 }
 
-.corpo {
+.corpo,
+.corpoSemLateral {
   max-width: var(--largura-maxima);
   margin: 0 auto;
 }
@@ -120,11 +121,6 @@
 
   .atalhoDoDicionario {
     display: none;
-  }
-
-  .barra,
-  .rodape {
-    max-width: calc(var(--largura-maxima) + 222px);
   }
 }
 
@@ -202,5 +198,12 @@
 
   .acao {
     padding: 0 12px;
+  }
+}
+
+@media (min-width: 1180px) {
+  .barra,
+  .rodape {
+    max-width: calc(var(--largura-maxima) + 222px);
   }
 }

@@ -1,5 +1,5 @@
 import { useIsFetching } from '@tanstack/react-query';
-import { Link, NavLink, Outlet, ScrollRestoration, useNavigation } from 'react-router';
+import { Link, NavLink, Outlet, ScrollRestoration, useMatch, useNavigation } from 'react-router';
 import { encerrarSessao, useSessaoAtiva } from '../api/sessao';
 import { AsaTraseira } from './AsaTraseira';
 import { AvisoDeEspera } from './AvisoDeEspera';
@@ -20,6 +20,7 @@ export function Layout() {
   const trocandoDePagina = useNavigation().state !== 'idle';
   const buscando = buscandoDados || trocandoDePagina;
   const logado = useSessaoAtiva();
+  const naEntrada = useMatch('/entrar') !== null;
 
   return (
     <>
@@ -73,10 +74,12 @@ export function Layout() {
         </div>
       </header>
 
-      <div className={styles.corpo}>
-        <aside className={styles.lateral}>
-          <BarraDoDicionario />
-        </aside>
+      <div className={naEntrada ? styles.corpoSemLateral : styles.corpo}>
+        {!naEntrada && (
+          <aside className={styles.lateral}>
+            <BarraDoDicionario />
+          </aside>
+        )}
         <main id="conteudo" className={styles.conteudo}>
           <Outlet />
         </main>

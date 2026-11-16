@@ -32,9 +32,9 @@ describe('Calendário', () => {
     );
     renderizar('/calendario');
 
-    const [disputada, proxima, futura] = within(await screen.findByRole('list')).getAllByRole(
-      'listitem',
-    );
+    const [disputada, proxima, futura] = within(
+      await within(await screen.findByRole('main')).findByRole('list'),
+    ).getAllByRole('listitem');
 
     expect(screen.getByText('1 de 3 etapas disputadas.', { exact: false })).toBeInTheDocument();
     expect(within(disputada as HTMLElement).getByRole('link')).toHaveAttribute(

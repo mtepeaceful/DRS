@@ -63,6 +63,7 @@
   background:
     radial-gradient(420px 120px at 0% 0%, rgb(255 42 20 / 0.16), transparent 70%),
     var(--cor-superficie);
+  scroll-margin-top: 150px;
 }
 
 .link {
@@ -142,6 +143,11 @@
 
 .vencedor > :first-child {
   justify-self: center;
+  max-width: 100%;
+}
+
+.vencedor > :first-child img {
+  max-width: 100%;
 }
 
 .nomeDoVencedor {
@@ -235,7 +241,7 @@
   }
 
   .vencedor {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
   .vencedor > :first-child {

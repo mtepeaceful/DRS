@@ -70,7 +70,14 @@ function Etapa({ etapa, proxima }: { etapa: EtapaDTO; proxima: boolean }) {
   );
 
   if (!etapa.vencedor) {
-    return <li className={proxima ? styles.etapaProxima : styles.etapa}>{conteudo}</li>;
+    return (
+      <li
+        id={proxima ? 'proxima-corrida' : undefined}
+        className={proxima ? styles.etapaProxima : styles.etapa}
+      >
+        {conteudo}
+      </li>
+    );
   }
 
   return (
@@ -130,6 +137,7 @@ export function CalendarioPage() {
         <nav aria-label="Mais do calendário" className={styles.atalhos}>
           <Link to="/classificacao">Classificação do campeonato →</Link>
           <Link to="/circuitos">Todos os circuitos →</Link>
+          {proxima && <a href="#proxima-corrida">Ir para a próxima corrida ↓</a>}
         </nav>
         <BotaoDeLembrete
           rotulo="Lembrar das próximas corridas"

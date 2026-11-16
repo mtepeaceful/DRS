@@ -99,6 +99,11 @@
 
 .identidade > :first-child {
   justify-self: center;
+  max-width: 100%;
+}
+
+.identidade > :first-child img {
+  max-width: 100%;
 }
 
 .textos {

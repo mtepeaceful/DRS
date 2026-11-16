@@ -30,10 +30,7 @@ describe('Menu do dicionário', () => {
     await usuario.click(within(painel ?? document.body).getByRole('link', { name: 'Circuitos' }));
 
     await expect
-      .poll(
-        () => screen.getByRole('button', { name: 'Dicionário' }).getAttribute('aria-expanded'),
-        { timeout: 5000 },
-      )
+      .poll(() => screen.getByRole('button', { name: 'Dicionário' }).getAttribute('aria-expanded'))
       .toBe('false');
     expect(router.state.location.pathname).toBe('/circuitos');
   });

@@ -1,7 +1,7 @@
 {
     "name": "DRS · Data Retrieval System",
     "short_name": "DRS",
-    "description": "Data Retrieval System da Fórmula 1: temporada, resultados, comparação de pilotos e a história desde 1950.",
+    "description": "Data Retrieval System, um projeto de fã sobre a Fórmula 1: temporada, resultados, comparação de pilotos e a história desde 1950.",
     "lang": "pt-BR",
     "start_url": "/",
     "scope": "/",

@@ -1,4 +1,5 @@
 import type { VerbeteDTO } from '@drs/contracts';
+import { useState } from 'react';
 import styles from './FotoDoCommons.module.css';
 
 interface Props {
@@ -12,8 +13,13 @@ function ehDesenho(endereco: string) {
 }
 
 export function FotoDoCommons({ foto, descricao, className }: Props) {
+  const [quebrada, setQuebrada] = useState<string | null>(null);
   const credito = [foto.autor, foto.licenca].filter(Boolean).join(' · ');
   const desenho = ehDesenho(foto.url);
+
+  if (quebrada === foto.url) {
+    return null;
+  }
 
   return (
     <figure className={className ? `${styles.foto} ${className}` : styles.foto}>
@@ -23,6 +29,7 @@ export function FotoDoCommons({ foto, descricao, className }: Props) {
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
+        onError={() => setQuebrada(foto.url)}
         className={desenho ? styles.desenho : styles.imagem}
       />
       <figcaption className={styles.credito}>

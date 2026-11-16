@@ -20,10 +20,14 @@ const foto = {
 
 describe('Página do piloto', () => {
   it('mostra a foto do Commons no grid e na página do piloto', async () => {
-    const endereco = enderecoDoHamilton();
-    const id = endereco.split('/').at(-1);
-    servidor.use(http.get('*/api/pilotos/fotos', () => HttpResponse.json([{ id, foto }])));
     const { usuario } = renderizar('/pilotos');
+    banco.pilotos = banco.pilotos.map((piloto) =>
+      piloto.nome === 'Lewis Hamilton' ? { ...piloto, foto } : piloto,
+    );
+
+    expect(
+      await screen.findByText(/Fotos do Wikimedia Commons, com autor e licença na página/),
+    ).toBeInTheDocument();
 
     await usuario.click(await screen.findByRole('link', { name: /Lewis Hamilton/ }));
 

@@ -8,7 +8,7 @@ import { useSessaoAtiva } from '../../shared/api/sessao';
 import { listaDeEquipes } from '../equipes/api';
 import { ImportarTemporada } from '../importacao/ImportarTemporada';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
-import { listaDePilotos, PILOTOS_POR_PAGINA, useFotoDoPiloto } from './api';
+import { listaDePilotos, PILOTOS_POR_PAGINA } from './api';
 import { CartaoDoPiloto } from './CartaoDoPiloto';
 import styles from './PilotosPage.module.css';
 
@@ -32,7 +32,6 @@ export function PilotosPage() {
   const [parametros, setParametros] = useSearchParams();
   const busca = parametros.get('busca') ?? '';
   const pagina = Math.max(1, Math.trunc(Number(parametros.get('pagina'))) || 1);
-  const fotoDoPiloto = useFotoDoPiloto();
 
   const [texto, setTexto] = useState(busca);
   const [buscaAplicada, setBuscaAplicada] = useState(busca);
@@ -210,11 +209,17 @@ export function PilotosPage() {
                   titulos={piloto.titulos}
                   equipe={piloto.equipe}
                   para={`/pilotos/${piloto.id}`}
-                  foto={fotoDoPiloto(piloto.id)}
+                  foto={piloto.foto ?? undefined}
                 />
               </li>
             ))}
           </ul>
+
+          {pilotos.data.itens.some((piloto) => piloto.foto) && (
+            <p className={styles.creditoDasFotos}>
+              Fotos do Wikimedia Commons, com autor e licença na página de cada piloto.
+            </p>
+          )}
 
           {paginas > 1 && (
             <nav aria-label="Paginação" className={styles.paginacao}>

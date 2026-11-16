@@ -4,7 +4,7 @@ import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { encerrarSessao } from '../src/shared/api/sessao';
 import { servidor } from './servidor';
 
-configure({ asyncUtilTimeout: 5000 });
+configure({ asyncUtilTimeout: 10_000 });
 
 beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {});

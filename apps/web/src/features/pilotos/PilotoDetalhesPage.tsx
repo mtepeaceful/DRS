@@ -11,7 +11,7 @@ import botao from '../../shared/ui/botao.module.css';
 import { Confirmacao } from '../../shared/ui/Confirmacao';
 import { FotoDoCommons } from '../../shared/ui/FotoDoCommons';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
-import { detalheDoPiloto, useExcluirPiloto, useFotoDoPiloto } from './api';
+import { detalheDoPiloto, useExcluirPiloto } from './api';
 import styles from './PilotoDetalhesPage.module.css';
 import { CarreiraDoPiloto, TemporadaDoPiloto } from './RaioXDoPiloto';
 
@@ -25,7 +25,6 @@ export function PilotoDetalhesPage() {
   const excluir = useExcluirPiloto();
   const [confirmando, setConfirmando] = useState(false);
   const logado = useSessaoAtiva();
-  const foto = useFotoDoPiloto()(id);
 
   if (piloto.isPending) {
     return (
@@ -54,7 +53,7 @@ export function PilotoDetalhesPage() {
     );
   }
 
-  const { nome, numero, pais, titulos, equipe, atualizadoEm } = piloto.data;
+  const { nome, numero, pais, titulos, equipe, foto, atualizadoEm } = piloto.data;
 
   function fecharConfirmacao() {
     setConfirmando(false);

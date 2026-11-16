@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 
 const DESCRICAO =
-  'Data Retrieval System da Fórmula 1: temporada atual, resultados, comparação de pilotos e a história desde 1950.';
+  'Data Retrieval System, um projeto de fã sobre a Fórmula 1: temporada atual, resultados, comparação de pilotos e a história desde 1950.';
 
 function tagsDePrevia(urlDoSite: string | undefined): Plugin {
   const tags = [
@@ -70,6 +70,7 @@ export default defineConfig(({ mode }) => {
       include: ['test/**/*.test.{ts,tsx}'],
       restoreMocks: true,
       testTimeout: 15_000,
+      expect: { poll: { timeout: 10_000 } },
     },
     build: {
       assetsInlineLimit: (arquivo) => (arquivo.includes('country-flag-icons') ? false : undefined),

@@ -43,6 +43,13 @@
       "when": 1794453775695,
       "tag": "0005_guarda_campeoes_completos",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794860116367,
+      "tag": "0006_guarda_foto_dos_pilotos",
+      "breakpoints": true
     }
   ]
 }

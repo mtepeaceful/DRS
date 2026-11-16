@@ -1,4 +1,5 @@
 import type { Equipe } from './equipe.js';
+import type { Foto } from './foto.js';
 
 export interface Piloto {
   id: string;
@@ -7,6 +8,7 @@ export interface Piloto {
   pais: string;
   titulos: number;
   equipe: Equipe;
+  foto: Foto | null;
   criadoEm: Date;
   atualizadoEm: Date;
 }

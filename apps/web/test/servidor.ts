@@ -26,6 +26,7 @@ function piloto(numero: number, nome: string, equipe: EquipeDTO, titulos = 0): P
     pais: 'GB',
     titulos,
     equipe,
+    foto: null,
     criadoEm: '2026-11-01T12:00:00.000Z',
     atualizadoEm: '2026-11-01T12:00:00.000Z',
   };
@@ -77,7 +78,6 @@ export const servidor = setupServer(
     });
   }),
 
-  http.get('*/api/pilotos/fotos', () => HttpResponse.json([])),
   http.get('*/api/pilotos/:id/carreira', () => HttpResponse.json(null)),
 
   http.get('*/api/temporada/pilotos', () =>

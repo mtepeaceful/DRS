@@ -156,6 +156,12 @@
   }
 }
 
+.creditoDasFotos {
+  margin-top: 16px;
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+}
+
 .paginacao {
   display: grid;
   grid-template-columns: 1fr auto 1fr;

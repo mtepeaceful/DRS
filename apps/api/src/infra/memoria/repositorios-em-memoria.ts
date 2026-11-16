@@ -8,6 +8,7 @@ import type {
   PilotoRepository,
 } from '../../application/ports/piloto-repository.js';
 import type { DadosEquipe, Equipe } from '../../domain/equipe.js';
+import type { Foto } from '../../domain/foto.js';
 import type { DadosPiloto, Piloto } from '../../domain/piloto.js';
 
 export class EquipeRepositoryEmMemoria implements EquipeRepository {
@@ -95,7 +96,7 @@ export class PilotoRepositoryEmMemoria implements PilotoRepository {
       return null;
     }
 
-    const piloto = this.montar(id, dados, atual.criadoEm, new Date());
+    const piloto = { ...this.montar(id, dados, atual.criadoEm, new Date()), foto: atual.foto };
     this.pilotos.set(id, piloto);
 
     return piloto;
@@ -103,6 +104,21 @@ export class PilotoRepositoryEmMemoria implements PilotoRepository {
 
   async excluir(id: string) {
     return this.pilotos.delete(id);
+  }
+
+  async listarSemFoto() {
+    return [...this.pilotos.values()]
+      .filter((piloto) => !piloto.foto)
+      .sort((a, b) => a.nome.localeCompare(b.nome))
+      .map(({ id, nome }) => ({ id, nome }));
+  }
+
+  async guardarFoto(id: string, foto: Foto) {
+    const atual = this.pilotos.get(id);
+
+    if (atual) {
+      this.pilotos.set(id, { ...atual, foto });
+    }
   }
 
   private montar(id: string, dados: DadosPiloto, criadoEm: Date, atualizadoEm: Date): Piloto {
@@ -114,7 +130,7 @@ export class PilotoRepositoryEmMemoria implements PilotoRepository {
 
     const { nome, numero, pais, titulos } = dados;
 
-    return { id, nome, numero, pais, titulos, equipe, criadoEm, atualizadoEm };
+    return { id, nome, numero, pais, titulos, equipe, foto: null, criadoEm, atualizadoEm };
   }
 }
 

@@ -1,9 +1,10 @@
-import { asc, count, eq, ilike, or, sql } from 'drizzle-orm';
+import { asc, count, eq, ilike, isNull, or, sql } from 'drizzle-orm';
 import type {
   FiltroDePilotos,
   PilotoRepository,
 } from '../../application/ports/piloto-repository.js';
 import { EquipeInvalida, NumeroJaEmUso } from '../../domain/erros.js';
+import type { Foto } from '../../domain/foto.js';
 import type { DadosPiloto, Piloto } from '../../domain/piloto.js';
 import type { Database } from './client.js';
 import { colunasDaEquipe } from './equipe-repository-drizzle.js';
@@ -18,8 +19,29 @@ const colunas = {
   titulos: pilotos.titulos,
   criadoEm: pilotos.criadoEm,
   atualizadoEm: pilotos.atualizadoEm,
+  fotoUrl: pilotos.fotoUrl,
+  fotoPagina: pilotos.fotoPagina,
+  fotoAutor: pilotos.fotoAutor,
+  fotoLicenca: pilotos.fotoLicenca,
   equipe: colunasDaEquipe,
 };
+
+type Linha = Omit<Piloto, 'foto'> & {
+  fotoUrl: string | null;
+  fotoPagina: string | null;
+  fotoAutor: string | null;
+  fotoLicenca: string | null;
+};
+
+function paraPiloto({ fotoUrl, fotoPagina, fotoAutor, fotoLicenca, ...piloto }: Linha): Piloto {
+  return {
+    ...piloto,
+    foto:
+      fotoUrl && fotoPagina
+        ? { url: fotoUrl, pagina: fotoPagina, autor: fotoAutor, licenca: fotoLicenca }
+        : null,
+  };
+}
 
 function escaparLike(termo: string) {
   return termo.replace(/[\\%_]/g, (caractere) => `\\${caractere}`);
@@ -47,19 +69,19 @@ export class PilotoRepositoryDrizzle implements PilotoRepository {
         .where(filtro),
     ]);
 
-    return { itens, total: contagem?.total ?? 0 };
+    return { itens: itens.map(paraPiloto), total: contagem?.total ?? 0 };
   }
 
   async buscarPorId(id: string): Promise<Piloto | null> {
     const [piloto] = await this.consulta().where(eq(pilotos.id, id));
 
-    return piloto ?? null;
+    return piloto ? paraPiloto(piloto) : null;
   }
 
   async buscarPorNumero(numero: number): Promise<Piloto | null> {
     const [piloto] = await this.consulta().where(eq(pilotos.numero, numero));
 
-    return piloto ?? null;
+    return piloto ? paraPiloto(piloto) : null;
   }
 
   async buscarPorNome(nome: string): Promise<Piloto | null> {
@@ -67,7 +89,7 @@ export class PilotoRepositoryDrizzle implements PilotoRepository {
       .where(eq(sql`lower(${pilotos.nome})`, nome.toLowerCase()))
       .limit(1);
 
-    return piloto ?? null;
+    return piloto ? paraPiloto(piloto) : null;
   }
 
   async criar(dados: DadosPiloto): Promise<Piloto> {
@@ -97,6 +119,27 @@ export class PilotoRepositoryDrizzle implements PilotoRepository {
       .returning({ id: pilotos.id });
 
     return excluidos.length > 0;
+  }
+
+  async listarSemFoto() {
+    return this.db
+      .select({ id: pilotos.id, nome: pilotos.nome })
+      .from(pilotos)
+      .where(isNull(pilotos.fotoUrl))
+      .orderBy(asc(pilotos.nome));
+  }
+
+  async guardarFoto(id: string, foto: Foto) {
+    await this.db
+      .update(pilotos)
+      .set({
+        fotoUrl: foto.url,
+        fotoPagina: foto.pagina,
+        fotoAutor: foto.autor,
+        fotoLicenca: foto.licenca,
+        fotoAtualizadaEm: new Date(),
+      })
+      .where(eq(pilotos.id, id));
   }
 
   private async gravar<Resultado>(dados: DadosPiloto, operacao: () => Promise<Resultado>) {

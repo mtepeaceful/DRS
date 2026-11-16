@@ -24,7 +24,7 @@ import { ListarEquipes } from './application/equipes/listar-equipes.js';
 import { AtualizarPiloto } from './application/pilotos/atualizar-piloto.js';
 import { CadastrarPiloto } from './application/pilotos/cadastrar-piloto.js';
 import { ConsultarCarreira } from './application/pilotos/consultar-carreira.js';
-import { FotosDosPilotos } from './application/pilotos/fotos-dos-pilotos.js';
+import { PreencherFotosDosPilotos } from './application/pilotos/preencher-fotos-dos-pilotos.js';
 import { ExcluirPiloto } from './application/pilotos/excluir-piloto.js';
 import { ListarPilotos } from './application/pilotos/listar-pilotos.js';
 import { ObterPiloto } from './application/pilotos/obter-piloto.js';
@@ -128,8 +128,6 @@ export async function buildApp(
 
   await app.register(rotasDeSessao, autenticacao);
 
-  const fotosDosPilotos = new FotosDosPilotos(pilotos, historia, galeria);
-
   await app.register(rotasPilotos, {
     prefix: '/pilotos',
     listar: new ListarPilotos(pilotos),
@@ -138,7 +136,6 @@ export async function buildApp(
     atualizar: new AtualizarPiloto(pilotos, equipes),
     excluir: new ExcluirPiloto(pilotos),
     carreira: new ConsultarCarreira(pilotos, campeoes, historia),
-    fotos: fotosDosPilotos,
   });
 
   await app.register(rotasEquipes, {
@@ -186,6 +183,7 @@ export async function buildApp(
   });
 
   if (tarefasEmSegundoPlano) {
+    const preencherFotos = new PreencherFotosDosPilotos(pilotos, historia, galeria);
     const manterGrid = new ManterGridAtualizado(importar, importacoes);
 
     agendarTarefas(app, [
@@ -199,9 +197,13 @@ export async function buildApp(
         },
       },
       {
-        descricao: 'Fotos do grid em cache',
+        descricao: 'Fotos do grid guardadas',
         primeiraEmMs: 20_000,
-        executar: async () => ({ fotos: (await fotosDosPilotos.executar()).length }),
+        executar: async () => {
+          const resultado = await preencherFotos.executar();
+
+          return resultado.guardadas > 0 ? resultado : null;
+        },
       },
       {
         descricao: 'Grid atualizado automaticamente',

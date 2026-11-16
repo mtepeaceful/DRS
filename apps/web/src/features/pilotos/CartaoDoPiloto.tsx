@@ -1,4 +1,5 @@
 import type { EquipeDTO, FotoDTO } from '@drs/contracts';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { estiloDaEquipe } from '../../shared/lib/equipe';
 import { nomeDoPais } from '../../shared/lib/paises';
@@ -19,6 +20,7 @@ interface Props {
 
 export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto }: Props) {
   const numeroValido = numero !== undefined && Number.isInteger(numero);
+  const [quebrada, setQuebrada] = useState<string | null>(null);
 
   return (
     <article className={styles.cartao} style={estiloDaEquipe(equipe)}>
@@ -26,7 +28,7 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto
         {numeroValido ? numero : '–'}
       </span>
 
-      {foto && (
+      {foto && quebrada !== foto.url && (
         <img
           src={foto.url}
           alt=""
@@ -34,6 +36,7 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
+          onError={() => setQuebrada(foto.url)}
           className={styles.retrato}
         />
       )}

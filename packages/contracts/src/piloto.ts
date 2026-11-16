@@ -17,6 +17,7 @@ export const pilotoSchema = z.object({
   pais: z.string(),
   titulos: z.number().int(),
   equipe: equipeSchema,
+  foto: fotoSchema.nullable(),
   criadoEm: z.iso.datetime(),
   atualizadoEm: z.iso.datetime(),
 });
@@ -58,11 +59,8 @@ export const carreiraSchema = z
   })
   .nullable();
 
-export const fotosDosPilotosSchema = z.array(z.object({ id: z.uuid(), foto: fotoSchema }));
-
 export type PilotoDTO = z.infer<typeof pilotoSchema>;
 export type DadosPilotoDTO = z.infer<typeof dadosPilotoSchema>;
 export type ListarPilotosQuery = z.infer<typeof listarPilotosQuerySchema>;
 export type PaginaDePilotosDTO = z.infer<typeof paginaDePilotosSchema>;
 export type CarreiraDTO = z.infer<typeof carreiraSchema>;
-export type FotosDosPilotosDTO = z.infer<typeof fotosDosPilotosSchema>;

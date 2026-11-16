@@ -1,3 +1,5 @@
+import type { Foto } from '../../domain/foto.js';
+
 export interface EquipeDaHistoria {
   id: string;
   nome: string;
@@ -18,12 +20,7 @@ export interface FonteDasEquipes {
   numeros(id: string): Promise<NumerosDaEquipe>;
 }
 
-export interface Foto {
-  url: string;
-  pagina: string;
-  autor: string | null;
-  licenca: string | null;
-}
+export type { Foto };
 
 export interface Verbete {
   resumo: string;

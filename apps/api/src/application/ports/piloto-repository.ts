@@ -1,3 +1,4 @@
+import type { Foto } from '../../domain/foto.js';
 import type { DadosPiloto, Piloto } from '../../domain/piloto.js';
 
 export interface FiltroDePilotos {
@@ -14,4 +15,6 @@ export interface PilotoRepository {
   criar(dados: DadosPiloto): Promise<Piloto>;
   atualizar(id: string, dados: DadosPiloto): Promise<Piloto | null>;
   excluir(id: string): Promise<boolean>;
+  listarSemFoto(): Promise<Pick<Piloto, 'id' | 'nome'>[]>;
+  guardarFoto(id: string, foto: Foto): Promise<void>;
 }

@@ -5,7 +5,7 @@ const TEMPO_LIMITE_EM_MS = 15_000;
 const TENTATIVAS_EXTRAS = 3;
 const ESPERA_MAXIMA_EM_S = 10;
 const STATUS_TEMPORARIOS = new Set([429, 502, 503, 504]);
-const IDENTIFICACAO = 'DRS (github.com/mtepeaceful/DRS)';
+const IDENTIFICACAO = 'DRS/2.0 (https://github.com/mtepeaceful/DRS)';
 
 export class FonteIndisponivel extends Error {
   constructor(url: string, causa: unknown) {

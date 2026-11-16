@@ -269,7 +269,7 @@ export function HomePage() {
 
   return (
     <>
-      <title>DRS · Fórmula 1</title>
+      <title>DRS · Data Retrieval System</title>
 
       {campeonato?.proximaCorrida ? (
         <ProximaCorrida corrida={campeonato.proximaCorrida} total={campeonato.totalDeRodadas} />

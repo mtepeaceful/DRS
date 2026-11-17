@@ -3,6 +3,7 @@ import type { Garagem, Pintura } from './cena';
 import styles from './GaragemPage.module.css';
 
 interface Props extends Pintura {
+  numero: number;
   asaAberta: boolean;
   girando: boolean;
 }

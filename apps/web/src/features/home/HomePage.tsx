@@ -13,36 +13,106 @@ import { painel } from './api';
 import { ContagemRegressiva } from './ContagemRegressiva';
 import styles from './HomePage.module.css';
 import { ondeAssistir, TEMPORADA_DO_GUIA } from './onde-assistir';
-import { nomeDaEquipe, nomeDoGp, nomeDoPaisEmPortugues } from '../../shared/lib/traducoes';
+import {
+  nomeDaEquipe,
+  nomeDaSessao,
+  nomeDoGp,
+  nomeDoPaisEmPortugues,
+} from '../../shared/lib/traducoes';
+import { porIdioma, useTextos } from '../../shared/i18n/idioma';
 
 type Campeonato = NonNullable<PainelDTO['campeonato']>;
+
+const TEXTOS = {
+  pt: {
+    proxima: (rodada: number, total: number) => `Próxima corrida · Etapa ${rodada} de ${total}`,
+    lembrar: 'Lembrar no meu calendário',
+    verCalendario: 'Ver o calendário completo →',
+    programacao: 'Programação no seu horário',
+    pilotos: 'Campeonato de pilotos',
+    apos: (feitas: number, total: number) => `Após ${feitas} de ${total} etapas`,
+    pontos: ' pontos',
+    classificacaoCompleta: 'Classificação completa →',
+    construtores: 'Construtores',
+    ultimoPodio: 'Último pódio',
+    resultadoCompleto: 'Resultado completo →',
+    ondeAssistir: 'Onde assistir no Brasil',
+    temporadaDoGuia: (ano: number) =>
+      `Temporada ${ano}. Algumas etapas ficam fora da TV aberta, então confira a programação da semana.`,
+    novaAba: ' (abre em nova aba)',
+    noticias: 'Últimas notícias',
+    semNoticias: 'As notícias estão indisponíveis no momento.',
+    carregando: 'Carregando…',
+    erro: 'Não foi possível carregar a página inicial',
+    tentarDeNovo: 'Tentar de novo',
+    temporada: 'Temporada',
+    encerrada: 'Temporada encerrada',
+    formula1: 'Fórmula 1',
+    verGrid: 'Ver o grid de pilotos',
+  },
+  en: {
+    proxima: (rodada: number, total: number) => `Next race · Round ${rodada} of ${total}`,
+    lembrar: 'Add to my calendar',
+    verCalendario: 'See the full calendar →',
+    programacao: 'Schedule in your time zone',
+    pilotos: 'Drivers’ championship',
+    apos: (feitas: number, total: number) => `After ${feitas} of ${total} rounds`,
+    pontos: ' points',
+    classificacaoCompleta: 'Full standings →',
+    construtores: 'Constructors',
+    ultimoPodio: 'Latest podium',
+    resultadoCompleto: 'Full result →',
+    ondeAssistir: 'Where to watch in Brazil',
+    temporadaDoGuia: (ano: number) =>
+      `${ano} season. Some rounds are not on free-to-air TV, so check the weekly schedule.`,
+    novaAba: ' (opens in a new tab)',
+    noticias: 'Latest news',
+    semNoticias: 'News is unavailable right now.',
+    carregando: 'Loading…',
+    erro: 'Could not load the home page',
+    tentarDeNovo: 'Try again',
+    temporada: 'Season',
+    encerrada: 'Season finished',
+    formula1: 'Formula 1',
+    verGrid: 'See the driver grid',
+  },
+};
 type Corrida = NonNullable<Campeonato['proximaCorrida']>;
 
-const diaDaSessao = new Intl.DateTimeFormat('pt-BR', {
-  weekday: 'short',
-  day: '2-digit',
-  month: '2-digit',
-});
-const horaDaSessao = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
-const dataLonga = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long' });
-const tempoRelativo = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
+const diaDaSessao = porIdioma(
+  (locale) =>
+    new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+    }),
+);
+const horaDaSessao = porIdioma(
+  (locale) => new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
+);
+const dataLonga = porIdioma(
+  (locale) => new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long' }),
+);
+const tempoRelativo = porIdioma(
+  (locale) => new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }),
+);
 
 function haQuantoTempo(data: string) {
   const minutos = Math.round((Date.parse(data) - Date.now()) / 60_000);
 
-  if (minutos > -60) return tempoRelativo.format(Math.min(minutos, -1), 'minute');
-  if (minutos > -60 * 24) return tempoRelativo.format(Math.round(minutos / 60), 'hour');
+  if (minutos > -60) return tempoRelativo().format(Math.min(minutos, -1), 'minute');
+  if (minutos > -60 * 24) return tempoRelativo().format(Math.round(minutos / 60), 'hour');
 
-  return tempoRelativo.format(Math.round(minutos / (60 * 24)), 'day');
+  return tempoRelativo().format(Math.round(minutos / (60 * 24)), 'day');
 }
 
 function ProximaCorrida({ corrida, total }: { corrida: Corrida; total: number }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section className={styles.destaque} aria-labelledby="proxima-corrida">
       <div className={styles.destaqueTexto}>
-        <p className={styles.sobretitulo}>
-          Próxima corrida · Etapa {corrida.rodada} de {total}
-        </p>
+        <p className={styles.sobretitulo}>{t.proxima(corrida.rodada, total)}</p>
         <h1 id="proxima-corrida" className={styles.nomeDoGp}>
           {nomeDoGp(corrida.nome)}
         </h1>
@@ -52,28 +122,30 @@ function ProximaCorrida({ corrida, total }: { corrida: Corrida; total: number })
         <ContagemRegressiva ate={corrida.inicio} />
         <div className={styles.acoesDaCorrida}>
           <BotaoDeLembrete
-            rotulo="Lembrar no meu calendário"
+            rotulo={t.lembrar}
             nomeDoArquivo={`drs-etapa-${corrida.rodada}.ics`}
             compromissos={compromissosDoFimDeSemana(corrida)}
           />
           <Link to="/calendario" className={styles.linkDoCartao}>
-            Ver o calendário completo →
+            {t.verCalendario}
           </Link>
         </div>
       </div>
 
       <div className={styles.agenda}>
-        <h2 className={styles.tituloDaAgenda}>Programação no seu horário</h2>
+        <h2 className={styles.tituloDaAgenda}>{t.programacao}</h2>
         <ol className={styles.sessoes}>
           {corrida.sessoes.map((sessao) => (
             <li
               key={sessao.nome}
               className={sessao.nome === 'Corrida' ? styles.sessaoPrincipal : styles.sessao}
             >
-              <span className={styles.nomeDaSessao}>{sessao.nome}</span>
+              <span className={styles.nomeDaSessao}>{nomeDaSessao(sessao.nome)}</span>
               <time dateTime={sessao.inicio} className={styles.horario}>
-                <span>{diaDaSessao.format(new Date(sessao.inicio))}</span>
-                <span className={styles.hora}>{horaDaSessao.format(new Date(sessao.inicio))}</span>
+                <span>{diaDaSessao().format(new Date(sessao.inicio))}</span>
+                <span className={styles.hora}>
+                  {horaDaSessao().format(new Date(sessao.inicio))}
+                </span>
               </time>
             </li>
           ))}
@@ -84,16 +156,17 @@ function ProximaCorrida({ corrida, total }: { corrida: Corrida; total: number })
 }
 
 function Classificacao({ campeonato }: { campeonato: Campeonato }) {
+  const t = useTextos(TEXTOS);
   const lider = campeonato.pilotos[0]?.pontos || 1;
 
   return (
     <section className={styles.cartao} aria-labelledby="classificacao-pilotos">
       <header className={styles.cabecalhoDoCartao}>
         <h2 id="classificacao-pilotos" className={styles.tituloDoCartao}>
-          Campeonato de pilotos
+          {t.pilotos}
         </h2>
         <p className={styles.detalhe}>
-          Após {campeonato.rodadasDisputadas} de {campeonato.totalDeRodadas} etapas
+          {t.apos(campeonato.rodadasDisputadas, campeonato.totalDeRodadas)}
         </p>
       </header>
       <ol className={styles.tabela}>
@@ -109,24 +182,26 @@ function Classificacao({ campeonato }: { campeonato: Campeonato }) {
             </span>
             <span className={styles.pontos}>
               {piloto.pontos}
-              <span className="apenas-leitor"> pontos</span>
+              <span className="apenas-leitor">{t.pontos}</span>
             </span>
           </li>
         ))}
       </ol>
       <Link to="/classificacao" className={styles.linkDoCartao}>
-        Classificação completa →
+        {t.classificacaoCompleta}
       </Link>
     </section>
   );
 }
 
 function Construtores({ campeonato }: { campeonato: Campeonato }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section className={styles.cartao} aria-labelledby="classificacao-construtores">
       <header className={styles.cabecalhoDoCartao}>
         <h2 id="classificacao-construtores" className={styles.tituloDoCartao}>
-          Construtores
+          {t.construtores}
         </h2>
       </header>
       <ol className={styles.tabela}>
@@ -137,33 +212,35 @@ function Construtores({ campeonato }: { campeonato: Campeonato }) {
             <span className={styles.nome}>{nomeDaEquipe(equipe.nome)}</span>
             <span className={styles.pontos}>
               {equipe.pontos}
-              <span className="apenas-leitor"> pontos</span>
+              <span className="apenas-leitor">{t.pontos}</span>
             </span>
           </li>
         ))}
       </ol>
       <Link to="/classificacao" className={styles.linkDoCartao}>
-        Classificação completa →
+        {t.classificacaoCompleta}
       </Link>
     </section>
   );
 }
 
 function UltimaCorrida({ corrida }: { corrida: NonNullable<Campeonato['ultimaCorrida']> }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section className={styles.cartao} aria-labelledby="ultima-corrida">
       <header className={styles.cabecalhoDoCartao}>
         <h2 id="ultima-corrida" className={styles.tituloDoCartao}>
-          Último pódio
+          {t.ultimoPodio}
         </h2>
         <p className={styles.detalhe}>
-          {nomeDoGp(corrida.nome)} · {dataLonga.format(new Date(corrida.data))}
+          {nomeDoGp(corrida.nome)} · {dataLonga().format(new Date(corrida.data))}
         </p>
       </header>
       <div className={styles.rodapeDoCartao}>
         <Podio pilotos={corrida.podio} />
         <Link to={`/calendario/${corrida.rodada}`} className={styles.linkDoCartao}>
-          Resultado completo →
+          {t.resultadoCompleto}
         </Link>
       </div>
     </section>
@@ -171,19 +248,19 @@ function UltimaCorrida({ corrida }: { corrida: NonNullable<Campeonato['ultimaCor
 }
 
 function OndeAssistir() {
+  const t = useTextos(TEXTOS);
+  const opcoes = useTextos(ondeAssistir);
+
   return (
     <section aria-labelledby="onde-assistir" className={styles.secao}>
       <header className={styles.cabecalhoDaSecao}>
         <h2 id="onde-assistir" className={styles.tituloDaSecao}>
-          Onde assistir no Brasil
+          {t.ondeAssistir}
         </h2>
-        <p className={styles.detalhe}>
-          Temporada {TEMPORADA_DO_GUIA}. Algumas etapas ficam fora da TV aberta, então confira a
-          programação da semana.
-        </p>
+        <p className={styles.detalhe}>{t.temporadaDoGuia(TEMPORADA_DO_GUIA)}</p>
       </header>
       <ul className={styles.canais}>
-        {ondeAssistir.map((opcao) => (
+        {opcoes.map((opcao) => (
           <li key={opcao.nome} className={styles.canal}>
             <span className={styles.tipo}>{opcao.tipo}</span>
             <a
@@ -193,7 +270,7 @@ function OndeAssistir() {
               className={styles.nomeDoCanal}
             >
               {opcao.nome}
-              <span className="apenas-leitor"> (abre em nova aba)</span>
+              <span className="apenas-leitor">{t.novaAba}</span>
             </a>
             <p className={styles.descricao}>{opcao.descricao}</p>
           </li>
@@ -204,15 +281,17 @@ function OndeAssistir() {
 }
 
 function Noticias({ noticias }: { noticias: PainelDTO['noticias'] }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section aria-labelledby="noticias" className={styles.secao}>
       <header className={styles.cabecalhoDaSecao}>
         <h2 id="noticias" className={styles.tituloDaSecao}>
-          Últimas notícias
+          {t.noticias}
         </h2>
       </header>
       {noticias.length === 0 ? (
-        <p className={styles.detalhe}>As notícias estão indisponíveis no momento.</p>
+        <p className={styles.detalhe}>{t.semNoticias}</p>
       ) : (
         <ul className={styles.noticias}>
           {noticias.map((noticia) => (
@@ -227,7 +306,7 @@ function Noticias({ noticias }: { noticias: PainelDTO['noticias'] }) {
                 <span className={styles.fonteDaNoticia}>
                   {noticia.fonte} ·{' '}
                   <time dateTime={noticia.publicadaEm}>{haQuantoTempo(noticia.publicadaEm)}</time>
-                  <span className="apenas-leitor"> (abre em nova aba)</span>
+                  <span className="apenas-leitor">{t.novaAba}</span>
                 </span>
               </a>
             </li>
@@ -240,11 +319,12 @@ function Noticias({ noticias }: { noticias: PainelDTO['noticias'] }) {
 
 export function HomePage() {
   const dados = useQuery(painel);
+  const t = useTextos(TEXTOS);
 
   if (dados.isPending) {
     return (
       <div className={styles.esqueleto} role="status">
-        <span className="apenas-leitor">Carregando…</span>
+        <span className="apenas-leitor">{t.carregando}</span>
       </div>
     );
   }
@@ -253,10 +333,10 @@ export function HomePage() {
     return (
       <Aviso
         tipo="erro"
-        titulo="Não foi possível carregar a página inicial"
+        titulo={t.erro}
         acao={
           <button type="button" className={botao.secundario} onClick={() => dados.refetch()}>
-            Tentar de novo
+            {t.tentarDeNovo}
           </button>
         }
       >
@@ -276,10 +356,12 @@ export function HomePage() {
       ) : (
         <section className={styles.destaque}>
           <div className={styles.destaqueTexto}>
-            <p className={styles.sobretitulo}>Temporada {campeonato?.ano}</p>
-            <h1 className={styles.nomeDoGp}>{campeonato ? 'Temporada encerrada' : 'Fórmula 1'}</h1>
+            <p className={styles.sobretitulo}>
+              {t.temporada} {campeonato?.ano}
+            </p>
+            <h1 className={styles.nomeDoGp}>{campeonato ? t.encerrada : t.formula1}</h1>
             <Link to="/pilotos" className={botao.primario}>
-              Ver o grid de pilotos
+              {t.verGrid}
             </Link>
           </div>
         </section>

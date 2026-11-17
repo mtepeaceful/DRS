@@ -4,7 +4,12 @@ const arquivos = import.meta.glob<string>('/node_modules/country-flag-icons/3x2/
   eager: true,
 });
 
-const nomes = new Intl.DisplayNames('pt-BR', { type: 'region', fallback: 'none' });
+import { idiomaAtual } from '../i18n/idioma';
+
+const nomes = {
+  pt: new Intl.DisplayNames('pt-BR', { type: 'region', fallback: 'none' }),
+  en: new Intl.DisplayNames('en-US', { type: 'region', fallback: 'none' }),
+};
 const bandeiras = new Map<string, string>();
 
 for (const [caminho, url] of Object.entries(arquivos)) {
@@ -21,7 +26,7 @@ export function bandeiraDoPais(codigo: string) {
 
 export function nomeDoPais(codigo: string) {
   try {
-    return nomes.of(codigo) ?? codigo;
+    return nomes[idiomaAtual()].of(codigo) ?? codigo;
   } catch {
     return codigo;
   }

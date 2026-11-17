@@ -14,8 +14,50 @@ import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { detalheDoPiloto, useExcluirPiloto } from './api';
 import styles from './PilotoDetalhesPage.module.css';
 import { CarreiraDoPiloto, TemporadaDoPiloto } from './RaioXDoPiloto';
+import { porIdioma, useTextos } from '../../shared/i18n/idioma';
 
-const formatoDeData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
+const TEXTOS = {
+  pt: {
+    carregando: 'Carregando piloto…',
+    naoEncontrado: 'Piloto não encontrado',
+    erro: 'Não foi possível carregar o piloto',
+    voltar: 'Voltar aos pilotos',
+    excluido: 'Ele pode ter sido excluído.',
+    grid: '← Grid',
+    fotoDe: (nome: string) => `Foto de ${nome}`,
+    pais: 'País',
+    titulos: 'Títulos mundiais',
+    atualizado: (data: string) => `Atualizado em ${data}`,
+    carro3d: 'Ver o carro em 3D →',
+    comparar: 'Comparar com outro piloto →',
+    editar: 'Editar',
+    excluir: 'Excluir',
+    excluirNome: (nome: string) => `Excluir ${nome}?`,
+    descricaoExclusao: 'O piloto sai do grid e essa ação não pode ser desfeita.',
+    excluirPiloto: 'Excluir piloto',
+  },
+  en: {
+    carregando: 'Loading driver…',
+    naoEncontrado: 'Driver not found',
+    erro: 'Could not load the driver',
+    voltar: 'Back to the drivers',
+    excluido: 'They may have been deleted.',
+    grid: '← Grid',
+    fotoDe: (nome: string) => `Photo of ${nome}`,
+    pais: 'Country',
+    titulos: 'World titles',
+    atualizado: (data: string) => `Updated on ${data}`,
+    carro3d: 'See the car in 3D →',
+    comparar: 'Compare with another driver →',
+    editar: 'Edit',
+    excluir: 'Delete',
+    excluirNome: (nome: string) => `Delete ${nome}?`,
+    descricaoExclusao: 'The driver leaves the grid and this cannot be undone.',
+    excluirPiloto: 'Delete driver',
+  },
+};
+
+const formatoDeData = porIdioma((locale) => new Intl.DateTimeFormat(locale, { dateStyle: 'long' }));
 
 export function PilotoDetalhesPage() {
   const { id = '' } = useParams();
@@ -25,11 +67,12 @@ export function PilotoDetalhesPage() {
   const excluir = useExcluirPiloto();
   const [confirmando, setConfirmando] = useState(false);
   const logado = useSessaoAtiva();
+  const t = useTextos(TEXTOS);
 
   if (piloto.isPending) {
     return (
       <div className={styles.esqueleto} role="status">
-        <span className="apenas-leitor">Carregando piloto…</span>
+        <span className="apenas-leitor">{t.carregando}</span>
       </div>
     );
   }
@@ -41,14 +84,14 @@ export function PilotoDetalhesPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo={inexistente ? 'Piloto não encontrado' : 'Não foi possível carregar o piloto'}
+        titulo={inexistente ? t.naoEncontrado : t.erro}
         acao={
           <Link to="/pilotos" className={botao.secundario}>
-            Voltar aos pilotos
+            {t.voltar}
           </Link>
         }
       >
-        {inexistente ? 'Ele pode ter sido excluído.' : mensagemDoErro(piloto.error)}
+        {inexistente ? t.excluido : mensagemDoErro(piloto.error)}
       </Aviso>
     );
   }
@@ -74,7 +117,7 @@ export function PilotoDetalhesPage() {
       <title>{`${nome} · DRS`}</title>
 
       <Link to="/pilotos" className={styles.voltar} viewTransition>
-        ← Grid
+        {t.grid}
       </Link>
 
       <article className={styles.painel} style={estiloDaEquipe(equipe)}>
@@ -93,44 +136,42 @@ export function PilotoDetalhesPage() {
             </Link>
             <h1 className={styles.nome}>{nome}</h1>
           </header>
-          {foto && (
-            <FotoDoCommons foto={foto} descricao={`Foto de ${nome}`} className={styles.foto} />
-          )}
+          {foto && <FotoDoCommons foto={foto} descricao={t.fotoDe(nome)} className={styles.foto} />}
         </div>
 
         <dl className={styles.dados}>
           <div className={styles.dado}>
-            <dt>País</dt>
+            <dt>{t.pais}</dt>
             <dd className={styles.pais}>
               <Bandeira pais={pais} />
               {nomeDoPais(pais)}
             </dd>
           </div>
           <div className={titulos > 0 ? styles.dadoCampeao : styles.dado}>
-            <dt>Títulos mundiais</dt>
+            <dt>{t.titulos}</dt>
             <dd>{titulos}</dd>
           </div>
         </dl>
 
         <footer className={styles.rodape}>
           <p className={styles.atualizacao}>
-            Atualizado em {formatoDeData.format(new Date(atualizadoEm))}
+            {t.atualizado(formatoDeData().format(new Date(atualizadoEm)))}
           </p>
           <span className={styles.atalhos}>
             <Link to={`/pilotos/${id}/garagem`} className={styles.comparar}>
-              Ver o carro em 3D →
+              {t.carro3d}
             </Link>
             <Link to={`/comparar?${new URLSearchParams({ a: nome })}`} className={styles.comparar}>
-              Comparar com outro piloto →
+              {t.comparar}
             </Link>
           </span>
           {logado && (
             <div className={styles.acoes}>
               <Link to={`/pilotos/${id}/editar`} className={botao.primario}>
-                Editar
+                {t.editar}
               </Link>
               <button type="button" className={botao.perigo} onClick={() => setConfirmando(true)}>
-                Excluir
+                {t.excluir}
               </button>
             </div>
           )}
@@ -142,9 +183,9 @@ export function PilotoDetalhesPage() {
 
       <Confirmacao
         aberta={confirmando}
-        titulo={`Excluir ${nome}?`}
-        descricao="O piloto sai do grid e essa ação não pode ser desfeita."
-        rotuloDeConfirmar="Excluir piloto"
+        titulo={t.excluirNome(nome)}
+        descricao={t.descricaoExclusao}
+        rotuloDeConfirmar={t.excluirPiloto}
         ocupada={excluir.isPending}
         erro={excluir.isError ? mensagemDoErro(excluir.error) : undefined}
         aoCancelar={fecharConfirmacao}

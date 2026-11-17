@@ -1,5 +1,11 @@
 import { baixarIcs, type Compromisso, gerarIcs } from './lembrete';
+import { useTextos } from '../../shared/i18n/idioma';
 import styles from './BotaoDeLembrete.module.css';
+
+const TEXTOS = {
+  pt: 'Baixa um arquivo para o calendário do celular ou do computador, com aviso antes da largada',
+  en: 'Downloads a file for your phone or computer calendar, with a reminder before the start',
+};
 
 interface Props {
   rotulo: string;
@@ -8,6 +14,8 @@ interface Props {
 }
 
 export function BotaoDeLembrete({ rotulo, nomeDoArquivo, compromissos }: Props) {
+  const dica = useTextos(TEXTOS);
+
   if (compromissos.length === 0) {
     return null;
   }
@@ -16,7 +24,7 @@ export function BotaoDeLembrete({ rotulo, nomeDoArquivo, compromissos }: Props) 
     <button
       type="button"
       className={styles.botao}
-      title="Baixa um arquivo para o calendário do celular ou do computador, com aviso antes da largada"
+      title={dica}
       onClick={() => baixarIcs(nomeDoArquivo, gerarIcs(compromissos))}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.icone}>

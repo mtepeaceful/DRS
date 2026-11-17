@@ -6,6 +6,8 @@
 
 ![Página inicial do DRS com a contagem regressiva para o GP de Las Vegas, a classificação do campeonato e as últimas notícias](docs/home.png)
 
+![Demonstração: o carro em 3D com as peças explicadas, o glossário com busca e a troca para inglês, e a evolução dos carros desde 1950](docs/demo.gif)
+
 A sigla é um trocadilho com o DRS da F1, o Drag Reduction System, a asa traseira móvel que abre na reta. Por isso o logo é uma asa, e o flap abre sempre que a aplicação busca dados.
 
 ## Funcionalidades
@@ -29,6 +31,7 @@ A sigla é um trocadilho com o DRS da F1, o Drag Reduction System, a asa traseir
 - **Grid sempre atualizado:** a API reimporta a temporada sozinha quando a última importação passa de 24 horas, e o administrador ainda pode importar na hora com um clique. Os campeões das temporadas passadas ficam guardados no banco, então só os anos que faltam são consultados
 - **Cadastro e edição** de pilotos e equipes, com prévia em tempo real e acesso restrito ao administrador
 - Logo e cores de cada equipe, e bandeira do país de cada piloto
+- **Português e inglês:** um botão no cabeçalho troca o idioma do site inteiro, inclusive datas e números. A escolha fica salva, e um link com `?lang=en` abre o site direto em inglês
 - Validação compartilhada entre API e interface, com mensagens em português
 - Pode ser instalado no celular como app e mostra uma prévia com imagem quando o link é compartilhado
 - Cada página carrega só quando é aberta, e um aviso explica a espera quando o servidor gratuito está acordando
@@ -61,6 +64,15 @@ packages/
 A regra de dependência entre as camadas da API é verificada pelo ESLint: o domínio não importa a aplicação nem a infraestrutura, e a aplicação não importa a infraestrutura.
 
 Os dados externos (OpenF1, Jolpica e o RSS de notícias) entram pela infraestrutura, são validados com Zod antes de chegar aos casos de uso e ficam em cache por alguns minutos. Se uma fonte falhar, a API mantém o último dado bom.
+
+## Decisões
+
+- **Arquitetura em camadas só na API.** O domínio e os casos de uso não conhecem Fastify nem Drizzle, o que permite trocar o PostgreSQL pelo armazenamento em memória sem mexer no resto. No front, a organização por funcionalidade é suficiente.
+- **Contratos em um pacote só.** Os schemas Zod de `packages/contracts` validam a entrada na API e tipam as respostas no front. Mudar um campo quebra a compilação dos dois lados ao mesmo tempo.
+- **Cache no servidor e no banco.** As APIs públicas da F1 têm limite de uso. A temporada atual fica em cache por minutos, e os campeões dos anos encerrados vão para o banco uma vez, porque não mudam mais.
+- **3D sob demanda.** O three.js só é baixado nas páginas que mostram o carro, e quem não tem WebGL, usa um aparelho modesto ou prefere menos movimento recebe uma ilustração parada.
+- **Idiomas sem biblioteca.** Cada tela declara os próprios textos em português e em inglês, e o TypeScript exige as mesmas chaves nos dois. Datas e números usam o `Intl` do navegador no idioma escolhido.
+- **Imagens com licença clara.** As fotos vêm do Wikimedia Commons com autor e licença, e os textos da Wikipédia levam o crédito CC BY-SA.
 
 ## Como rodar
 

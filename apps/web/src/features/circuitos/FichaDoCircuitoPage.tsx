@@ -15,8 +15,11 @@ import botao from '../../shared/ui/botao.module.css';
 import { fichaDoCircuito } from './api';
 import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './FichaDoCircuitoPage.module.css';
+import { porIdioma } from '../../shared/i18n/idioma';
 
-const dataEHora = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeStyle: 'short' });
+const dataEHora = porIdioma(
+  (locale) => new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }),
+);
 
 function plural(quantidade: number, singular: string, plural: string) {
   return `${quantidade} ${quantidade === 1 ? singular : plural}`;
@@ -133,7 +136,7 @@ export function FichaDoCircuitoPage() {
         <Link to="/calendario" className={styles.proxima}>
           <span className={styles.rotulo}>Próxima corrida aqui</span>
           <span className={styles.nomeDaProxima}>{nomeDoGp(dados.proximaCorrida.nome)}</span>
-          <span>{dataEHora.format(new Date(dados.proximaCorrida.inicio))}, no seu horário</span>
+          <span>{dataEHora().format(new Date(dados.proximaCorrida.inicio))}, no seu horário</span>
         </Link>
       )}
 

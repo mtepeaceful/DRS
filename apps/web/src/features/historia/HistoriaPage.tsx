@@ -8,7 +8,54 @@ import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { campeoesDaHistoria } from './api';
 import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
+import { COMUNS } from '../../shared/i18n/comuns';
+import { useTextos } from '../../shared/i18n/idioma';
 import styles from './HistoriaPage.module.css';
+
+const TEXTOS = {
+  pt: {
+    titulos: ' títulos',
+    construtores: 'Construtores',
+    aindaNaoHavia: 'Ainda não havia',
+    carregando: 'Carregando a história…',
+    erro: 'Não foi possível carregar a história',
+    titulo: 'História da F1',
+    resumo:
+      'Todos os campeões desde 1950. Abra um ano para ver a classificação, as equipes e cada corrida daquela temporada.',
+    dicionario: 'Dicionário',
+    todosOsPilotos: 'Todos os pilotos →',
+    todasAsEquipes: 'Todas as equipes →',
+    todosOsCircuitos: 'Todos os circuitos →',
+    carros: 'A evolução dos carros →',
+    faltam: (n: number) => `Buscando o restante das temporadas: faltam ${n}.`,
+    maiores: 'Maiores campeões',
+    pilotos: 'Pilotos',
+    anoAAno: 'Campeões ano a ano',
+    decadas: 'Décadas',
+    anos: (decada: number) => `Anos ${String(decada).slice(2)}`,
+  },
+  en: {
+    titulos: ' titles',
+    construtores: 'Constructors',
+    aindaNaoHavia: 'Not awarded yet',
+    carregando: 'Loading the history…',
+    erro: 'Could not load the history',
+    titulo: 'F1 history',
+    resumo:
+      'Every champion since 1950. Open a year to see the standings, the teams and every race of that season.',
+    dicionario: 'Dictionary',
+    todosOsPilotos: 'All drivers →',
+    todasAsEquipes: 'All teams →',
+    todosOsCircuitos: 'All circuits →',
+    carros: 'How the cars evolved →',
+    faltam: (n: number) => `Fetching the remaining seasons: ${n} to go.`,
+    maiores: 'Greatest champions',
+    pilotos: 'Drivers',
+    anoAAno: 'Champions year by year',
+    decadas: 'Decades',
+    anos: (decada: number) => `The ${decada}s`,
+  },
+};
 import { pontos } from './numeros';
 
 type Temporada = HistoriaDosCampeoesDTO['temporadas'][number];
@@ -27,6 +74,8 @@ function Ranking({
   recordistas: Recordista[];
   pilotos?: boolean;
 }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section className={styles.cartao} aria-labelledby={`ranking-${titulo}`}>
       <h3 id={`ranking-${titulo}`} className={styles.tituloDoCartao}>
@@ -45,7 +94,7 @@ function Ranking({
             </span>
             <span className={styles.titulos}>
               {recordista.titulos}
-              <span className="apenas-leitor"> títulos</span>
+              <span className="apenas-leitor">{t.titulos}</span>
             </span>
           </li>
         ))}
@@ -55,6 +104,9 @@ function Ranking({
 }
 
 function Ano({ temporada }: { temporada: Temporada }) {
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
+
   return (
     <li>
       <Link to={`/historia/${temporada.ano}`} className={styles.ano}>
@@ -66,12 +118,12 @@ function Ano({ temporada }: { temporada: Temporada }) {
           </span>
           <span className={styles.equipe}>
             {nomeDaEquipe(temporada.equipe)} · {pontos(temporada.pontos)} pts · {temporada.vitorias}{' '}
-            {temporada.vitorias === 1 ? 'vitória' : 'vitórias'}
+            {comuns.vitorias(temporada.vitorias)}
           </span>
         </span>
         <span className={styles.construtor}>
-          <span className={styles.rotuloDoConstrutor}>Construtores</span>
-          {temporada.construtor ? nomeDaEquipe(temporada.construtor.nome) : 'Ainda não havia'}
+          <span className={styles.rotuloDoConstrutor}>{t.construtores}</span>
+          {temporada.construtor ? nomeDaEquipe(temporada.construtor.nome) : t.aindaNaoHavia}
         </span>
         <span className={styles.seta} aria-hidden="true">
           →
@@ -83,11 +135,13 @@ function Ano({ temporada }: { temporada: Temporada }) {
 
 export function HistoriaPage() {
   const historia = useQuery(campeoesDaHistoria);
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
 
   if (historia.isPending) {
     return (
       <div className={styles.esqueleto} role="status">
-        <span className="apenas-leitor">Carregando a história…</span>
+        <span className="apenas-leitor">{t.carregando}</span>
       </div>
     );
   }
@@ -96,10 +150,10 @@ export function HistoriaPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo="Não foi possível carregar a história"
+        titulo={t.erro}
         acao={
           <button type="button" className={botao.secundario} onClick={() => historia.refetch()}>
-            Tentar de novo
+            {comuns.tentarDeNovo}
           </button>
         }
       >
@@ -113,23 +167,20 @@ export function HistoriaPage() {
 
   return (
     <>
-      <title>História da F1 · DRS</title>
+      <title>{`${t.titulo} · DRS`}</title>
 
       <header className={styles.topo}>
-        <h1 className={styles.titulo}>História da F1</h1>
-        <p className={styles.resumo}>
-          Todos os campeões desde 1950. Abra um ano para ver a classificação, as equipes e cada
-          corrida daquela temporada.
-        </p>
-        <nav aria-label="Dicionário" className={styles.atalhos}>
-          <Link to="/historia/pilotos">Todos os pilotos →</Link>
-          <Link to="/equipes">Todas as equipes →</Link>
-          <Link to="/circuitos">Todos os circuitos →</Link>
-          <Link to="/historia/carros">A evolução dos carros →</Link>
+        <h1 className={styles.titulo}>{t.titulo}</h1>
+        <p className={styles.resumo}>{t.resumo}</p>
+        <nav aria-label={t.dicionario} className={styles.atalhos}>
+          <Link to="/historia/pilotos">{t.todosOsPilotos}</Link>
+          <Link to="/equipes">{t.todasAsEquipes}</Link>
+          <Link to="/circuitos">{t.todosOsCircuitos}</Link>
+          <Link to="/historia/carros">{t.carros}</Link>
         </nav>
         {faltando > 0 && (
           <p className={styles.carregando} role="status">
-            Buscando o restante das temporadas: faltam {faltando}.
+            {t.faltam(faltando)}
           </p>
         )}
       </header>
@@ -137,20 +188,20 @@ export function HistoriaPage() {
       {temporadas.length > 0 && (
         <section aria-labelledby="maiores-campeoes" className={styles.secao}>
           <h2 id="maiores-campeoes" className={styles.tituloDaSecao}>
-            Maiores campeões
+            {t.maiores}
           </h2>
           <div className={styles.rankings}>
-            <Ranking titulo="Pilotos" recordistas={maioresPilotos} pilotos />
-            <Ranking titulo="Construtores" recordistas={maioresConstrutores} />
+            <Ranking titulo={t.pilotos} recordistas={maioresPilotos} pilotos />
+            <Ranking titulo={t.construtores} recordistas={maioresConstrutores} />
           </div>
         </section>
       )}
 
       <section aria-labelledby="ano-a-ano" className={styles.secao}>
         <h2 id="ano-a-ano" className={styles.tituloDaSecao}>
-          Campeões ano a ano
+          {t.anoAAno}
         </h2>
-        <nav aria-label="Décadas" className={styles.decadas}>
+        <nav aria-label={t.decadas} className={styles.decadas}>
           {[...decadas.keys()].map((decada) => (
             <a key={decada} href={`#decada-${decada}`} className={styles.decada}>
               {decada}
@@ -159,7 +210,7 @@ export function HistoriaPage() {
         </nav>
         {[...decadas].map(([decada, anos]) => (
           <section key={decada} id={`decada-${decada}`} className={styles.grupo}>
-            <h3 className={styles.tituloDaDecada}>Anos {String(decada).slice(2)}</h3>
+            <h3 className={styles.tituloDaDecada}>{t.anos(decada)}</h3>
             <ol className={styles.listaDeAnos}>
               {anos.map((temporada) => (
                 <Ano key={temporada.ano} temporada={temporada} />

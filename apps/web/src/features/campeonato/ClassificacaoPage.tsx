@@ -8,7 +8,40 @@ import botao from '../../shared/ui/botao.module.css';
 import { CORES_NEUTRAS } from '../calendario/cores';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { painel } from '../home/api';
+import { COMUNS } from '../../shared/i18n/comuns';
+import { useTextos } from '../../shared/i18n/idioma';
 import styles from './ClassificacaoPage.module.css';
+
+const TEXTOS = {
+  pt: {
+    vitorias: 'Vitórias',
+    vit: 'Vit',
+    carregando: 'Carregando a classificação…',
+    erro: 'Não foi possível carregar a classificação',
+    foraDoAr: 'A fonte dos dados do campeonato está fora do ar agora.',
+    titulo: 'Classificação',
+    depois: (feitas: number, total: number) => `Depois de ${feitas} de ${total} etapas.`,
+    calendario: 'Ver o calendário →',
+    pilotos: 'Pilotos',
+    piloto: 'Piloto',
+    construtores: 'Construtores',
+    equipe: 'Equipe',
+  },
+  en: {
+    vitorias: 'Wins',
+    vit: 'W',
+    carregando: 'Loading the standings…',
+    erro: 'Could not load the standings',
+    foraDoAr: 'The championship data source is down right now.',
+    titulo: 'Standings',
+    depois: (feitas: number, total: number) => `After ${feitas} of ${total} rounds.`,
+    calendario: 'See the calendar →',
+    pilotos: 'Drivers',
+    piloto: 'Driver',
+    construtores: 'Constructors',
+    equipe: 'Team',
+  },
+};
 
 type Campeonato = NonNullable<PainelDTO['campeonato']>;
 
@@ -24,6 +57,7 @@ interface Linha {
 function Tabela({ titulo, linhas, rotulo }: { titulo: string; linhas: Linha[]; rotulo: string }) {
   const lider = linhas[0]?.pontos || 1;
   const id = `tabela-${rotulo}`;
+  const t = useTextos(TEXTOS);
 
   return (
     <section className={styles.cartao} aria-labelledby={id}>
@@ -38,7 +72,7 @@ function Tabela({ titulo, linhas, rotulo }: { titulo: string; linhas: Linha[]; r
             </th>
             <th scope="col">{rotulo}</th>
             <th scope="col" className={styles.numero}>
-              <abbr title="Vitórias">Vit</abbr>
+              <abbr title={t.vitorias}>{t.vit}</abbr>
             </th>
             <th scope="col" className={styles.numero}>
               Pts
@@ -85,11 +119,13 @@ function linhasDeConstrutores({ construtores }: Campeonato): Linha[] {
 
 export function ClassificacaoPage() {
   const dados = useQuery(painel);
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
 
   if (dados.isPending) {
     return (
       <div className={styles.esqueleto} role="status">
-        <span className="apenas-leitor">Carregando a classificação…</span>
+        <span className="apenas-leitor">{t.carregando}</span>
       </div>
     );
   }
@@ -98,16 +134,14 @@ export function ClassificacaoPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo="Não foi possível carregar a classificação"
+        titulo={t.erro}
         acao={
           <button type="button" className={botao.secundario} onClick={() => dados.refetch()}>
-            Tentar de novo
+            {comuns.tentarDeNovo}
           </button>
         }
       >
-        {dados.isError
-          ? mensagemDoErro(dados.error)
-          : 'A fonte dos dados do campeonato está fora do ar agora.'}
+        {dados.isError ? mensagemDoErro(dados.error) : t.foraDoAr}
       </Aviso>
     );
   }
@@ -116,17 +150,23 @@ export function ClassificacaoPage() {
 
   return (
     <>
-      <title>Classificação · DRS</title>
+      <title>{`${t.titulo} · DRS`}</title>
       <header className={styles.topo}>
-        <h1 className={styles.titulo}>Classificação {campeonato.ano}</h1>
+        <h1 className={styles.titulo}>
+          {t.titulo} {campeonato.ano}
+        </h1>
         <p className={styles.resumo}>
-          Depois de {campeonato.rodadasDisputadas} de {campeonato.totalDeRodadas} etapas.{' '}
-          <Link to="/calendario">Ver o calendário →</Link>
+          {t.depois(campeonato.rodadasDisputadas, campeonato.totalDeRodadas)}{' '}
+          <Link to="/calendario">{t.calendario}</Link>
         </p>
       </header>
       <div className={styles.colunas}>
-        <Tabela titulo="Pilotos" rotulo="Piloto" linhas={linhasDePilotos(campeonato)} />
-        <Tabela titulo="Construtores" rotulo="Equipe" linhas={linhasDeConstrutores(campeonato)} />
+        <Tabela titulo={t.pilotos} rotulo={t.piloto} linhas={linhasDePilotos(campeonato)} />
+        <Tabela
+          titulo={t.construtores}
+          rotulo={t.equipe}
+          linhas={linhasDeConstrutores(campeonato)}
+        />
       </div>
     </>
   );

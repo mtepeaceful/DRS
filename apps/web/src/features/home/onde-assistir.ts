@@ -1,3 +1,5 @@
+import type { Textos } from '../../shared/i18n/idioma';
+
 export interface OpcaoDeTransmissao {
   nome: string;
   tipo: string;
@@ -7,7 +9,7 @@ export interface OpcaoDeTransmissao {
 
 export const TEMPORADA_DO_GUIA = 2026;
 
-export const ondeAssistir: OpcaoDeTransmissao[] = [
+const emPortugues: OpcaoDeTransmissao[] = [
   {
     nome: 'TV Globo',
     tipo: 'TV aberta',
@@ -33,3 +35,26 @@ export const ondeAssistir: OpcaoDeTransmissao[] = [
     site: 'https://f1tv.formula1.com/',
   },
 ];
+
+const tiposEmIngles: Record<string, string> = {
+  'TV aberta': 'Free-to-air TV',
+  'TV por assinatura': 'Pay TV',
+  Streaming: 'Streaming',
+  'Streaming oficial': 'Official streaming',
+};
+
+const descricoesEmIngles: Record<string, string> = {
+  'TV Globo': 'Most races live, for free.',
+  SporTV: 'Practice, qualifying, sprints and the races that are not on free-to-air TV.',
+  Globoplay: 'Live stream of the Globo and SporTV channels, and full races afterwards.',
+  'F1 TV Pro': 'Every session live, onboard cameras and team radio.',
+};
+
+export const ondeAssistir: Textos<OpcaoDeTransmissao[]> = {
+  pt: emPortugues,
+  en: emPortugues.map((opcao) => ({
+    ...opcao,
+    tipo: tiposEmIngles[opcao.tipo] ?? opcao.tipo,
+    descricao: descricoesEmIngles[opcao.nome] ?? opcao.descricao,
+  })),
+};

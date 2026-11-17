@@ -1,25 +1,47 @@
 import { useId, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
+import { useTextos } from '../i18n/idioma';
 import styles from './MenuDoDicionario.module.css';
 
-const PAGINAS = [
-  { para: '/glossario', nome: 'Glossário' },
-  { para: '/circuitos', nome: 'Circuitos' },
-  { para: '/historia/pilotos', nome: 'Pilotos da história' },
-  { para: '/historia/carros', nome: 'Evolução dos carros' },
-  { para: '/carro', nome: 'O carro por dentro' },
-  { para: '/classificacao', nome: 'Campeonato' },
-  { para: '/comparar', nome: 'Comparar pilotos' },
-];
+const TEXTOS = {
+  pt: {
+    titulo: 'Dicionário da F1',
+    botao: 'Dicionário',
+    paginas: [
+      { para: '/glossario', nome: 'Glossário' },
+      { para: '/circuitos', nome: 'Circuitos' },
+      { para: '/historia/pilotos', nome: 'Pilotos da história' },
+      { para: '/historia/carros', nome: 'Evolução dos carros' },
+      { para: '/carro', nome: 'O carro por dentro' },
+      { para: '/classificacao', nome: 'Campeonato' },
+      { para: '/comparar', nome: 'Comparar pilotos' },
+    ],
+  },
+  en: {
+    titulo: 'F1 dictionary',
+    botao: 'Dictionary',
+    paginas: [
+      { para: '/glossario', nome: 'Glossary' },
+      { para: '/circuitos', nome: 'Circuits' },
+      { para: '/historia/pilotos', nome: 'Drivers in history' },
+      { para: '/historia/carros', nome: 'How the cars evolved' },
+      { para: '/carro', nome: 'Inside the car' },
+      { para: '/classificacao', nome: 'Championship' },
+      { para: '/comparar', nome: 'Compare drivers' },
+    ],
+  },
+};
 
 function classeDoLink({ isActive }: { isActive: boolean }) {
   return isActive ? styles.linkAtivo : styles.link;
 }
 
 function Links() {
+  const t = useTextos(TEXTOS);
+
   return (
     <ul className={styles.lista}>
-      {PAGINAS.map((pagina) => (
+      {t.paginas.map((pagina) => (
         <li key={pagina.para}>
           <NavLink to={pagina.para} end className={classeDoLink}>
             {pagina.nome}
@@ -31,9 +53,11 @@ function Links() {
 }
 
 export function BarraDoDicionario() {
+  const t = useTextos(TEXTOS);
+
   return (
-    <nav aria-label="Dicionário da F1" className={styles.barra}>
-      <p className={styles.titulo}>Dicionário da F1</p>
+    <nav aria-label={t.titulo} className={styles.barra}>
+      <p className={styles.titulo}>{t.titulo}</p>
       <Links />
     </nav>
   );
@@ -44,6 +68,7 @@ export function BotaoDoDicionario() {
   const [abertoEm, setAbertoEm] = useState<string | null>(null);
   const aberto = abertoEm === pathname;
   const painel = useId();
+  const t = useTextos(TEXTOS);
 
   return (
     <div className={styles.recolhido}>
@@ -54,12 +79,12 @@ export function BotaoDoDicionario() {
         aria-controls={painel}
         onClick={() => setAbertoEm(aberto ? null : pathname)}
       >
-        Dicionário
+        {t.botao}
         <span aria-hidden="true" className={styles.seta}>
           ▾
         </span>
       </button>
-      <nav id={painel} aria-label="Dicionário da F1" className={styles.painel} hidden={!aberto}>
+      <nav id={painel} aria-label={t.titulo} className={styles.painel} hidden={!aberto}>
         <Links />
       </nav>
     </div>

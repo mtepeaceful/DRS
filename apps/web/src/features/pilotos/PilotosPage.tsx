@@ -10,7 +10,62 @@ import { ImportarTemporada } from '../importacao/ImportarTemporada';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { listaDePilotos, PILOTOS_POR_PAGINA } from './api';
 import { CartaoDoPiloto } from './CartaoDoPiloto';
+import { COMUNS } from '../../shared/i18n/comuns';
+import { useTextos } from '../../shared/i18n/idioma';
 import styles from './PilotosPage.module.css';
+
+const TEXTOS = {
+  pt: {
+    titulo: 'Grid de pilotos',
+    resultados: (total: number, busca: string) =>
+      `${total} ${total === 1 ? 'resultado' : 'resultados'} para “${busca}”`,
+    noGrid: (total: number) => `${total} ${total === 1 ? 'piloto' : 'pilotos'} no grid`,
+    comparar: 'Comparar dois pilotos da temporada →',
+    buscar: 'Buscar por piloto ou equipe',
+    filtrar: 'Filtrar por equipe',
+    todos: 'Todos',
+    carregando: 'Carregando pilotos…',
+    erro: 'Não foi possível carregar o grid',
+    nenhum: 'Nenhum piloto encontrado',
+    vazio: 'O grid está vazio',
+    limpar: 'Limpar busca',
+    cadastrar: 'Cadastrar o primeiro piloto',
+    nada: (busca: string) =>
+      `Nada corresponde a “${busca}”. Confira a grafia ou busque pelo nome da equipe.`,
+    cadastre: 'Cadastre um piloto para ele aparecer aqui.',
+    pilotos: 'Pilotos',
+    creditos: 'Fotos do Wikimedia Commons, com autor e licença na página de cada piloto.',
+    paginacao: 'Paginação',
+    anterior: '← Anterior',
+    pagina: (pagina: number, total: number) => `Página ${pagina} de ${total}`,
+    proxima: 'Próxima →',
+  },
+  en: {
+    titulo: 'Driver grid',
+    resultados: (total: number, busca: string) =>
+      `${total} ${total === 1 ? 'result' : 'results'} for “${busca}”`,
+    noGrid: (total: number) => `${total} ${total === 1 ? 'driver' : 'drivers'} on the grid`,
+    comparar: 'Compare two drivers this season →',
+    buscar: 'Search by driver or team',
+    filtrar: 'Filter by team',
+    todos: 'All',
+    carregando: 'Loading drivers…',
+    erro: 'Could not load the grid',
+    nenhum: 'No drivers found',
+    vazio: 'The grid is empty',
+    limpar: 'Clear search',
+    cadastrar: 'Add the first driver',
+    nada: (busca: string) =>
+      `Nothing matches “${busca}”. Check the spelling or search by team name.`,
+    cadastre: 'Add a driver for them to show up here.',
+    pilotos: 'Drivers',
+    creditos: 'Photos from Wikimedia Commons, with author and license on each driver’s page.',
+    paginacao: 'Pagination',
+    anterior: '← Previous',
+    pagina: (pagina: number, total: number) => `Page ${pagina} of ${total}`,
+    proxima: 'Next →',
+  },
+};
 
 const ATRASO_DA_BUSCA = 300;
 
@@ -73,6 +128,8 @@ export function PilotosPage() {
   }, []);
 
   const logado = useSessaoAtiva();
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
   const pilotos = useQuery(listaDePilotos(busca, pagina));
   const equipes = useQuery(listaDeEquipes);
 
@@ -87,33 +144,30 @@ export function PilotosPage() {
 
   return (
     <>
-      <title>Grid de pilotos · DRS</title>
+      <title>{`${t.titulo} · DRS`}</title>
 
       <section className={styles.topo}>
-        <h1 className={styles.titulo}>Grid de pilotos</h1>
+        <h1 className={styles.titulo}>{t.titulo}</h1>
         <p className={styles.resumo} aria-live="polite">
-          {pilotos.data &&
-            (busca
-              ? `${total} ${total === 1 ? 'resultado' : 'resultados'} para “${busca}”`
-              : `${total} ${total === 1 ? 'piloto' : 'pilotos'} no grid`)}
+          {pilotos.data && (busca ? t.resultados(total, busca) : t.noGrid(total))}
         </p>
 
         <Link to="/comparar" className={styles.comparar}>
-          Comparar dois pilotos da temporada →
+          {t.comparar}
         </Link>
 
         {logado && <ImportarTemporada />}
 
         <form role="search" className={styles.busca} onSubmit={aplicarBusca}>
           <label htmlFor="busca" className="apenas-leitor">
-            Buscar por piloto ou equipe
+            {t.buscar}
           </label>
           <input
             ref={campoDeBusca}
             id="busca"
             type="search"
             className={styles.campoDeBusca}
-            placeholder="Buscar por piloto ou equipe"
+            placeholder={t.buscar}
             maxLength={100}
             value={texto}
             onChange={(evento) => setTexto(evento.target.value)}
@@ -124,13 +178,13 @@ export function PilotosPage() {
         </form>
 
         {equipes.data && equipes.data.length > 0 && (
-          <nav aria-label="Filtrar por equipe" className={styles.filtros}>
+          <nav aria-label={t.filtrar} className={styles.filtros}>
             <Link
               to="/pilotos"
               className={busca ? styles.filtro : styles.filtroAtivo}
               aria-current={busca ? undefined : 'page'}
             >
-              Todos
+              {t.todos}
             </Link>
             {equipes.data.map((equipe) => (
               <Link
@@ -149,7 +203,7 @@ export function PilotosPage() {
 
       {pilotos.isPending && (
         <div role="status">
-          <span className="apenas-leitor">Carregando pilotos…</span>
+          <span className="apenas-leitor">{t.carregando}</span>
           <ul className={styles.grade} aria-hidden="true">
             {Array.from({ length: 6 }, (_, indice) => (
               <li key={indice} className={styles.esqueleto} />
@@ -161,10 +215,10 @@ export function PilotosPage() {
       {pilotos.isError && (
         <Aviso
           tipo="erro"
-          titulo="Não foi possível carregar o grid"
+          titulo={t.erro}
           acao={
             <button type="button" className={botao.secundario} onClick={() => pilotos.refetch()}>
-              Tentar de novo
+              {comuns.tentarDeNovo}
             </button>
           }
         >
@@ -174,22 +228,20 @@ export function PilotosPage() {
 
       {pilotos.data && total === 0 && (
         <Aviso
-          titulo={busca ? 'Nenhum piloto encontrado' : 'O grid está vazio'}
+          titulo={busca ? t.nenhum : t.vazio}
           acao={
             busca ? (
               <Link to="/pilotos" className={botao.secundario}>
-                Limpar busca
+                {t.limpar}
               </Link>
             ) : (
               <Link to="/pilotos/novo" className={botao.primario}>
-                Cadastrar o primeiro piloto
+                {t.cadastrar}
               </Link>
             )
           }
         >
-          {busca
-            ? `Nada corresponde a “${busca}”. Confira a grafia ou busque pelo nome da equipe.`
-            : 'Cadastre um piloto para ele aparecer aqui.'}
+          {busca ? t.nada(busca) : t.cadastre}
         </Aviso>
       )}
 
@@ -198,7 +250,7 @@ export function PilotosPage() {
           <ul
             className={styles.grade}
             data-atualizando={pilotos.isPlaceholderData || undefined}
-            aria-label="Pilotos"
+            aria-label={t.pilotos}
           >
             {pilotos.data.itens.map((piloto) => (
               <li key={piloto.id}>
@@ -216,32 +268,28 @@ export function PilotosPage() {
           </ul>
 
           {pilotos.data.itens.some((piloto) => piloto.foto) && (
-            <p className={styles.creditoDasFotos}>
-              Fotos do Wikimedia Commons, com autor e licença na página de cada piloto.
-            </p>
+            <p className={styles.creditoDasFotos}>{t.creditos}</p>
           )}
 
           {paginas > 1 && (
-            <nav aria-label="Paginação" className={styles.paginacao}>
+            <nav aria-label={t.paginacao} className={styles.paginacao}>
               {pagina > 1 ? (
                 <Link
                   to={`/pilotos?${parametrosDe(busca, pagina - 1)}`}
                   className={botao.secundario}
                 >
-                  ← Anterior
+                  {t.anterior}
                 </Link>
               ) : (
                 <span />
               )}
-              <span className={styles.paginaAtual}>
-                Página {pagina} de {paginas}
-              </span>
+              <span className={styles.paginaAtual}>{t.pagina(pagina, paginas)}</span>
               {pagina < paginas ? (
                 <Link
                   to={`/pilotos?${parametrosDe(busca, pagina + 1)}`}
                   className={botao.secundario}
                 >
-                  Próxima →
+                  {t.proxima}
                 </Link>
               ) : (
                 <span />

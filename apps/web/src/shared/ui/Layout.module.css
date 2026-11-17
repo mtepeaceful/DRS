@@ -163,8 +163,16 @@
 
   .nav {
     order: 3;
-    width: 100%;
-    margin: 0 -12px;
+    flex: 1 1 60%;
+    min-width: 0;
+    margin: 0 0 0 -12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .acao,
+  .sessao {
+    order: 4;
   }
 
   .inicio {

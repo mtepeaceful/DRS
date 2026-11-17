@@ -15,19 +15,78 @@ import { temporadaHistorica } from './api';
 import { pontos } from './numeros';
 import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './TemporadaHistoricaPage.module.css';
+import { porIdioma, useTextos } from '../../shared/i18n/idioma';
+
+const TEXTOS = {
+  pt: {
+    classificacaoDePilotos: 'Classificação de pilotos',
+    piloto: 'Piloto',
+    vit: 'Vit',
+    construtores: 'Construtores',
+    soEm: (ano: number) => `O campeonato de construtores só começou em ${ano}.`,
+    semConstrutores: 'Sem classificação de construtores para esta temporada.',
+    equipe: 'Equipe',
+    corridas: 'Corridas',
+    vencedor: 'Vencedor: ',
+    semResultado: 'Sem resultado registrado',
+    historia: '← História',
+    carregando: 'Carregando a temporada…',
+    foraDoHistorico: 'Temporada fora do histórico',
+    erro: 'Não foi possível carregar a temporada',
+    voltar: 'Voltar à história',
+    escolha: (ultimo: number) =>
+      `Escolha um ano entre 1950 e ${ultimo}. A temporada atual fica no calendário.`,
+    temporada: 'Temporada',
+    nCorridas: (n: number) => `${n} ${n === 1 ? 'corrida' : 'corridas'}`,
+    campeao: (pts: string, vitorias: number) =>
+      `Campeão com ${pts} pontos e ${vitorias} ${vitorias === 1 ? 'vitória' : 'vitórias'}`,
+    construtoresDoAno: 'Construtores',
+    outras: 'Outras temporadas',
+  },
+  en: {
+    classificacaoDePilotos: 'Drivers’ standings',
+    piloto: 'Driver',
+    vit: 'W',
+    construtores: 'Constructors',
+    soEm: (ano: number) => `The constructors’ championship only started in ${ano}.`,
+    semConstrutores: 'No constructors’ standings for this season.',
+    equipe: 'Team',
+    corridas: 'Races',
+    vencedor: 'Winner: ',
+    semResultado: 'No result on record',
+    historia: '← History',
+    carregando: 'Loading the season…',
+    foraDoHistorico: 'Season outside the archive',
+    erro: 'Could not load the season',
+    voltar: 'Back to history',
+    escolha: (ultimo: number) =>
+      `Pick a year between 1950 and ${ultimo}. The current season is on the calendar.`,
+    temporada: 'Season',
+    nCorridas: (n: number) => `${n} ${n === 1 ? 'race' : 'races'}`,
+    campeao: (pts: string, vitorias: number) =>
+      `Champion with ${pts} points and ${vitorias} ${vitorias === 1 ? 'win' : 'wins'}`,
+    construtoresDoAno: 'Constructors',
+    outras: 'Other seasons',
+  },
+};
 
 const PRIMEIRO_CAMPEONATO_DE_CONSTRUTORES = 1958;
-const dataCurta = new Intl.DateTimeFormat('pt-BR', {
-  day: '2-digit',
-  month: 'short',
-  timeZone: 'UTC',
-});
+const dataCurta = porIdioma(
+  (locale) =>
+    new Intl.DateTimeFormat(locale, {
+      day: '2-digit',
+      month: 'short',
+      timeZone: 'UTC',
+    }),
+);
 
 function Pilotos({ pilotos }: { pilotos: TemporadaHistoricaDTO['pilotos'] }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section className={styles.cartao} aria-labelledby="pilotos">
       <h2 id="pilotos" className={styles.tituloDoCartao}>
-        Classificação de pilotos
+        {t.classificacaoDePilotos}
       </h2>
       <table className={styles.tabela}>
         <thead>
@@ -35,9 +94,9 @@ function Pilotos({ pilotos }: { pilotos: TemporadaHistoricaDTO['pilotos'] }) {
             <th scope="col" className={styles.numero}>
               Pos
             </th>
-            <th scope="col">Piloto</th>
+            <th scope="col">{t.piloto}</th>
             <th scope="col" className={styles.numero}>
-              Vit
+              {t.vit}
             </th>
             <th scope="col" className={styles.numero}>
               Pts
@@ -74,16 +133,18 @@ function Construtores({
   ano: number;
   construtores: TemporadaHistoricaDTO['construtores'];
 }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section className={styles.cartao} aria-labelledby="construtores">
       <h2 id="construtores" className={styles.tituloDoCartao}>
-        Construtores
+        {t.construtores}
       </h2>
       {construtores.length === 0 ? (
         <p className={styles.detalhe}>
           {ano < PRIMEIRO_CAMPEONATO_DE_CONSTRUTORES
-            ? `O campeonato de construtores só começou em ${PRIMEIRO_CAMPEONATO_DE_CONSTRUTORES}.`
-            : 'Sem classificação de construtores para esta temporada.'}
+            ? t.soEm(PRIMEIRO_CAMPEONATO_DE_CONSTRUTORES)
+            : t.semConstrutores}
         </p>
       ) : (
         <table className={styles.tabela}>
@@ -92,9 +153,9 @@ function Construtores({
               <th scope="col" className={styles.numero}>
                 Pos
               </th>
-              <th scope="col">Equipe</th>
+              <th scope="col">{t.equipe}</th>
               <th scope="col" className={styles.numero}>
-                Vit
+                {t.vit}
               </th>
               <th scope="col" className={styles.numero}>
                 Pts
@@ -120,17 +181,19 @@ function Construtores({
 }
 
 function Corridas({ corridas }: { corridas: TemporadaHistoricaDTO['corridas'] }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <section className={styles.cartao} aria-labelledby="corridas">
       <h2 id="corridas" className={styles.tituloDoCartao}>
-        Corridas
+        {t.corridas}
       </h2>
       <ol className={styles.corridas}>
         {corridas.map((corrida) => (
           <li key={corrida.rodada} className={styles.corrida}>
             <span className={styles.rodada}>{String(corrida.rodada).padStart(2, '0')}</span>
             <time dateTime={corrida.data} className={styles.data}>
-              {dataCurta.format(new Date(corrida.data)).replace('.', '')}
+              {dataCurta().format(new Date(corrida.data)).replace('.', '')}
             </time>
             <span className={styles.gp}>
               <span className={styles.comBandeira}>
@@ -147,12 +210,12 @@ function Corridas({ corridas }: { corridas: TemporadaHistoricaDTO['corridas'] })
             <span className={styles.vencedor}>
               {corrida.vencedor ? (
                 <>
-                  <span className="apenas-leitor">Vencedor: </span>
+                  <span className="apenas-leitor">{t.vencedor}</span>
                   <NomeDoPiloto nome={corrida.vencedor.nome} />
                   <span className={styles.detalhe}>{nomeDaEquipe(corrida.vencedor.equipe)}</span>
                 </>
               ) : (
-                <span className={styles.detalhe}>Sem resultado registrado</span>
+                <span className={styles.detalhe}>{t.semResultado}</span>
               )}
             </span>
           </li>
@@ -167,10 +230,11 @@ export function TemporadaHistoricaPage() {
   const temporada = useQuery(temporadaHistorica(ano));
   const numero = Number(ano);
   const ultimoAno = new Date().getFullYear() - 1;
+  const t = useTextos(TEXTOS);
 
   const voltar = (
     <Link to="/historia" className={styles.voltar} viewTransition>
-      ← História
+      {t.historia}
     </Link>
   );
 
@@ -179,7 +243,7 @@ export function TemporadaHistoricaPage() {
       <>
         {voltar}
         <div className={styles.esqueleto} role="status">
-          <span className="apenas-leitor">Carregando a temporada…</span>
+          <span className="apenas-leitor">{t.carregando}</span>
         </div>
       </>
     );
@@ -192,18 +256,14 @@ export function TemporadaHistoricaPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo={
-          inexistente ? 'Temporada fora do histórico' : 'Não foi possível carregar a temporada'
-        }
+        titulo={inexistente ? t.foraDoHistorico : t.erro}
         acao={
           <Link to="/historia" className={botao.secundario}>
-            Voltar à história
+            {t.voltar}
           </Link>
         }
       >
-        {inexistente
-          ? `Escolha um ano entre 1950 e ${ultimoAno}. A temporada atual fica no calendário.`
-          : mensagemDoErro(temporada.error)}
+        {inexistente ? t.escolha(ultimoAno) : mensagemDoErro(temporada.error)}
       </Aviso>
     );
   }
@@ -214,12 +274,12 @@ export function TemporadaHistoricaPage() {
 
   return (
     <>
-      <title>{`Temporada ${ano} · DRS`}</title>
+      <title>{`${t.temporada} ${ano} · DRS`}</title>
       {voltar}
 
       <header className={styles.destaque}>
         <p className={styles.sobretitulo}>
-          Temporada {ano} · {corridas.length} {corridas.length === 1 ? 'corrida' : 'corridas'}
+          {t.temporada} {ano} · {t.nCorridas(corridas.length)}
         </p>
         {campeao && (
           <h1 className={styles.titulo}>
@@ -230,11 +290,15 @@ export function TemporadaHistoricaPage() {
           </h1>
         )}
         <p className={styles.resumo}>
-          Campeão com {pontos(campeao?.pontos ?? 0)} pontos e {campeao?.vitorias ?? 0}{' '}
-          {campeao?.vitorias === 1 ? 'vitória' : 'vitórias'}
-          {equipeCampea && <>. Construtores: {nomeDaEquipe(equipeCampea.nome)}</>}.
+          {t.campeao(pontos(campeao?.pontos ?? 0), campeao?.vitorias ?? 0)}
+          {equipeCampea && (
+            <>
+              . {t.construtoresDoAno}: {nomeDaEquipe(equipeCampea.nome)}
+            </>
+          )}
+          .
         </p>
-        <nav aria-label="Outras temporadas" className={styles.vizinhas}>
+        <nav aria-label={t.outras} className={styles.vizinhas}>
           {numero > 1950 ? (
             <Link to={`/historia/${numero - 1}`} className={botao.secundario}>
               ← {numero - 1}

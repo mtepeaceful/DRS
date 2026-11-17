@@ -1,5 +1,6 @@
 import type { Pintura } from './cena';
 import styles from './GaragemPage.module.css';
+import { idiomaAtual } from '../../shared/i18n/idioma';
 
 export function CarroIlustrado({
   cor,
@@ -12,7 +13,11 @@ export function CarroIlustrado({
       className={styles.ilustracao}
       viewBox="0 0 560 220"
       role="img"
-      aria-label={`Carro número ${numero} visto de lado`}
+      aria-label={
+        idiomaAtual() === 'en'
+          ? `Car number ${numero} seen from the side`
+          : `Carro número ${numero} visto de lado`
+      }
     >
       <ellipse cx="280" cy="196" rx="250" ry="10" fill="#000" opacity="0.45" />
       <path

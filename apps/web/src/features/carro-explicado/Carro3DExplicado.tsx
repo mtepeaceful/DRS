@@ -1,7 +1,13 @@
 import { useEffect, useRef } from 'react';
 import type { Garagem } from '../garagem/cena';
 import styles from './CarroExplicadoPage.module.css';
-import { PECAS } from './pecas';
+import { useTextos } from '../../shared/i18n/idioma';
+import { PECAS, pecasNoIdioma } from './pecas';
+
+const TEXTOS = {
+  pt: { rotulo: 'Carro de F1 em 3D. Arraste para girar e escolha uma peça para ver a explicação.' },
+  en: { rotulo: 'F1 car in 3D. Drag to rotate and pick a part to see what it does.' },
+};
 
 const PINTURA = { cor: '#d81500', corSecundaria: '#f1f2f5', numero: 1 };
 
@@ -14,6 +20,7 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
   const recipiente = useRef<HTMLDivElement>(null);
   const garagem = useRef<Garagem | null>(null);
   const marcadores = useRef(new Map<string, HTMLButtonElement>());
+  const t = useTextos(TEXTOS);
 
   useEffect(() => {
     let cancelado = false;
@@ -62,13 +69,8 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
 
   return (
     <div className={styles.palco}>
-      <div
-        ref={recipiente}
-        className={styles.cena}
-        role="img"
-        aria-label="Carro de F1 em 3D. Arraste para girar e escolha uma peça para ver a explicação."
-      />
-      {PECAS.map((peca, indice) => (
+      <div ref={recipiente} className={styles.cena} role="img" aria-label={t.rotulo} />
+      {pecasNoIdioma().map((peca, indice) => (
         <button
           key={peca.id}
           ref={(elemento) => {

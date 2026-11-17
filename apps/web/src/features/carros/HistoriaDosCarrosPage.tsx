@@ -1,26 +1,48 @@
 import { Link } from 'react-router';
+import { useTextos } from '../../shared/i18n/idioma';
 import { useRolarAteAncora } from '../../shared/lib/useRolarAteAncora';
-import { TERMOS } from '../glossario/termos';
-import { ERAS } from './eras';
+import { nomeDoTermo } from '../glossario/noIdioma';
+import { erasNoIdioma } from './eras.en';
 import styles from './HistoriaDosCarrosPage.module.css';
 
-const NOME_DO_TERMO = new Map(TERMOS.map((termo) => [termo.id, termo.nome]));
+const TEXTOS = {
+  pt: {
+    titulo: 'História dos carros da F1',
+    evolucao: 'A evolução dos carros',
+    resumo:
+      'Do Alfa Romeo de 1950 à aerodinâmica ativa de 2026: as eras da Fórmula 1, o que mudou em cada uma e os carros que marcaram época.',
+    eras: 'Eras',
+    oQueMudou: 'O que mudou',
+    marcaram: 'Carros que marcaram',
+    noGlossario: 'No glossário:',
+  },
+  en: {
+    titulo: 'History of F1 cars',
+    evolucao: 'How the cars evolved',
+    resumo:
+      'From the 1950 Alfa Romeo to the active aerodynamics of 2026: the eras of Formula 1, what changed in each one and the cars that defined them.',
+    eras: 'Eras',
+    oQueMudou: 'What changed',
+    marcaram: 'Landmark cars',
+    noGlossario: 'In the glossary:',
+  },
+};
 
 export function HistoriaDosCarrosPage() {
+  const t = useTextos(TEXTOS);
+  const eras = erasNoIdioma();
+
   useRolarAteAncora();
 
   return (
     <>
-      <title>História dos carros da F1 · DRS</title>
+      <title>{`${t.titulo} · DRS`}</title>
 
       <header className={styles.topo}>
-        <h1 className={styles.titulo}>A evolução dos carros</h1>
-        <p className={styles.resumo}>
-          Do Alfa Romeo de 1950 à aerodinâmica ativa de 2026: as eras da Fórmula 1, o que mudou em
-          cada uma e os carros que marcaram época.
-        </p>
-        <nav aria-label="Eras" className={styles.eras}>
-          {ERAS.map((era) => (
+        <h1 className={styles.titulo}>{t.evolucao}</h1>
+        <p className={styles.resumo}>{t.resumo}</p>
+        <nav aria-label={t.eras} className={styles.eras}>
+          {eras.map((era) => (
             <a key={era.id} href={`#${era.id}`} className={styles.atalho}>
               <span className={styles.periodoCurto}>{era.periodo}</span>
               {era.nome}
@@ -30,13 +52,13 @@ export function HistoriaDosCarrosPage() {
       </header>
 
       <ol className={styles.linhaDoTempo}>
-        {ERAS.map((era) => (
+        {eras.map((era) => (
           <li key={era.id} id={era.id} tabIndex={-1} className={styles.era}>
             <span className={styles.periodo}>{era.periodo}</span>
             <h2 className={styles.nome}>{era.nome}</h2>
             <p className={styles.texto}>{era.resumo}</p>
 
-            <h3 className={styles.subtitulo}>O que mudou</h3>
+            <h3 className={styles.subtitulo}>{t.oQueMudou}</h3>
             <ul className={styles.mudancas}>
               {era.mudancas.map((mudanca) => (
                 <li key={mudanca}>{mudanca}</li>
@@ -45,7 +67,7 @@ export function HistoriaDosCarrosPage() {
 
             {era.marcos.length > 0 && (
               <>
-                <h3 className={styles.subtitulo}>Carros que marcaram</h3>
+                <h3 className={styles.subtitulo}>{t.marcaram}</h3>
                 <ul className={styles.marcos}>
                   {era.marcos.map((marco) => (
                     <li key={marco.carro} className={styles.marco}>
@@ -62,11 +84,11 @@ export function HistoriaDosCarrosPage() {
 
             {era.termos.length > 0 && (
               <p className={styles.termos}>
-                No glossário:{' '}
+                {t.noGlossario}{' '}
                 {era.termos.map((id, indice) => (
                   <span key={id}>
                     {indice > 0 && ', '}
-                    <Link to={`/glossario#${id}`}>{NOME_DO_TERMO.get(id) ?? id}</Link>
+                    <Link to={`/glossario#${id}`}>{nomeDoTermo(id) ?? id}</Link>
                   </span>
                 ))}
               </p>

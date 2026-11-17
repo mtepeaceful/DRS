@@ -1,5 +1,13 @@
 import { type KeyboardEvent, type PointerEvent, useEffect, useRef, useState } from 'react';
+import { useTextos } from '../../shared/i18n/idioma';
 import styles from './GraficoDePontos.module.css';
+
+const TEXTOS = {
+  pt: { rotulo: 'Pontos acumulados por etapa. Use as setas para percorrer as etapas.' },
+  en: {
+    rotulo: 'Points over the season, round by round. Use the arrow keys to move between rounds.',
+  },
+};
 
 export interface Serie {
   nome: string;
@@ -53,6 +61,7 @@ function useLargura<Elemento extends HTMLElement>() {
 
 export function GraficoDePontos({ series, nomeDaEtapa }: Props) {
   const [ref, largura] = useLargura<HTMLDivElement>();
+  const t = useTextos(TEXTOS);
   const [ativa, setAtiva] = useState<number | null>(null);
   const etapas = series[0].valores.length;
   const { topo, marcas } = escalaY(Math.max(...series.flatMap((serie) => serie.valores)));
@@ -107,7 +116,7 @@ export function GraficoDePontos({ series, nomeDaEtapa }: Props) {
       className={styles.grafico}
       tabIndex={0}
       role="group"
-      aria-label="Pontos acumulados por etapa. Use as setas para percorrer as etapas."
+      aria-label={t.rotulo}
       onKeyDown={navegar}
       onBlur={() => setAtiva(null)}
     >

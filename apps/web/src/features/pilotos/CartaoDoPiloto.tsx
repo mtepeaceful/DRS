@@ -28,6 +28,12 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto
         {numeroValido ? numero : '–'}
       </span>
 
+      {foto && quebrada === foto.url && (
+        <span className={styles.semRetrato} aria-hidden="true">
+          {numeroValido ? numero : '–'}
+        </span>
+      )}
+
       {foto && quebrada !== foto.url && (
         <img
           src={foto.url}

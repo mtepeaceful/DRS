@@ -5,6 +5,8 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { rotas } from './app/rotas';
 import { queryClient } from './shared/api/query-client';
+import '@fontsource-variable/manrope';
+import '@fontsource-variable/orbitron';
 import './styles/global.css';
 
 usarMensagensEmPortugues();

@@ -11,10 +11,49 @@ import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { CORES_NEUTRAS } from '../calendario/cores';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
+import { COMUNS } from '../../shared/i18n/comuns';
+import { useTextos } from '../../shared/i18n/idioma';
 import { equipesDaHistoria } from './api';
 import styles from './EquipesPage.module.css';
 
+const TEXTOS = {
+  pt: {
+    construtores: (n: number) => `${n} ${n === 1 ? 'título' : 'títulos'} de construtores`,
+    pilotos: (n: number) => `${n} ${n === 1 ? 'título' : 'títulos'} de pilotos`,
+    carregando: '{t.carregando}',
+    erro: 'Não foi possível carregar as equipes',
+    titulo: 'Equipes',
+    resumo: (n: number) =>
+      `As ${n} equipes que já correram na Fórmula 1 desde 1950, das que estão no grid às que viraram história.`,
+    gerenciar: 'Gerenciar as cores das equipes do grid →',
+    noGrid: (ano: number) => `No grid em ${ano}`,
+    todas: 'Todas as equipes',
+    buscar: 'Buscar equipe',
+    exemplo: 'Buscar equipe, como Lotus ou Brabham',
+    campeas: 'Só as campeãs',
+    contagem: (n: number) => `${n} ${n === 1 ? 'equipe' : 'equipes'}`,
+  },
+  en: {
+    construtores: (n: number) => `${n} constructors’ ${n === 1 ? 'title' : 'titles'}`,
+    pilotos: (n: number) => `${n} drivers’ ${n === 1 ? 'title' : 'titles'}`,
+    carregando: 'Loading the teams…',
+    erro: 'Could not load the teams',
+    titulo: 'Teams',
+    resumo: (n: number) =>
+      `The ${n} teams that have raced in Formula 1 since 1950, from those on the grid to those now in the history books.`,
+    gerenciar: 'Manage the colours of the teams on the grid →',
+    noGrid: (ano: number) => `On the ${ano} grid`,
+    todas: 'All teams',
+    buscar: 'Search for a team',
+    exemplo: 'Search for a team, like Lotus or Brabham',
+    campeas: 'Champions only',
+    contagem: (n: number) => `${n} ${n === 1 ? 'team' : 'teams'}`,
+  },
+};
+
 function Titulos({ equipe }: { equipe: ResumoDaEquipeDTO }) {
+  const t = useTextos(TEXTOS);
+
   if (equipe.titulosDeConstrutores === 0 && equipe.titulosDePilotos === 0) {
     return null;
   }
@@ -22,16 +61,10 @@ function Titulos({ equipe }: { equipe: ResumoDaEquipeDTO }) {
   return (
     <span className={styles.titulos}>
       {equipe.titulosDeConstrutores > 0 && (
-        <span className={styles.selo}>
-          {equipe.titulosDeConstrutores} {equipe.titulosDeConstrutores === 1 ? 'título' : 'títulos'}{' '}
-          de construtores
-        </span>
+        <span className={styles.selo}>{t.construtores(equipe.titulosDeConstrutores)}</span>
       )}
       {equipe.titulosDePilotos > 0 && (
-        <span className={styles.selo}>
-          {equipe.titulosDePilotos} {equipe.titulosDePilotos === 1 ? 'título' : 'títulos'} de
-          pilotos
-        </span>
+        <span className={styles.selo}>{t.pilotos(equipe.titulosDePilotos)}</span>
       )}
     </span>
   );
@@ -43,11 +76,13 @@ export function EquipesPage() {
   const [busca, setBusca] = useState('');
   const [soCampeas, setSoCampeas] = useState(false);
   const termo = semAcento(useDeferredValue(busca).trim());
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
 
   if (equipes.isPending) {
     return (
       <div className={styles.esqueleto} role="status">
-        <span className="apenas-leitor">Carregando as equipes…</span>
+        <span className="apenas-leitor">{t.carregando}</span>
       </div>
     );
   }
@@ -56,10 +91,10 @@ export function EquipesPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo="Não foi possível carregar as equipes"
+        titulo={t.erro}
         acao={
           <button type="button" className={botao.secundario} onClick={() => equipes.refetch()}>
-            Tentar de novo
+            {comuns.tentarDeNovo}
           </button>
         }
       >
@@ -77,17 +112,14 @@ export function EquipesPage() {
 
   return (
     <>
-      <title>Equipes · DRS</title>
+      <title>{`${t.titulo} · DRS`}</title>
 
       <header className={styles.topo}>
-        <h1 className={styles.titulo}>Equipes</h1>
-        <p className={styles.resumo}>
-          As {equipes.data.length} equipes que já correram na Fórmula 1 desde 1950, das que estão no
-          grid às que viraram história.
-        </p>
+        <h1 className={styles.titulo}>{t.titulo}</h1>
+        <p className={styles.resumo}>{t.resumo(equipes.data.length)}</p>
         {logado && (
           <Link to="/equipes/gerenciar" className={styles.gerenciar}>
-            Gerenciar as cores das equipes do grid →
+            {t.gerenciar}
           </Link>
         )}
       </header>
@@ -95,7 +127,7 @@ export function EquipesPage() {
       {gridAtual.length > 0 && (
         <section aria-labelledby="grid-atual" className={styles.secao}>
           <h2 id="grid-atual" className={styles.tituloDaSecao}>
-            No grid em {new Date().getFullYear()}
+            {t.noGrid(new Date().getFullYear())}
           </h2>
           <ul className={styles.grid}>
             {gridAtual.map((equipe) => (
@@ -115,17 +147,17 @@ export function EquipesPage() {
 
       <section aria-labelledby="todas" className={styles.secao}>
         <h2 id="todas" className={styles.tituloDaSecao}>
-          Todas as equipes
+          {t.todas}
         </h2>
         <div className={styles.filtros}>
           <label htmlFor="busca-de-equipe" className="apenas-leitor">
-            Buscar equipe
+            {t.buscar}
           </label>
           <input
             id="busca-de-equipe"
             type="search"
             className={styles.busca}
-            placeholder="Buscar equipe, como Lotus ou Brabham"
+            placeholder={t.exemplo}
             maxLength={60}
             value={busca}
             onChange={(evento) => setBusca(evento.target.value)}
@@ -136,11 +168,11 @@ export function EquipesPage() {
               checked={soCampeas}
               onChange={(evento) => setSoCampeas(evento.target.checked)}
             />
-            Só as campeãs
+            {t.campeas}
           </label>
         </div>
         <p className={styles.contagem} aria-live="polite">
-          {encontradas.length} {encontradas.length === 1 ? 'equipe' : 'equipes'}
+          {t.contagem(encontradas.length)}
         </p>
         <ul className={styles.lista}>
           {encontradas.map((equipe) => (

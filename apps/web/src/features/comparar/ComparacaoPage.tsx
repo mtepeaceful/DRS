@@ -12,7 +12,8 @@ import { desempenhoDaTemporada } from './api';
 import { confronto, type Placar, pontosAcumulados } from './comparacao';
 import styles from './ComparacaoPage.module.css';
 import { GraficoDePontos } from './GraficoDePontos';
-import { porIdioma } from '../../shared/i18n/idioma';
+import { COMUNS } from '../../shared/i18n/comuns';
+import { idiomaAtual, porIdioma, useTextos } from '../../shared/i18n/idioma';
 
 const COR_A = 'var(--cor-piloto-a)';
 const COR_B = 'var(--cor-piloto-b)';
@@ -29,34 +30,95 @@ interface Metrica {
   semVencedor?: boolean;
 }
 
-const ordinal = (valor: number) => `${decimal().format(valor)}º`;
+const TEXTOS = {
+  pt: {
+    posicao: 'Posição no campeonato',
+    pontos: 'Pontos',
+    vitorias: 'Vitórias',
+    podios: 'Pódios',
+    poles: 'Largadas na pole',
+    melhor: 'Melhor resultado',
+    media: 'Média de chegada',
+    abandonos: 'Abandonos',
+    corridas: 'Corridas disputadas',
+    numeros: 'Números da temporada',
+    estatistica: 'Estatística',
+    carregando: '{t.carregando}',
+    erro: 'Não foi possível carregar a temporada',
+    semCorridas: 'Ainda não há corridas para comparar',
+    verCalendario: 'Ver o calendário',
+    aparece: 'A comparação aparece assim que a primeira corrida da temporada terminar.',
+    etapa: (rodada: number) => `Etapa ${rodada}`,
+    titulo: 'Comparar pilotos',
+    resumo: (ano: number, n: number) =>
+      `Temporada ${ano}, depois de ${n} ${n === 1 ? 'etapa' : 'etapas'}.`,
+    comparados: 'Pilotos comparados',
+    pilotoA: 'Piloto A',
+    pilotoB: 'Piloto B',
+    trocar: 'Trocar os lados',
+    frente: 'Frente a frente',
+    quem: 'Quem terminou à frente nas etapas que os dois disputaram.',
+    naCorrida: 'Na corrida',
+    noGrid: 'No grid de largada',
+    acumulados: 'Pontos acumulados',
+    legenda: 'Legenda',
+    tabela: 'Ver os dados em tabela',
+    coluna: 'Etapa',
+  },
+  en: {
+    posicao: 'Championship position',
+    pontos: 'Points',
+    vitorias: 'Wins',
+    podios: 'Podiums',
+    poles: 'Pole positions',
+    melhor: 'Best result',
+    media: 'Average finish',
+    abandonos: 'Retirements',
+    corridas: 'Races started',
+    numeros: 'Season numbers',
+    estatistica: 'Statistic',
+    carregando: 'Loading the season…',
+    erro: 'Could not load the season',
+    semCorridas: 'No races to compare yet',
+    verCalendario: 'See the calendar',
+    aparece: 'The comparison shows up as soon as the first race of the season is over.',
+    etapa: (rodada: number) => `Round ${rodada}`,
+    titulo: 'Compare drivers',
+    resumo: (ano: number, n: number) =>
+      `${ano} season, after ${n} ${n === 1 ? 'round' : 'rounds'}.`,
+    comparados: 'Drivers compared',
+    pilotoA: 'Driver A',
+    pilotoB: 'Driver B',
+    trocar: 'Swap sides',
+    frente: 'Head to head',
+    quem: 'Who finished ahead in the rounds both of them took part in.',
+    naCorrida: 'In the race',
+    noGrid: 'On the starting grid',
+    acumulados: 'Points over the season',
+    legenda: 'Legend',
+    tabela: 'See the data as a table',
+    coluna: 'Round',
+  },
+};
 
-const METRICAS: Metrica[] = [
-  {
-    rotulo: 'Posição no campeonato',
-    valor: (p) => p.posicao,
-    formatar: ordinal,
-    menorEhMelhor: true,
-  },
-  { rotulo: 'Pontos', valor: (p) => p.pontos },
-  { rotulo: 'Vitórias', valor: (p) => p.vitorias },
-  { rotulo: 'Pódios', valor: (p) => p.podios },
-  { rotulo: 'Largadas na pole', valor: (p) => p.poles },
-  {
-    rotulo: 'Melhor resultado',
-    valor: (p) => p.melhorResultado,
-    formatar: ordinal,
-    menorEhMelhor: true,
-  },
-  {
-    rotulo: 'Média de chegada',
-    valor: (p) => p.mediaDeChegada,
-    formatar: ordinal,
-    menorEhMelhor: true,
-  },
-  { rotulo: 'Abandonos', valor: (p) => p.abandonos, menorEhMelhor: true },
-  { rotulo: 'Corridas disputadas', valor: (p) => p.corridas, semVencedor: true },
-];
+const ordinal = (valor: number) =>
+  idiomaAtual() === 'en' ? `P${decimal().format(valor)}` : `${decimal().format(valor)}º`;
+
+function metricas(): Metrica[] {
+  const t = TEXTOS[idiomaAtual()];
+
+  return [
+    { rotulo: t.posicao, valor: (p) => p.posicao, formatar: ordinal, menorEhMelhor: true },
+    { rotulo: t.pontos, valor: (p) => p.pontos },
+    { rotulo: t.vitorias, valor: (p) => p.vitorias },
+    { rotulo: t.podios, valor: (p) => p.podios },
+    { rotulo: t.poles, valor: (p) => p.poles },
+    { rotulo: t.melhor, valor: (p) => p.melhorResultado, formatar: ordinal, menorEhMelhor: true },
+    { rotulo: t.media, valor: (p) => p.mediaDeChegada, formatar: ordinal, menorEhMelhor: true },
+    { rotulo: t.abandonos, valor: (p) => p.abandonos, menorEhMelhor: true },
+    { rotulo: t.corridas, valor: (p) => p.corridas, semVencedor: true },
+  ];
+}
 
 function vencedor(metrica: Metrica, a: Piloto, b: Piloto) {
   const va = metrica.valor(a);
@@ -153,18 +215,20 @@ function Duelo({
 }
 
 function Numeros({ a, b }: { a: Piloto; b: Piloto }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <table className={styles.numeros}>
-      <caption className="apenas-leitor">Números da temporada</caption>
+      <caption className="apenas-leitor">{t.numeros}</caption>
       <thead className="apenas-leitor">
         <tr>
           <th scope="col">{a.nome}</th>
-          <th scope="col">Estatística</th>
+          <th scope="col">{t.estatistica}</th>
           <th scope="col">{b.nome}</th>
         </tr>
       </thead>
       <tbody>
-        {METRICAS.map((metrica) => {
+        {metricas().map((metrica) => {
           const melhor = vencedor(metrica, a, b);
           const exibir = (piloto: Piloto) => {
             const valor = metrica.valor(piloto);
@@ -193,11 +257,13 @@ export function ComparacaoPage() {
   const [parametros, setParametros] = useSearchParams();
   const desempenho = useQuery(desempenhoDaTemporada);
   const etapas = useQuery(calendario);
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
 
   if (desempenho.isPending) {
     return (
       <div className={styles.esqueleto} role="status">
-        <span className="apenas-leitor">Carregando a temporada…</span>
+        <span className="apenas-leitor">{t.carregando}</span>
       </div>
     );
   }
@@ -206,10 +272,10 @@ export function ComparacaoPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo="Não foi possível carregar a temporada"
+        titulo={t.erro}
         acao={
           <button type="button" className={botao.secundario} onClick={() => desempenho.refetch()}>
-            Tentar de novo
+            {comuns.tentarDeNovo}
           </button>
         }
       >
@@ -223,14 +289,14 @@ export function ComparacaoPage() {
   if (pilotos.length < 2) {
     return (
       <Aviso
-        titulo="Ainda não há corridas para comparar"
+        titulo={t.semCorridas}
         acao={
           <Link to="/calendario" className={botao.secundario}>
-            Ver o calendário
+            {t.verCalendario}
           </Link>
         }
       >
-        A comparação aparece assim que a primeira corrida da temporada terminar.
+        {t.aparece}
       </Aviso>
     );
   }
@@ -243,7 +309,7 @@ export function ComparacaoPage() {
     ) ?? a;
   const { corridas, largadas } = confronto(a, b);
   const nomesDasEtapas = new Map(etapas.data?.map((etapa) => [etapa.rodada, nomeDoGp(etapa.nome)]));
-  const nomeDaEtapa = (rodada: number) => nomesDasEtapas.get(rodada) ?? `Etapa ${rodada}`;
+  const nomeDaEtapa = (rodada: number) => nomesDasEtapas.get(rodada) ?? t.etapa(rodada);
   const pontosA = pontosAcumulados(a, rodadasDisputadas);
   const pontosB = pontosAcumulados(b, rodadasDisputadas);
 
@@ -256,16 +322,13 @@ export function ComparacaoPage() {
       <title>{`${a.nome} x ${b.nome} · DRS`}</title>
 
       <header className={styles.topo}>
-        <h1 className={styles.titulo}>Comparar pilotos</h1>
-        <p className={styles.resumo}>
-          Temporada {ano}, depois de {rodadasDisputadas}{' '}
-          {rodadasDisputadas === 1 ? 'etapa' : 'etapas'}.
-        </p>
+        <h1 className={styles.titulo}>{t.titulo}</h1>
+        <p className={styles.resumo}>{t.resumo(ano, rodadasDisputadas)}</p>
       </header>
 
-      <section className={styles.escolhas} aria-label="Pilotos comparados">
+      <section className={styles.escolhas} aria-label={t.comparados}>
         <Escolha
-          rotulo="Piloto A"
+          rotulo={t.pilotoA}
           cor={COR_A}
           piloto={a}
           pilotos={pilotos}
@@ -278,10 +341,10 @@ export function ComparacaoPage() {
           onClick={() => setParametros({ a: b.nome, b: a.nome }, { replace: true })}
         >
           <span aria-hidden="true">⇄</span>
-          <span className="apenas-leitor">Trocar os lados</span>
+          <span className="apenas-leitor">{t.trocar}</span>
         </button>
         <Escolha
-          rotulo="Piloto B"
+          rotulo={t.pilotoB}
           cor={COR_B}
           piloto={b}
           pilotos={pilotos}
@@ -292,25 +355,25 @@ export function ComparacaoPage() {
 
       <section className={styles.cartao} aria-labelledby="frente-a-frente">
         <h2 id="frente-a-frente" className={styles.tituloDoCartao}>
-          Frente a frente
+          {t.frente}
         </h2>
-        <p className={styles.detalhe}>Quem terminou à frente nas etapas que os dois disputaram.</p>
-        <Duelo titulo="Na corrida" placar={corridas} nomeA={a.nome} nomeB={b.nome} />
-        <Duelo titulo="No grid de largada" placar={largadas} nomeA={a.nome} nomeB={b.nome} />
+        <p className={styles.detalhe}>{t.quem}</p>
+        <Duelo titulo={t.naCorrida} placar={corridas} nomeA={a.nome} nomeB={b.nome} />
+        <Duelo titulo={t.noGrid} placar={largadas} nomeA={a.nome} nomeB={b.nome} />
       </section>
 
       <section className={styles.cartao} aria-labelledby="numeros">
         <h2 id="numeros" className={styles.tituloDoCartao}>
-          Números da temporada
+          {t.numeros}
         </h2>
         <Numeros a={a} b={b} />
       </section>
 
       <section className={styles.cartao} aria-labelledby="pontos">
         <h2 id="pontos" className={styles.tituloDoCartao}>
-          Pontos acumulados
+          {t.acumulados}
         </h2>
-        <ul className={styles.legenda} aria-label="Legenda">
+        <ul className={styles.legenda} aria-label={t.legenda}>
           {[
             { nome: a.nome, cor: COR_A },
             { nome: b.nome, cor: COR_B },
@@ -329,11 +392,11 @@ export function ComparacaoPage() {
           nomeDaEtapa={nomeDaEtapa}
         />
         <details className={styles.tabela}>
-          <summary>Ver os dados em tabela</summary>
+          <summary>{t.tabela}</summary>
           <table>
             <thead>
               <tr>
-                <th scope="col">Etapa</th>
+                <th scope="col">{t.coluna}</th>
                 <th scope="col">{a.nome}</th>
                 <th scope="col">{b.nome}</th>
               </tr>

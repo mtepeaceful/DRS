@@ -1,22 +1,49 @@
 import { useDeferredValue, useState } from 'react';
 import { Link } from 'react-router';
+import { localeDo, useIdioma, useTextos } from '../../shared/i18n/idioma';
 import { semAcento } from '../../shared/lib/texto';
 import { useRolarAteAncora } from '../../shared/lib/useRolarAteAncora';
 import chip from '../../shared/ui/chip.module.css';
 import styles from './GlossarioPage.module.css';
-import { CATEGORIAS, type Categoria, TERMOS } from './termos';
+import { categoriasNoIdioma, termosNoIdioma } from './noIdioma';
+import type { Categoria } from './termos';
 
-const POR_ID = new Map(TERMOS.map((termo) => [termo.id, termo]));
-const EM_ORDEM = TERMOS.toSorted((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+const TEXTOS = {
+  pt: {
+    titulo: 'Glossário da F1',
+    resumo:
+      'Os termos e as regras da Fórmula 1 explicados em português, do undercut ao parc fermé.',
+    buscar: 'Buscar termo',
+    exemplo: 'Buscar termo, como safety car ou pole',
+    categorias: 'Categorias',
+    contagem: (n: number) => `${n} ${n === 1 ? 'termo' : 'termos'}`,
+    vejaTambem: 'Veja também:',
+  },
+  en: {
+    titulo: 'F1 glossary',
+    resumo: 'Formula 1 terms and rules explained in plain words, from the undercut to parc fermé.',
+    buscar: 'Search for a term',
+    exemplo: 'Search for a term, like safety car or pole',
+    categorias: 'Categories',
+    contagem: (n: number) => `${n} ${n === 1 ? 'term' : 'terms'}`,
+    vejaTambem: 'See also:',
+  },
+};
 
 export function GlossarioPage() {
   const [busca, setBusca] = useState('');
   const [categoria, setCategoria] = useState<Categoria | null>(null);
   const termo = semAcento(useDeferredValue(busca).trim());
+  const idioma = useIdioma();
+  const t = useTextos(TEXTOS);
+  const termos = termosNoIdioma();
+  const categorias = categoriasNoIdioma();
+  const porId = new Map(termos.map((item) => [item.id, item]));
+  const emOrdem = termos.toSorted((a, b) => a.nome.localeCompare(b.nome, localeDo(idioma)));
 
   useRolarAteAncora();
 
-  const encontrados = EM_ORDEM.filter(
+  const encontrados = emOrdem.filter(
     (item) =>
       (!categoria || item.categoria === categoria) &&
       semAcento(`${item.nome} ${item.tambem ?? ''} ${item.definicao}`).includes(termo),
@@ -24,30 +51,28 @@ export function GlossarioPage() {
 
   return (
     <>
-      <title>Glossário da F1 · DRS</title>
+      <title>{`${t.titulo} · DRS`}</title>
 
       <header className={styles.topo}>
-        <h1 className={styles.titulo}>Glossário da F1</h1>
-        <p className={styles.resumo}>
-          Os termos e as regras da Fórmula 1 explicados em português, do undercut ao parc fermé.
-        </p>
+        <h1 className={styles.titulo}>{t.titulo}</h1>
+        <p className={styles.resumo}>{t.resumo}</p>
       </header>
 
       <div className={styles.filtros}>
         <label htmlFor="busca-no-glossario" className="apenas-leitor">
-          Buscar termo
+          {t.buscar}
         </label>
         <input
           id="busca-no-glossario"
           type="search"
           className={styles.busca}
-          placeholder="Buscar termo, como safety car ou pole"
+          placeholder={t.exemplo}
           maxLength={60}
           value={busca}
           onChange={(evento) => setBusca(evento.target.value)}
         />
-        <div className={styles.categorias} role="group" aria-label="Categorias">
-          {(Object.entries(CATEGORIAS) as [Categoria, string][]).map(([chave, nome]) => (
+        <div className={styles.categorias} role="group" aria-label={t.categorias}>
+          {(Object.entries(categorias) as [Categoria, string][]).map(([chave, nome]) => (
             <button
               key={chave}
               type="button"
@@ -62,7 +87,7 @@ export function GlossarioPage() {
       </div>
 
       <p className={styles.contagem} aria-live="polite">
-        {encontrados.length} {encontrados.length === 1 ? 'termo' : 'termos'}
+        {t.contagem(encontrados.length)}
       </p>
 
       <dl className={styles.termos}>
@@ -73,15 +98,15 @@ export function GlossarioPage() {
               {item.tambem && <span className={styles.tambem}>{item.tambem}</span>}
             </dt>
             <dd className={styles.corpo}>
-              <span className={styles.selo}>{CATEGORIAS[item.categoria]}</span>
+              <span className={styles.selo}>{categorias[item.categoria]}</span>
               <p className={styles.definicao}>{item.definicao}</p>
               {item.relacionados.length > 0 && (
                 <p className={styles.relacionados}>
-                  Veja também:{' '}
+                  {t.vejaTambem}{' '}
                   {item.relacionados.map((id, indice) => (
                     <span key={id}>
                       {indice > 0 && ', '}
-                      <a href={`#${id}`}>{POR_ID.get(id)?.nome ?? id}</a>
+                      <a href={`#${id}`}>{porId.get(id)?.nome ?? id}</a>
                     </span>
                   ))}
                 </p>

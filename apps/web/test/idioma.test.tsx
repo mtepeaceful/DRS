@@ -39,3 +39,27 @@ describe('Idioma do site', () => {
     expect(screen.getByRole('link', { name: 'Back to home' })).toBeInTheDocument();
   });
 });
+
+describe('Conteúdo do dicionário em inglês', () => {
+  it('traduz os termos do glossário e mantém os links entre eles', async () => {
+    const { usuario } = renderizar('/glossario');
+
+    await usuario.click(await screen.findByRole('button', { name: 'Read in English' }));
+
+    expect(await screen.findByRole('heading', { name: 'F1 glossary' })).toBeInTheDocument();
+    expect(screen.getByText('Free practice')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Flags and safety' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Qualifying' }).length).toBeGreaterThan(0);
+  });
+
+  it('traduz as eras dos carros', async () => {
+    const { usuario } = renderizar('/historia/carros');
+
+    await usuario.click(await screen.findByRole('button', { name: 'Read in English' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'How the cars evolved' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'The turbo era' })).toBeInTheDocument();
+  });
+});

@@ -78,11 +78,37 @@ describe('História da F1', () => {
         .getAllByRole('link')
         .map((link) => link.textContent),
     ).toEqual(['1980', '1950']);
-    expect(screen.getByRole('link', { name: /1988.*Ayrton Senna/ })).toHaveAttribute(
+    const anoAAno = screen.getByRole('region', { name: 'Campeões ano a ano' });
+    expect(within(anoAAno).getByRole('link', { name: /1988.*Ayrton Senna/ })).toHaveAttribute(
       'href',
       '/historia/1988',
     );
-    expect(screen.getByRole('link', { name: /1952/ })).toHaveTextContent('Ainda não havia');
+    expect(within(anoAAno).getByRole('link', { name: /1952/ })).toHaveTextContent(
+      'Ainda não havia',
+    );
+  });
+
+  it('mostra a linha do tempo com um título por ano, na cor da equipe', async () => {
+    servidor.use(http.get('*/api/historia/campeoes', () => HttpResponse.json(historia)));
+    const { usuario } = renderizar('/historia');
+
+    const linha = await screen.findByRole('region', { name: 'Linha do tempo' });
+    const faixas = within(linha).getAllByRole('listitem');
+    expect(faixas.filter((faixa) => within(faixa).queryByRole('link'))).toHaveLength(2);
+    expect(within(linha).getByText('de 1952 a 1988', { exact: false })).toBeInTheDocument();
+
+    const senna = within(linha).getByRole('link', { name: '1988: Ayrton Senna, McLaren' });
+    expect(senna).toHaveAttribute('href', '/historia/1988');
+    expect(senna).toHaveStyle({ '--cor-titulo': '#ff8000' });
+
+    await usuario.hover(within(linha).getByRole('link', { name: '1952: Alberto Ascari, Ferrari' }));
+    expect(within(linha).getByText('Alberto Ascari · Ferrari')).toBeInTheDocument();
+
+    expect(
+      within(within(linha).getByRole('list', { name: 'Títulos por equipe' }))
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Ferrari1 título', 'McLaren1 título']);
   });
 
   it('abre uma temporada com classificação, corridas e navegação entre anos', async () => {

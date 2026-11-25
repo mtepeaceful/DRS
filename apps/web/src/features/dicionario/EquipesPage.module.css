@@ -39,61 +39,11 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.cartao {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: 72px auto 1fr;
-  justify-items: center;
-  align-items: start;
-  gap: 10px;
-  height: 100%;
-  padding: 22px 16px 18px;
-  border: 1px solid var(--cor-linha);
-  border-radius: var(--raio);
-  background: var(--cor-superficie);
-  text-align: center;
-  text-decoration: none;
-  transition:
-    border-color var(--transicao),
-    background-color var(--transicao);
-}
-
-.cartao:hover,
-.cartao:focus-visible {
-  border-color: var(--cor-linha-forte);
-  background: var(--cor-superficie-alta);
-}
-
-.logo {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 72px;
-}
-
-.cartao .logo > span {
-  width: 100%;
-  justify-content: center;
-}
-
-.cartao .logo img {
-  max-width: 100%;
-}
-
-.nomeDoCartao {
-  font-weight: 800;
-  font-size: 1.05rem;
-}
-
-.cartao .titulos {
-  justify-content: center;
 }
 
 .titulos {
@@ -210,6 +160,13 @@
   color: var(--cor-texto-suave);
 }
 
+.cartaoVazio {
+  min-height: 300px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
 .esqueleto {
   min-height: 640px;
   border-radius: var(--raio);
@@ -217,10 +174,6 @@
 }
 
 @media (max-width: 480px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .lista {
     grid-template-columns: minmax(0, 1fr);
   }

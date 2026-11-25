@@ -9,8 +9,8 @@ import { semAcento } from '../../shared/lib/texto';
 import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
-import { CORES_NEUTRAS } from '../calendario/cores';
-import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
+import { CartaoDaEquipe } from '../equipes/CartaoDaEquipe';
+import { useGridDeEquipes } from '../equipes/grid';
 import { COMUNS } from '../../shared/i18n/comuns';
 import { useTextos } from '../../shared/i18n/idioma';
 import { equipesDaHistoria } from './api';
@@ -20,7 +20,7 @@ const TEXTOS = {
   pt: {
     construtores: (n: number) => `${n} ${n === 1 ? 'título' : 'títulos'} de construtores`,
     pilotos: (n: number) => `${n} ${n === 1 ? 'título' : 'títulos'} de pilotos`,
-    carregando: '{t.carregando}',
+    carregando: 'Carregando as equipes…',
     erro: 'Não foi possível carregar as equipes',
     titulo: 'Equipes',
     resumo: (n: number) =>
@@ -78,6 +78,8 @@ export function EquipesPage() {
   const termo = semAcento(useDeferredValue(busca).trim());
   const t = useTextos(TEXTOS);
   const comuns = useTextos(COMUNS);
+  const grid = useGridDeEquipes(equipes.data);
+  const cartoes = grid.carregando ? null : grid.equipes;
 
   if (equipes.isPending) {
     return (
@@ -103,7 +105,7 @@ export function EquipesPage() {
     );
   }
 
-  const gridAtual = equipes.data.filter((equipe) => equipe.noGridAtual);
+  const vagasNoGrid = Math.max(equipes.data.filter((equipe) => equipe.noGridAtual).length, 1);
   const encontradas = equipes.data.filter(
     (equipe) =>
       (!soCampeas || equipe.titulosDeConstrutores + equipe.titulosDePilotos > 0) &&
@@ -124,24 +126,27 @@ export function EquipesPage() {
         )}
       </header>
 
-      {gridAtual.length > 0 && (
+      {(cartoes === null || cartoes.length > 0) && (
         <section aria-labelledby="grid-atual" className={styles.secao}>
           <h2 id="grid-atual" className={styles.tituloDaSecao}>
             {t.noGrid(new Date().getFullYear())}
           </h2>
-          <ul className={styles.grid}>
-            {gridAtual.map((equipe) => (
-              <li key={equipe.id}>
-                <Link to={`/equipes/${equipe.id}`} className={styles.cartao}>
-                  <span className={styles.logo}>
-                    <SimboloDaEquipe nome={equipe.nome} {...CORES_NEUTRAS} tamanho="grande" />
-                  </span>
-                  <span className={styles.nomeDoCartao}>{nomeDaEquipe(equipe.nome)}</span>
-                  <Titulos equipe={equipe} />
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {cartoes === null ? (
+            <div className={styles.grid} role="status">
+              <span className="apenas-leitor">{t.carregando}</span>
+              {Array.from({ length: vagasNoGrid }, (_, indice) => (
+                <span key={indice} className={styles.cartaoVazio} />
+              ))}
+            </div>
+          ) : (
+            <ul className={styles.grid}>
+              {cartoes.map((equipe) => (
+                <li key={equipe.id ?? equipe.nome}>
+                  <CartaoDaEquipe equipe={equipe} />
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
 

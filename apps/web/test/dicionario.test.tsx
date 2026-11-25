@@ -87,6 +87,7 @@ describe('Dicionário de equipes', () => {
         fundadores: ['Colin Chapman'],
         sede: null,
       },
+      perfil: null,
       temporadaAtual: null,
     };
     servidor.use(http.get('*/api/historia/equipes/:id', () => HttpResponse.json(ficha)));
@@ -104,6 +105,50 @@ describe('Dicionário de equipes', () => {
       screen.getAllByRole('link', { name: '1978' }).map((link) => link.getAttribute('href')),
     ).toEqual(['/historia/1978', '/historia/1978']);
     expect(screen.queryByRole('region', { name: /Temporada/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: /Perfil da equipe/ })).not.toBeInTheDocument();
+  });
+
+  it('mostra o perfil oficial da equipe do grid atual', async () => {
+    const ficha: FichaDaEquipeDTO = {
+      ...equipe({ id: 'mclaren', nome: 'McLaren', titulosDeConstrutores: 10 }),
+      temporadas: [1966, 2026],
+      corridas: 1000,
+      vitorias: 206,
+      podios: 520,
+      poles: 181,
+      anosDeTitulo: [],
+      campeoesDePilotos: [],
+      verbete: null,
+      perfil: {
+        temporada: 2026,
+        nomeCompleto: 'McLaren Mastercard F1 Team',
+        sede: { cidade: 'Woking', pais: 'GB' },
+        chefes: ['Andrea Stella'],
+        chefesTecnicos: ['Peter Prodromou', 'Neil Houldey'],
+        chassi: 'MCL40',
+        motor: 'Mercedes',
+        reservas: ['Leonardo Fornaroli', 'Pato O’Ward'],
+        primeiraInscricao: 1966,
+        fonte: 'https://www.formula1.com/en/teams/mclaren',
+      },
+      temporadaAtual: null,
+    };
+    servidor.use(http.get('*/api/historia/equipes/:id', () => HttpResponse.json(ficha)));
+    renderizar('/equipes/mclaren');
+
+    const perfil = await screen.findByRole('region', { name: 'Perfil da equipe · 2026' });
+    expect(within(perfil).getByText('Nome completo').nextSibling).toHaveTextContent(
+      'McLaren Mastercard F1 Team',
+    );
+    expect(within(perfil).getByText('Chefes técnicos').nextSibling).toHaveTextContent(
+      'Peter Prodromou / Neil Houldey',
+    );
+    expect(within(perfil).getByText('Motor').nextSibling).toHaveTextContent('Mercedes');
+    expect(within(perfil).getByRole('link', { name: 'Pato O’Ward' })).toHaveAttribute(
+      'href',
+      '/pilotos?busca=Pato%20O%E2%80%99Ward',
+    );
+    expect(within(perfil).queryByText('Primeira inscrição')).not.toBeInTheDocument();
   });
 
   it('avisa quando a equipe não existe', async () => {

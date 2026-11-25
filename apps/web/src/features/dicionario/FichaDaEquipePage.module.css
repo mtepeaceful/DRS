@@ -212,6 +212,47 @@
   font-variant-numeric: tabular-nums;
 }
 
+.cartaoDoPerfil {
+  margin-bottom: 20px;
+}
+
+.perfil {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px 28px;
+  margin: 0;
+}
+
+.campo {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+
+.campo dt {
+  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.campo dd {
+  margin: 0;
+  font-family: var(--fonte-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.campo a {
+  text-decoration: none;
+}
+
+.campo a:hover,
+.campo a:focus-visible {
+  text-decoration: underline;
+}
+
 .esqueleto {
   min-height: 640px;
   border-radius: var(--raio);

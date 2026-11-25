@@ -358,7 +358,89 @@ function suspensao(carbono: MeshStandardMaterial) {
   return conjunto;
 }
 
-function roda(x: number, z: number, aro: MeshStandardMaterial, composto: Composto | null) {
+// Calota das rodas de 18 polegadas, com três pás em espiral saindo do centro
+// nas cores da equipe, como as que giram na transmissão.
+function texturaDaCalota(cor: string, corSecundaria: string) {
+  const tela = document.createElement('canvas');
+  tela.width = 256;
+  tela.height = 256;
+  const contexto = tela.getContext('2d');
+
+  if (contexto) {
+    const grau = Math.PI / 180;
+    contexto.translate(128, 128);
+    contexto.fillStyle = '#16161a';
+    contexto.beginPath();
+    contexto.arc(0, 0, 128, 0, Math.PI * 2);
+    contexto.fill();
+
+    const ponto = (raio: number, angulo: number) =>
+      [Math.cos(angulo * grau) * raio, Math.sin(angulo * grau) * raio] as const;
+    // Cada divisa entre as pás sai do miolo e encurva 60 graus até a borda.
+    const divisa = (inicio: number) => ({
+      dentro: ponto(36, inicio),
+      controle: ponto(92, inicio + 12),
+      fora: ponto(116, inicio + 60),
+    });
+
+    for (const [indice, preenchimento] of [cor, corSecundaria, '#d9dadf'].entries()) {
+      const inicio = indice * 120;
+      const comeco = divisa(inicio);
+      const fim = divisa(inicio + 120);
+      contexto.beginPath();
+      contexto.moveTo(...comeco.dentro);
+      contexto.quadraticCurveTo(...comeco.controle, ...comeco.fora);
+      contexto.arc(0, 0, 116, (inicio + 60) * grau, (inicio + 180) * grau);
+      contexto.quadraticCurveTo(...fim.controle, ...fim.dentro);
+      contexto.arc(0, 0, 36, (inicio + 120) * grau, inicio * grau, true);
+      contexto.closePath();
+      contexto.fillStyle = preenchimento;
+      contexto.fill();
+      contexto.lineWidth = 4;
+      contexto.strokeStyle = '#0c0c0f';
+      contexto.stroke();
+    }
+
+    contexto.lineWidth = 8;
+    contexto.strokeStyle = '#5a5c63';
+    contexto.beginPath();
+    contexto.arc(0, 0, 121, 0, Math.PI * 2);
+    contexto.stroke();
+
+    contexto.fillStyle = '#e9e9ee';
+    contexto.beginPath();
+    contexto.arc(0, 0, 34, 0, Math.PI * 2);
+    contexto.fill();
+    contexto.fillStyle = '#16161a';
+    contexto.beginPath();
+    contexto.arc(0, 0, 24, 0, Math.PI * 2);
+    contexto.fill();
+  }
+
+  const textura = new CanvasTexture(tela);
+  textura.colorSpace = SRGBColorSpace;
+  textura.anisotropy = 4;
+
+  return textura;
+}
+
+function calota(cor: string, corSecundaria: string) {
+  return new MeshPhysicalMaterial({
+    map: texturaDaCalota(cor, corSecundaria),
+    metalness: 0.2,
+    roughness: 0.35,
+    clearcoat: 1,
+    clearcoatRoughness: 0.05,
+  });
+}
+
+function roda(
+  x: number,
+  z: number,
+  aro: MeshStandardMaterial,
+  capa: MeshStandardMaterial,
+  composto: Composto | null,
+) {
   const conjunto = new Group();
   const lado = Math.sign(z);
   const traseira = x < 0;
@@ -371,24 +453,17 @@ function roda(x: number, z: number, aro: MeshStandardMaterial, composto: Compost
   tambor.rotation.x = Math.PI / 2;
   conjunto.add(tambor);
 
-  const fundo = new Mesh(new CircleGeometry(0.235, 40), material('#0d0d10', 0.6));
-  fundo.position.z = lado * (largura * 0.2);
-  fundo.rotation.y = lado === 1 ? 0 : Math.PI;
-  conjunto.add(fundo);
-
-  const raios = 10;
-  for (let indice = 0; indice < raios; indice++) {
-    const angulo = (indice / raios) * Math.PI * 2;
-    const raio = new Mesh(new BoxGeometry(0.16, 0.022, 0.03), aro);
-    raio.position.set(Math.cos(angulo) * 0.13, Math.sin(angulo) * 0.13, lado * largura * 0.36);
-    raio.rotation.z = angulo;
-    conjunto.add(raio);
+  for (const face of [-1, 1]) {
+    const cobertura = new Mesh(new CircleGeometry(0.236, 64), face === lado ? capa : aro);
+    cobertura.position.z = face * largura * 0.43;
+    cobertura.rotation.y = face === 1 ? 0 : Math.PI;
+    conjunto.add(cobertura);
   }
 
-  const cubo = new Mesh(new CylinderGeometry(0.055, 0.055, 0.06, 24), aro);
-  cubo.rotation.x = Math.PI / 2;
-  cubo.position.z = lado * largura * 0.4;
-  conjunto.add(cubo);
+  const porca = new Mesh(new CylinderGeometry(0.03, 0.034, 0.03, 6), aro);
+  porca.rotation.x = Math.PI / 2;
+  porca.position.z = lado * (largura * 0.43 + 0.012);
+  conjunto.add(porca);
 
   if (composto) {
     const faixa = new Mesh(
@@ -686,14 +761,15 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   viseira.position.copy(capacete.position);
   conjunto.add(viseira);
 
-  const aro = aroForjado(corSecundaria);
+  const aro = aroForjado('#2a2b30');
+  const capa = calota(cor, corSecundaria);
   for (const [x, z] of [
     [1.85, 0.86],
     [1.85, -0.86],
     [-1.65, 0.86],
     [-1.65, -0.86],
   ] as const) {
-    conjunto.add(roda(x, z, aro, visual.pneus));
+    conjunto.add(roda(x, z, aro, capa, visual.pneus));
   }
 
   conjunto.traverse((objeto) => {

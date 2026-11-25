@@ -1,5 +1,6 @@
 import type { FichaDaEquipeDTO } from '@drs/contracts';
 import { useQuery } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 import { ErroDaApi, mensagemDoErro } from '../../shared/api/http';
 import { nomeDoPais } from '../../shared/lib/paises';
@@ -35,7 +36,7 @@ const TEXTOS = {
     deConstrutores: (n: number) => `${n} ${n === 1 ? 'título' : 'títulos'} de construtores`,
     dePilotos: (n: number) => `${n} ${n === 1 ? 'título' : 'títulos'} de pilotos`,
     equipes: '← Equipes',
-    carregando: '{t.carregando}',
+    carregando: 'Carregando a equipe…',
     naoEncontrada: 'Equipe não encontrada',
     erro: 'Não foi possível carregar a equipe',
     verTodas: 'Ver todas as equipes',
@@ -47,6 +48,15 @@ const TEXTOS = {
     temporada: (ano: number) => `Temporada ${ano}`,
     posicao: (posicao: number, pontos: number) =>
       `${posicao}º entre os construtores · ${pontos} pts`,
+    perfil: (ano: number) => `Perfil da equipe · ${ano}`,
+    nomeCompleto: 'Nome completo',
+    chefe: (n: number): string => (n > 1 ? 'Chefes da equipe' : 'Chefe da equipe'),
+    chefeTecnico: (n: number): string => (n > 1 ? 'Chefes técnicos' : 'Chefe técnico'),
+    chassi: 'Chassi',
+    motor: 'Motor',
+    reservas: (n: number): string => (n > 1 ? 'Pilotos reservas' : 'Piloto reserva'),
+    primeiraInscricao: 'Primeira inscrição',
+    fontePerfil: 'Dados do perfil oficial da equipe no',
   },
   en: {
     desde: (ano: number) => `In F1 since ${ano}`,
@@ -77,6 +87,15 @@ const TEXTOS = {
     licenca: ', under the CC BY-SA licence.',
     temporada: (ano: number) => `${ano} season`,
     posicao: (posicao: number, pontos: number) => `P${posicao} among constructors · ${pontos} pts`,
+    perfil: (ano: number) => `Team profile · ${ano}`,
+    nomeCompleto: 'Full team name',
+    chefe: (n: number): string => (n > 1 ? 'Team chiefs' : 'Team chief'),
+    chefeTecnico: (n: number): string => (n > 1 ? 'Technical chiefs' : 'Technical chief'),
+    chassi: 'Chassis',
+    motor: 'Power unit',
+    reservas: (n: number): string => (n > 1 ? 'Reserve drivers' : 'Reserve driver'),
+    primeiraInscricao: 'First team entry',
+    fontePerfil: 'Data from the team’s official profile on',
   },
 };
 
@@ -103,7 +122,7 @@ function Ficha({ ficha }: { ficha: FichaDaEquipeDTO }) {
   const itens = [
     [t.fundacao, verbete?.fundacao],
     [t.fundadores, verbete?.fundadores.length ? verbete.fundadores.join(', ') : null],
-    [t.sede, verbete?.sede],
+    [t.sede, ficha.perfil ? null : verbete?.sede],
     [t.pais, ficha.pais ? nomeDoPais(ficha.pais) : null],
     [t.estreia, ficha.temporadas[0]],
     [t.temporadas, ficha.temporadas.length],
@@ -122,6 +141,69 @@ function Ficha({ ficha }: { ficha: FichaDaEquipeDTO }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+function Lista({ nomes }: { nomes: string[] }) {
+  return nomes.map((nome, indice) => (
+    <span key={nome}>
+      {indice > 0 && ', '}
+      <Link to={`/pilotos?busca=${encodeURIComponent(nome)}`}>{nome}</Link>
+    </span>
+  ));
+}
+
+function Perfil({ ficha }: { ficha: FichaDaEquipeDTO }) {
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
+  const { perfil } = ficha;
+
+  if (!perfil) {
+    return null;
+  }
+
+  const itens: [string, ReactNode][] = [
+    [t.nomeCompleto, perfil.nomeCompleto],
+    [t.sede, `${perfil.sede.cidade}, ${nomeDoPais(perfil.sede.pais)}`],
+    [t.chefe(perfil.chefes.length), perfil.chefes.join(' / ')],
+    [t.chefeTecnico(perfil.chefesTecnicos.length), perfil.chefesTecnicos.join(' / ')],
+    [t.chassi, perfil.chassi],
+    [t.motor, perfil.motor],
+  ];
+
+  if (perfil.reservas.length > 0) {
+    itens.push([t.reservas(perfil.reservas.length), <Lista nomes={perfil.reservas} />]);
+  }
+
+  if (perfil.primeiraInscricao !== ficha.temporadas[0]) {
+    itens.push([t.primeiraInscricao, perfil.primeiraInscricao]);
+  }
+
+  return (
+    <section
+      className={`${styles.cartao} ${styles.cartaoDoPerfil}`}
+      aria-labelledby="perfil-da-equipe"
+    >
+      <h2 id="perfil-da-equipe" className={styles.tituloDoCartao}>
+        {t.perfil(perfil.temporada)}
+      </h2>
+      <dl className={styles.perfil}>
+        {itens.map(([rotulo, valor]) => (
+          <div key={rotulo} className={styles.campo}>
+            <dt>{rotulo}</dt>
+            <dd>{valor}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className={styles.fonte}>
+        {t.fontePerfil}{' '}
+        <a href={perfil.fonte} target="_blank" rel="noopener noreferrer">
+          formula1.com
+          <span className="apenas-leitor">{comuns.novaAba}</span>
+        </a>
+        .
+      </p>
+    </section>
   );
 }
 
@@ -234,6 +316,8 @@ export function FichaDaEquipePage() {
       </header>
 
       <Ficha ficha={dados} />
+
+      <Perfil ficha={dados} />
 
       <div className={dados.temporadaAtual ? styles.colunas : styles.umaColuna}>
         <div className={styles.pilha}>

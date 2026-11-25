@@ -9,6 +9,7 @@ import type {
   Verbete,
 } from '../ports/fonte-das-equipes.js';
 import type { FonteDoCampeonato } from '../ports/fonte-do-campeonato.js';
+import { PERFIS_DO_GRID, type PerfilDaEquipe } from './perfis-do-grid.js';
 
 export interface ResumoDaEquipe extends EquipeDaHistoria {
   titulosDeConstrutores: number;
@@ -25,6 +26,7 @@ export interface FichaDaEquipe extends ResumoDaEquipe, NumerosDaEquipe {
   anosDeTitulo: number[];
   campeoesDePilotos: TituloDePiloto[];
   verbete: Verbete | null;
+  perfil: PerfilDaEquipe | null;
   temporadaAtual: {
     posicao: number;
     pontos: number;
@@ -73,6 +75,7 @@ export class ConsultarDicionario {
       ...this.resumir(equipe, campeoes, new Set(campeonato?.construtores.map((c) => c.nome))),
       ...numeros,
       verbete,
+      perfil: PERFIS_DO_GRID[id] ?? null,
       anosDeTitulo: campeoes
         .filter((campeao) => campeao.construtor?.nome === equipe.nome)
         .map((campeao) => campeao.ano)

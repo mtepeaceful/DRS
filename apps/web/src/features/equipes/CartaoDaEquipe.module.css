@@ -1,0 +1,177 @@
+.cartao {
+  --brilho: 0;
+
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio);
+  background:
+    radial-gradient(
+      120% 90% at 100% 100%,
+      color-mix(in srgb, var(--cor-equipe) 34%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--cor-equipe) 16%, var(--cor-superficie)),
+      var(--cor-superficie) 58%
+    );
+  transition:
+    transform var(--transicao),
+    border-color var(--transicao),
+    box-shadow 420ms ease;
+}
+
+.cartao::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--cor-equipe);
+  transform: scaleX(0.18);
+  transform-origin: left;
+  transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.cartao[data-acesa] {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--cor-equipe) 55%, transparent);
+  box-shadow: 0 22px 48px -26px var(--cor-equipe);
+}
+
+.cartao[data-acesa]::before {
+  transform: scaleX(1);
+}
+
+.link {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 14px;
+  height: 100%;
+  min-height: 300px;
+  padding: 22px 22px 18px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--cor-equipe);
+  outline-offset: -4px;
+  border-radius: var(--raio);
+}
+
+.topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nome {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.logo {
+  display: inline-flex;
+  opacity: 0.7;
+  transition: opacity var(--transicao);
+}
+
+.cartao[data-acesa] .logo {
+  opacity: 1;
+}
+
+.pilotos {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.piloto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.numero {
+  flex: none;
+  min-width: 2.2ch;
+  font-family: var(--fonte-display);
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--cor-equipe) 80%, #fff 20%);
+  transition: color 420ms ease;
+}
+
+.cartao[data-acesa] .numero {
+  color: color-mix(in srgb, var(--cor-equipe) 45%, transparent);
+}
+
+.nomeDoPiloto {
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.primeiroNome {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.sobrenome {
+  overflow: hidden;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.carro {
+  width: 112%;
+  margin-right: -16%;
+  justify-self: end;
+  transform: translateX(6%);
+  transition: transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.cartao[data-acesa] .carro {
+  transform: translateX(0);
+}
+
+.ver {
+  justify-self: start;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: color var(--transicao);
+}
+
+.cartao[data-acesa] .ver {
+  color: var(--cor-texto);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao,
+  .cartao::before,
+  .carro,
+  .numero {
+    transition: none;
+  }
+
+  .cartao[data-acesa],
+  .carro {
+    transform: none;
+  }
+}

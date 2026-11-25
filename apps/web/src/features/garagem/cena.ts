@@ -1,5 +1,4 @@
 import {
-  AmbientLight,
   BoxGeometry,
   CanvasTexture,
   CircleGeometry,
@@ -12,20 +11,27 @@ import {
   HemisphereLight,
   Mesh,
   MeshBasicMaterial,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
+  NeutralToneMapping,
   type Object3D,
+  PCFShadowMap,
   PerspectiveCamera,
   PlaneGeometry,
+  PMREMGenerator,
+  RepeatWrapping,
   RingGeometry,
   Scene,
   Shape,
   SphereGeometry,
   SRGBColorSpace,
+  Texture,
   TorusGeometry,
   Vector3,
   WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
 export type VariacaoDeAssoalho = 'padrao' | 'canais' | 'borda';
@@ -65,8 +71,6 @@ export interface Garagem {
 
 const CENTRO_DO_CARRO: Ponto = [0, 0.45, 0];
 
-const CARBONO = '#1c1c22';
-const BORRACHA = '#111114';
 const FLAP_FECHADO = -0.7;
 const FLAP_ABERTO = -0.05;
 
@@ -92,11 +96,99 @@ const ASA_TRASEIRA: Record<VariacaoDeAsa, { plano: number; flap: number }> = {
 };
 
 function material(cor: string, rugosidade = 0.55) {
-  return new MeshStandardMaterial({
+  return new MeshStandardMaterial({ color: cor, roughness: rugosidade, metalness: 0.1 });
+}
+
+// Pintura automotiva: base metálica com uma camada de verniz por cima, que
+// devolve o reflexo nítido do estúdio mesmo onde a tinta é mais fosca.
+function pinturaMetalica(cor: string, metalico = 0.45) {
+  return new MeshPhysicalMaterial({
     color: cor,
-    roughness: rugosidade,
-    metalness: 0.15,
-    flatShading: true,
+    metalness: metalico,
+    roughness: 0.36,
+    clearcoat: 1,
+    clearcoatRoughness: 0.04,
+  });
+}
+
+// Trama sarja 2x2 da fibra de carbono, desenhada num canvas. Cada fio tem um
+// degradê que imita o brilho que muda conforme o ângulo da luz.
+function texturaDeTrama() {
+  const lado = 128;
+  const fio = 16;
+  const tela = document.createElement('canvas');
+  tela.width = lado;
+  tela.height = lado;
+  const contexto = tela.getContext('2d');
+
+  if (contexto) {
+    for (let linha = 0; linha < lado / fio; linha++) {
+      for (let coluna = 0; coluna < lado / fio; coluna++) {
+        const deitado = (linha + coluna) % 4 < 2;
+        const x = coluna * fio;
+        const y = linha * fio;
+        const brilho = deitado
+          ? contexto.createLinearGradient(x, y, x, y + fio)
+          : contexto.createLinearGradient(x, y, x + fio, y);
+        brilho.addColorStop(0, '#0c0c10');
+        brilho.addColorStop(0.5, deitado ? '#3a3b44' : '#262730');
+        brilho.addColorStop(1, '#0c0c10');
+        contexto.fillStyle = brilho;
+        contexto.fillRect(x, y, fio, fio);
+      }
+    }
+  }
+
+  const textura = new CanvasTexture(tela);
+  textura.colorSpace = SRGBColorSpace;
+  textura.wrapS = RepeatWrapping;
+  textura.wrapT = RepeatWrapping;
+  textura.repeat.set(6, 6);
+  textura.anisotropy = 4;
+
+  return textura;
+}
+
+function fibraDeCarbono() {
+  const trama = texturaDeTrama();
+
+  return new MeshPhysicalMaterial({
+    map: trama,
+    bumpMap: trama,
+    bumpScale: 1.5,
+    metalness: 0.25,
+    roughness: 0.45,
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.1,
+  });
+}
+
+function borracha() {
+  return new MeshStandardMaterial({ color: '#18181b', roughness: 0.9, metalness: 0 });
+}
+
+function aroForjado(cor: string) {
+  return new MeshStandardMaterial({ color: cor, roughness: 0.28, metalness: 0.85 });
+}
+
+function viseiraEspelhada() {
+  return new MeshPhysicalMaterial({
+    color: '#0b0b0f',
+    metalness: 1,
+    roughness: 0.06,
+    iridescence: 1,
+    iridescenceIOR: 1.8,
+  });
+}
+
+function adesivo(textura: CanvasTexture, transparente = false) {
+  return new MeshStandardMaterial({
+    map: textura,
+    transparent: transparente,
+    roughness: 0.32,
+    metalness: 0,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
   });
 }
 
@@ -133,15 +225,15 @@ function monocoque(pintura: MeshStandardMaterial) {
 
 function roda(x: number, z: number, aro: MeshStandardMaterial, composto: Composto | null) {
   const conjunto = new Group();
-  const pneu = new Mesh(new CylinderGeometry(0.36, 0.36, 0.4, 18), material(BORRACHA, 0.9));
-  const centro = new Mesh(new CylinderGeometry(0.21, 0.21, 0.42, 12), aro);
+  const pneu = new Mesh(new CylinderGeometry(0.36, 0.36, 0.4, 48), borracha());
+  const centro = new Mesh(new CylinderGeometry(0.21, 0.21, 0.42, 32), aro);
   pneu.rotation.x = Math.PI / 2;
   centro.rotation.x = Math.PI / 2;
   conjunto.add(pneu, centro);
 
   if (composto) {
     const faixa = new Mesh(
-      new TorusGeometry(0.29, 0.022, 4, 24),
+      new TorusGeometry(0.29, 0.022, 8, 48),
       material(COR_DO_COMPOSTO[composto], 0.6),
     );
     faixa.position.z = Math.sign(z) * 0.205;
@@ -248,14 +340,12 @@ function assoalho(
 
 function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   const visual = { ...VISUAL_PADRAO, ...pedido };
-  const pintura = material(cor, 0.4);
-  const detalhe = material(corSecundaria, 0.45);
-  const carbono = material(CARBONO, 0.7);
+  const pintura = pinturaMetalica(cor);
+  const detalhe = pinturaMetalica(corSecundaria, 0.3);
+  const carbono = fibraDeCarbono();
   const conjunto = new Group();
   const patrocinio = visual.patrocinio
-    ? new MeshBasicMaterial({
-        map: texturaDoPatrocinio(visual.patrocinio, corSecundaria, corDoTexto(corSecundaria)),
-      })
+    ? adesivo(texturaDoPatrocinio(visual.patrocinio, corSecundaria, corDoTexto(corSecundaria)))
     : null;
 
   conjunto.add(monocoque(pintura));
@@ -281,7 +371,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
     if (numero !== undefined) {
       const numeroNaLateral = new Mesh(
         new PlaneGeometry(0.5, 0.5),
-        new MeshBasicMaterial({ map: texturaDoNumero(numero, corSecundaria), transparent: true }),
+        adesivo(texturaDoNumero(numero, corSecundaria), true),
       );
       numeroNaLateral.position.set(-1.25, 0.62, lado * 0.37);
       numeroNaLateral.rotation.y = lado === 1 ? 0 : Math.PI;
@@ -326,7 +416,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   suporte.position.set(-2.3, 0.6, 0);
   conjunto.add(suporte);
 
-  const halo = new Mesh(new TorusGeometry(0.34, 0.035, 6, 20, Math.PI), carbono);
+  const halo = new Mesh(new TorusGeometry(0.34, 0.035, 12, 40, Math.PI), carbono);
   halo.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
   halo.position.set(0.05, 0.74, 0);
   conjunto.add(halo);
@@ -335,18 +425,18 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   pilar.position.set(0.38, 0.64, 0);
   conjunto.add(pilar);
 
-  const capacete = new Mesh(new SphereGeometry(0.16, 14, 10), detalhe);
+  const capacete = new Mesh(new SphereGeometry(0.16, 32, 20), detalhe);
   capacete.position.set(-0.08, 0.66, 0);
   conjunto.add(capacete);
 
   const viseira = new Mesh(
-    new SphereGeometry(0.165, 14, 10, -Math.PI / 4, Math.PI / 2, Math.PI / 2.6, Math.PI / 5),
-    material('#0b0b0f', 0.2),
+    new SphereGeometry(0.165, 32, 20, -Math.PI / 4, Math.PI / 2, Math.PI / 2.6, Math.PI / 5),
+    viseiraEspelhada(),
   );
   viseira.position.copy(capacete.position);
   conjunto.add(viseira);
 
-  const aro = material(corSecundaria, 0.35);
+  const aro = aroForjado(corSecundaria);
   for (const [x, z] of [
     [1.85, 0.86],
     [1.85, -0.86],
@@ -356,16 +446,42 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
     conjunto.add(roda(x, z, aro, visual.pneus));
   }
 
+  conjunto.traverse((objeto) => {
+    if (objeto instanceof Mesh) {
+      objeto.castShadow = true;
+      objeto.receiveShadow = true;
+    }
+  });
+
   return { conjunto, dobradica };
 }
 
 function chao() {
   const conjunto = new Group();
   const base = new Mesh(
-    new CircleGeometry(4.2, 48),
-    new MeshStandardMaterial({ color: '#111114', roughness: 0.95 }),
+    new CircleGeometry(4.2, 96),
+    new MeshStandardMaterial({
+      color: '#0b0b0d',
+      roughness: 0.85,
+      metalness: 0,
+      envMapIntensity: 0.18,
+    }),
   );
   base.rotation.x = -Math.PI / 2;
+  base.receiveShadow = true;
+
+  // Sombra de contato: escurece o piso logo abaixo do carro, onde quase não
+  // chega luz, e assenta o carro no chão.
+  const contato = new Mesh(
+    new PlaneGeometry(6.4, 2.8),
+    new MeshBasicMaterial({
+      map: texturaDaSombraDeContato(),
+      transparent: true,
+      depthWrite: false,
+    }),
+  );
+  contato.rotation.x = -Math.PI / 2;
+  contato.position.y = 0.003;
 
   const borda = new Mesh(
     new RingGeometry(4.15, 4.22, 64),
@@ -374,9 +490,29 @@ function chao() {
   borda.rotation.x = -Math.PI / 2;
   borda.position.y = 0.005;
 
-  conjunto.add(base, borda);
+  conjunto.add(base, contato, borda);
 
   return conjunto;
+}
+
+function texturaDaSombraDeContato() {
+  const tela = document.createElement('canvas');
+  tela.width = 256;
+  tela.height = 128;
+  const contexto = tela.getContext('2d');
+
+  if (contexto) {
+    contexto.translate(128, 64);
+    contexto.scale(2, 1);
+    const sombra = contexto.createRadialGradient(0, 0, 0, 0, 0, 64);
+    sombra.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
+    sombra.addColorStop(0.55, 'rgba(0, 0, 0, 0.45)');
+    sombra.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    contexto.fillStyle = sombra;
+    contexto.fillRect(-64, -64, 128, 128);
+  }
+
+  return new CanvasTexture(tela);
 }
 
 function liberar(raiz: Object3D) {
@@ -386,8 +522,10 @@ function liberar(raiz: Object3D) {
       const materiais = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
 
       for (const usado of materiais) {
-        if ('map' in usado && usado.map) {
-          usado.map.dispose();
+        for (const valor of Object.values(usado)) {
+          if (valor instanceof Texture) {
+            valor.dispose();
+          }
         }
 
         usado.dispose();
@@ -404,17 +542,43 @@ export function montarGaragem(
   const renderizador = new WebGLRenderer({ antialias: true, alpha: true });
   renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderizador.outputColorSpace = SRGBColorSpace;
+  // Tone mapping neutro (Khronos PBR Neutral): segura os brilhos fortes sem
+  // desbotar nem desviar as cores das equipes.
+  renderizador.toneMapping = NeutralToneMapping;
+  renderizador.shadowMap.enabled = true;
+  renderizador.shadowMap.type = PCFShadowMap;
   recipiente.append(renderizador.domElement);
 
   const cena = new Scene();
   const camera = new PerspectiveCamera(35, 1, 0.1, 100);
   camera.position.set(6.4, 3.2, 6.4);
 
-  cena.add(new HemisphereLight(new Color('#ffffff'), new Color('#20202a'), 1.4));
-  cena.add(new AmbientLight('#ffffff', 0.35));
-  const sol = new DirectionalLight('#ffffff', 2.2);
-  sol.position.set(5, 8, 4);
+  // Reflexos de um estúdio fotográfico gerado no próprio navegador: nada de
+  // arquivo HDRI para baixar e nenhuma licença envolvida.
+  const geradorDeReflexos = new PMREMGenerator(renderizador);
+  const estudio = new RoomEnvironment();
+  const reflexos = geradorDeReflexos.fromScene(estudio, 0.04).texture;
+  cena.environment = reflexos;
+  cena.environmentIntensity = 0.9;
+  estudio.dispose();
+  geradorDeReflexos.dispose();
+
+  cena.add(new HemisphereLight(new Color('#ffffff'), new Color('#20202a'), 0.35));
+
+  const sol = new DirectionalLight('#ffffff', 2.4);
+  sol.position.set(3, 9, 4);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(2048, 2048);
+  sol.shadow.radius = 4;
+  sol.shadow.bias = -0.0004;
+  sol.shadow.normalBias = 0.02;
+  Object.assign(sol.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 20 });
+  sol.shadow.camera.updateProjectionMatrix();
   cena.add(sol);
+
+  const contraluz = new DirectionalLight('#cfe0ff', 1.2);
+  contraluz.position.set(-6, 4, -5);
+  cena.add(contraluz);
 
   let atual = carro(pintura);
   cena.add(chao(), atual.conjunto);
@@ -488,6 +652,7 @@ export function montarGaragem(
       observador.disconnect();
       controles.dispose();
       liberar(cena);
+      reflexos.dispose();
       renderizador.dispose();
       renderizador.domElement.remove();
     },

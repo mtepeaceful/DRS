@@ -43,6 +43,10 @@ describe('Dicionário de equipes', () => {
         .getAllByRole('link')
         .map((link) => link.getAttribute('href')),
     ).toEqual(['/equipes/ferrari']);
+    expect(within(grid).getByRole('heading', { level: 3, name: 'Ferrari' })).toBeVisible();
+    expect(within(grid).getByText('Número 44')).toBeInTheDocument();
+    expect(within(grid).getByText('Leclerc')).toBeInTheDocument();
+    expect(within(grid).getByRole('heading', { level: 3, name: 'McLaren' })).toBeVisible();
 
     const todas = screen.getByRole('region', { name: 'Todas as equipes' });
     await usuario.type(within(todas).getByRole('searchbox'), 'LÓTUS');

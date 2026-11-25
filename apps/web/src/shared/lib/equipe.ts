@@ -42,3 +42,26 @@ export function siglaDaEquipe(nome: string) {
 
   return sigla.toUpperCase();
 }
+
+const APELIDOS: Record<string, string> = {
+  'alpine-f1-team': 'alpine',
+  'cadillac-f1-team': 'cadillac',
+  'rb-f1-team': 'racing-bulls',
+  'red-bull': 'red-bull-racing',
+};
+
+/**
+ * Um identificador estável para a equipe, que junta os nomes das fontes
+ * diferentes (como "Red Bull" e "Red Bull Racing") e escolhe o símbolo.
+ */
+export function chaveDaEquipe(nome: string) {
+  const chave = nome
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return APELIDOS[chave] ?? chave;
+}

@@ -1,4 +1,4 @@
-import type { CoresDaEquipe } from '../../shared/lib/equipe';
+import { chaveDaEquipe, type CoresDaEquipe } from '../../shared/lib/equipe';
 import { EmblemaDaEquipe } from './EmblemaDaEquipe';
 import styles from './SimboloDaEquipe.module.css';
 
@@ -15,32 +15,13 @@ const logos = new Map(
   ]),
 );
 
-const APELIDOS: Record<string, string> = {
-  'alpine-f1-team': 'alpine',
-  'cadillac-f1-team': 'cadillac',
-  'rb-f1-team': 'racing-bulls',
-  'red-bull': 'red-bull-racing',
-};
-
-function identificador(nome: string) {
-  const chave = nome
-    .normalize('NFD')
-    .replace(/\p{M}/gu, '')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-
-  return APELIDOS[chave] ?? chave;
-}
-
 interface Props extends CoresDaEquipe {
   nome: string;
   tamanho?: 'pequeno' | 'grande';
 }
 
 export function SimboloDaEquipe({ nome, tamanho = 'pequeno', ...cores }: Props) {
-  const url = logos.get(identificador(nome));
+  const url = logos.get(chaveDaEquipe(nome));
 
   if (!url) {
     return <EmblemaDaEquipe nome={nome} {...cores} />;

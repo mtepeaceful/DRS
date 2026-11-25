@@ -11,24 +11,31 @@ export const VIEWBOX = '0 0 1000 300';
 const FONTE_MARCAS = "'Manrope Variable', 'Manrope', system-ui, sans-serif";
 const FONTE_NUMERO = "'Orbitron Variable', 'Orbitron', system-ui, sans-serif";
 
-const RODA_TRAS = { x: 214, y: 212, r: 70 };
-const RODA_FRENTE = { x: 792, y: 215, r: 67 };
+/*
+ * Medidas tiradas de um F1 de 2026 de lado: entre-eixos de 3,4 m em 5,4 m de
+ * carro e rodas de 72 cm. Os contornos abaixo seguem a foto ponto a ponto.
+ */
+const RODA_TRAS = { x: 182, y: 209, r: 70 };
+const RODA_FRENTE = { x: 819, y: 209, r: 70 };
 
-/** Carroceria: traseira, airbox, cockpit e bico. */
-const CORPO = `M120 240 L124 176 C170 170 220 162 262 152 C310 140 350 124 372 110
-C382 103 388 100 392 100 Q404 91 418 91 Q433 92 437 104 L439 134
-C470 136 510 139 540 141 C600 150 660 164 720 178 C800 194 880 203 950 209
-Q968 213 958 224 C880 230 790 230 720 226 L620 222 L600 232 L150 244 Z`;
+/** Carroceria: tampa do motor, cockpit, chassi e bico. */
+const CORPO = `M206 248 L210 168 C214 158 218 154 222 150 C230 136 238 124 252 118
+C300 106 380 96 452 90 L494 92 L500 128 C540 130 600 140 640 152
+C690 156 730 158 760 164 C810 176 860 192 900 204 C940 216 975 226 988 234
+Q995 243 988 250 C940 252 890 250 860 244 C820 236 780 220 740 206
+L650 198 L600 230 L206 248 Z`;
 
-/** Sidepod, o lado mais perto de quem olha. */
-const SIDEPOD = `M604 150 C540 141 450 141 380 148 C300 158 230 174 168 196
-C210 206 250 210 300 210 C390 208 480 200 548 194 Q592 190 604 180 Z`;
+/** Tampa do motor: desce do airbox até a roda traseira. */
+const TAMPA = `M214 160 C222 146 236 124 252 118 C300 106 380 96 452 90 L452 124
+C400 126 330 128 294 134 C270 140 250 150 238 160 Z`;
 
-/** Tampa do motor: sai reta do airbox e desce em cima da roda traseira. */
-const TAMPA = 'M194 172 L194 124 Q195 115 205 114 L396 98 L396 132 L194 172 Z';
+/** Sidepod: ombro alto, entrada logo abaixo do halo e o rebaixo na frente. */
+const SIDEPOD = `M600 150 C560 136 470 128 375 128 C330 128 300 132 294 134
+C270 140 250 150 238 160 C226 190 226 222 240 244 C320 250 440 250 520 246
+C556 238 584 216 604 192 Z`;
 
-/** Quanto a asa traseira desce em relação ao desenho original dela. */
-const DESCIDA_DA_ASA = 14;
+/** Airbox em cima da cabeça do piloto. */
+const AIRBOX = 'M450 92 Q452 86 462 86 L484 86 Q493 87 494 96 L498 132 L452 132 Z';
 
 const numeroFixo = (valor: number) => Number(valor.toFixed(2));
 
@@ -64,6 +71,11 @@ function raios(x: number, y: number, raioDeFora: number, cor: string) {
   return `<path d="${caminho}" fill="${cor}"/><circle cx="${x}" cy="${y}" r="${raioDeFora}" fill="none" stroke="${cor}" stroke-width="2.5"/><circle cx="${x}" cy="${y}" r="9" fill="${cor}"/>`;
 }
 
+/** Calota lisa que cobre os raios, como a da Racing Bulls. */
+function disco(x: number, y: number, raio: number, cor: string, u: string) {
+  return `<circle cx="${x}" cy="${y}" r="${raio}" fill="${cor}"/><circle cx="${x}" cy="${y}" r="${raio}" fill="url(#calota${u})"/><circle cx="${x}" cy="${y}" r="9" fill="#2a2a2e"/><circle cx="${x}" cy="${y}" r="4" fill="#8a8a90"/>`;
+}
+
 function roda({ x, y, r }: { x: number; y: number; r: number }, id: string, u: string, aro: Aro) {
   const raioDoTexto = r - 9;
   const texto = (conteudo: string, posicao: string) =>
@@ -74,11 +86,12 @@ function roda({ x, y, r }: { x: number; y: number; r: number }, id: string, u: s
     <circle cx="${x}" cy="${y}" r="${r - 1.5}" fill="none" stroke="#2a2a2d" stroke-width="1.2"/>
     <path id="${id}" d="M${x - raioDoTexto} ${y} A${raioDoTexto} ${raioDoTexto} 0 1 1 ${x + raioDoTexto} ${y}" fill="none"/>
     ${texto('PIRELLI', '27%')}${texto('P ZERO', '77%')}
+    ${aro.linha ? `<circle cx="${x}" cy="${y}" r="${r - 17}" fill="none" stroke="${aro.linha}" stroke-width="1.6"/>` : ''}
     <circle cx="${x}" cy="${y}" r="${r - 21}" fill="${aro.fundo ?? '#0c0c0e'}"/>
-    ${raios(x, y, r - 22, aro.raios ?? '#26262b')}
+    ${aro.disco ? disco(x, y, r - 25, aro.disco, u) : raios(x, y, r - 22, aro.raios ?? '#26262b')}
     ${aro.anel ? anel(x, y, r - 27, aro.larguraDoAnel ?? 3, aro.anel) : ''}
     <circle cx="${x}" cy="${y}" r="${r - 21}" fill="none" stroke="${aro.borda ?? '#1c1c20'}" stroke-width="2"/>
-    <circle cx="${x}" cy="${y}" r="${r - 34}" fill="${aro.centro ?? '#0c0c0e'}"/>
+    ${aro.disco ? '' : `<circle cx="${x}" cy="${y}" r="${r - 34}" fill="${aro.centro ?? '#0c0c0e'}"/>`}
     <circle cx="${x}" cy="${y}" r="5" fill="#3a3a3e"/>
     <path d="M${x - r + 26} ${y - 8} A${r - 24} ${r - 24} 0 0 1 ${x - 8} ${y - r + 26}" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
     <path d="M${x - r + 10} ${y - 18} A${r - 8} ${r - 8} 0 0 1 ${x - 6} ${y - r + 9}" fill="none" stroke="#fff" stroke-opacity=".1" stroke-width="5" stroke-linecap="round"/>
@@ -109,7 +122,7 @@ function numeros(numero: number | undefined, pintura: Pintura) {
   const texto = (x: number, y: number, tamanho: number, giro: number) =>
     `<text x="${x}" y="${y}" font-family="${FONTE_NUMERO}" font-weight="900" font-size="${tamanho}" fill="${cor}" stroke="${contorno}" stroke-width="3" paint-order="stroke" stroke-linejoin="round" text-anchor="middle" transform="rotate(${giro} ${x} ${y})">${numero}</text>`;
 
-  return texto(306, 140, 24, -5) + texto(892, 222, 15, 5);
+  return texto(272, 140, 22, -12) + texto(928, 234, 13, 16);
 }
 
 /**
@@ -137,6 +150,9 @@ export function desenharCarro(pintura: Pintura, numero: number | undefined, u: s
     <radialGradient id="volume${u}" cx=".42" cy=".18" r=".75">
       <stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".5" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#000" stop-opacity=".25"/>
     </radialGradient>
+    <radialGradient id="calota${u}" cx=".4" cy=".35" r=".7">
+      <stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/>
+    </radialGradient>
     <radialGradient id="sombra${u}" cx=".5" cy=".5" r=".5">
       <stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
     </radialGradient>
@@ -147,34 +163,34 @@ export function desenharCarro(pintura: Pintura, numero: number | undefined, u: s
   </defs>
 
   <ellipse cx="520" cy="281" rx="490" ry="12" fill="url(#sombra${u})"/>
-  <ellipse cx="214" cy="281" rx="70" ry="5" fill="#000" opacity=".55"/>
-  <ellipse cx="792" cy="281" rx="66" ry="5" fill="#000" opacity=".55"/>
+  <ellipse cx="182" cy="281" rx="70" ry="5" fill="#000" opacity=".55"/>
+  <ellipse cx="819" cy="281" rx="70" ry="5" fill="#000" opacity=".55"/>
 
-  <g transform="translate(0 ${DESCIDA_DA_ASA})">
-    <path d="M94 100 Q94 92 106 91 L148 88 L150 166 L98 170 Z" fill="#0b0b0d"/>
-    <path d="M148 196 L126 124" stroke="#141416" stroke-width="7"/>
-    <path d="M82 104 Q82 96 94 95 L136 92 L140 168 L86 172 Z" fill="${p.asaTraseira ?? p.base}"/>
-    <path d="M82 104 Q82 96 94 95 L136 92 L140 168 L86 172 Z" fill="url(#lado${u})"/>
-    <path d="M84 104 Q84 98 94 97 L134 94" stroke="#fff" stroke-opacity=".35" stroke-width="1.2" fill="none"/>
-    ${p.asa ?? ''}
-    <path d="M62 98 L152 89 L154 104 L64 115 Z" fill="${p.flap ?? '#111'}"/>
-    <path d="M62 98 L152 89 L152 93 L62 102 Z" fill="#fff" opacity=".22"/>
-    <path d="M64 119 L152 108 L152 118 L66 129 Z" fill="${p.flap2 ?? '#1b1b1e'}"/>
-  </g>
-  <path d="M98 192 L142 188 L142 206 L120 218 L104 214 Z" fill="#141416"/>
-  <path d="M92 214 L160 206 L160 216 L94 224 Z" fill="#141416"/>
-  <path d="M96 232 L170 230 L176 252 L104 250 Z" fill="#0e0e10"/>
+  <path d="M96 196 L150 192 L156 244 L104 240 Z" fill="#0e0e10"/>
+  <path d="M100 210 L150 206 M102 224 L152 220" stroke="#2a2a2f" stroke-width="1.5"/>
+  <path d="M140 100 C170 100 196 106 210 114 L208 126 C190 120 168 118 146 122 Z" fill="${p.flap ?? '#111'}"/>
+  <path d="M142 101 C170 101 194 106 208 113" stroke="#fff" stroke-opacity=".25" stroke-width="1.2" fill="none"/>
+  <path d="M60 102 Q60 98 66 98 L146 98 L150 132 L126 162 L102 216 L90 216 Z" fill="${p.asaTraseira ?? p.base}"/>
+  <path d="M60 102 Q60 98 66 98 L146 98 L150 132 L126 162 L102 216 L90 216 Z" fill="url(#lado${u})"/>
+  <path d="M62 102 Q62 100 66 100 L144 100" stroke="#fff" stroke-opacity=".35" stroke-width="1.2" fill="none"/>
+  ${p.asa ?? ''}
 
-  <path d="M214 212 L330 200 M214 212 L330 232 M214 212 L300 186" stroke="#1a1a1d" stroke-width="4" stroke-linecap="round"/>
+  <path d="M182 209 L300 198 M182 209 L300 232 M182 209 L280 182" stroke="#1a1a1d" stroke-width="4" stroke-linecap="round"/>
 
-  <circle cx="458" cy="131" r="13.5" fill="${p.capacete}"/>
-  <path d="M461 122 Q473 124 471.5 134 L461 134 Z" fill="#0d0d10"/>
-  <path d="M448 123 Q458 115 468 120" stroke="#fff" stroke-opacity=".55" stroke-width="2" fill="none"/>
-  <g transform="translate(-18 8)">${p.capaceteDetalhe ?? ''}</g>
+  <path d="M888 202 Q900 194 914 198 L922 258 L886 260 Z" fill="${p.endplate ?? p.base}"/>
+  <path d="M888 202 Q900 194 914 198 L922 258 L886 260 Z" fill="url(#lado${u})"/>
 
-  <path d="M110 242 L600 232 L760 230 L760 240 L600 246 L112 254 Z" fill="#0f0f11"/>
-  <path d="M150 248 L600 240 L760 236" stroke="#4a4a50" stroke-width="1.2" fill="none"/>
-  <path d="M620 224 L860 232 L860 238 L620 232 Z" fill="#111114"/>
+  <circle cx="522" cy="124" r="12.5" fill="${p.capacete}"/>
+  <path d="M525 115 Q536 117 534.5 127 L525 127 Z" fill="#0d0d10"/>
+  <path d="M513 116 Q522 108 532 113" stroke="#fff" stroke-opacity=".55" stroke-width="2" fill="none"/>
+  <g transform="translate(46 1)">${p.capaceteDetalhe ?? ''}</g>
+
+  <path d="M204 246 L760 238 L762 250 L206 258 Z" fill="#0f0f11"/>
+  <path d="M220 252 L760 244" stroke="#4a4a50" stroke-width="1.2" fill="none"/>
+  <path d="M604 192 C620 200 650 200 700 200 L756 206 L760 246 L520 250 C560 240 586 220 604 192 Z" fill="url(#chao${u})"/>
+  <path d="M612 214 L756 216 M606 226 L758 228 M598 238 L758 238" stroke="#2f2f35" stroke-width="1.6"/>
+  <path d="M700 200 L700 246 M730 203 L730 246" stroke="#26262b" stroke-width="1.2"/>
+  <path d="M620 202 C660 204 700 204 756 208" stroke="#fff" stroke-opacity=".22" stroke-width="1.3" fill="none"/>
 
   <path d="${CORPO}" fill="${p.base}"/>
   <g clip-path="url(#corpo${u})">${p.pinturaCorpo ?? ''}</g>
@@ -183,50 +199,39 @@ export function desenharCarro(pintura: Pintura, numero: number | undefined, u: s
   <path d="${TAMPA}" fill="${p.tampa ?? p.base}"/>
   <g clip-path="url(#tampa${u})">${p.pinturaTampa ?? ''}</g>
   <path d="${TAMPA}" fill="url(#luz${u})"/>
-  <path d="M196 124 Q197 117 206 116 L396 100" stroke="#fff" stroke-opacity=".5" stroke-width="1.8" fill="none"/>
-  <path d="M194 172 L194 124" stroke="#000" stroke-opacity=".35" stroke-width="2"/>
-  <path d="M440 136 C480 132 520 138 560 148 L560 156 C520 146 480 140 440 144 Z" fill="#000" opacity=".22"/>
-
-  <path d="M604 180 Q592 190 548 194 C480 200 390 208 300 210 C250 210 210 206 168 196 L150 244 L600 232 L620 222 Z" fill="url(#chao${u})"/>
-  <path d="M300 224 C400 220 500 215 604 212" stroke="#3a3a42" stroke-width="1.4" fill="none"/>
-  <path d="M330 234 C430 230 520 226 612 222" stroke="#2c2c33" stroke-width="1.2" fill="none"/>
-  <path d="M560 198 C590 196 610 192 618 186 C624 198 620 214 608 228" stroke="#46464e" stroke-width="1.6" fill="none"/>
-  <path d="M300 210 C390 208 480 200 548 194 Q592 190 604 180" stroke="#000" stroke-opacity=".6" stroke-width="3" fill="none"/>
-  <path d="M526 246 C536 232 546 220 560 214 C580 206 600 204 616 204 L676 206 Q680 207 680 212 L680 244 Z" fill="#141417"/>
-  <path d="M532 240 C544 226 556 218 570 213 C588 208 604 207 616 207 L676 209" stroke="#fff" stroke-opacity=".28" stroke-width="1.3" fill="none"/>
-  <path d="M600 214 L674 216 M596 222 L674 224 M592 230 L674 232" stroke="#2f2f35" stroke-width="1.6"/>
-  <path d="M640 207 L640 244 M660 208 L660 244" stroke="#26262b" stroke-width="1.2"/>
+  <path d="M224 148 C232 134 240 124 254 120 C300 108 380 98 450 92" stroke="#fff" stroke-opacity=".5" stroke-width="1.8" fill="none"/>
+  <path d="M500 136 C540 134 600 144 640 158 L640 164 C600 152 540 142 500 144 Z" fill="#000" opacity=".22"/>
 
   <path d="${SIDEPOD}" fill="${p.sidepod ?? p.base}"/>
   <g clip-path="url(#pod${u})">${p.pinturaPod ?? ''}</g>
   <path d="${SIDEPOD}" fill="url(#luz${u})"/>
   <path d="${SIDEPOD}" fill="url(#volume${u})"/>
-  <path d="M590 150 L604 150 L605 180 Q600 190 588 192 Z" fill="#070708"/>
-  <path d="M384 150 C460 143 540 143 600 150" stroke="#fff" stroke-opacity=".35" stroke-width="1.5" fill="none"/>
+  <path d="M520 246 C556 238 584 216 604 192" stroke="#000" stroke-opacity=".5" stroke-width="3" fill="none"/>
+  <path d="M592 148 L602 150 L604 190 Q598 196 590 192 Z" fill="#070708"/>
+  <path d="M300 135 C380 129 500 131 596 150" stroke="#fff" stroke-opacity=".35" stroke-width="1.5" fill="none"/>
 
-  <path d="M424 96 Q435 99 436 110 L436 122 Q429 122 427 112 Q425 103 418 99 Z" fill="#060607"/>
-  <path d="M424 96 Q435 99 436 110" stroke="#fff" stroke-opacity=".3" stroke-width="1" fill="none"/>
-  <path d="M404 91 L406 84 L424 84 L426 91 Z" fill="#111214"/>
-  <path d="M406 85 L424 85" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
-  <path d="M544 143 C600 152 660 166 720 180 C800 196 880 205 950 211" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="${AIRBOX}" fill="${p.airbox ?? p.tampa ?? p.base}"/>
+  <path d="${AIRBOX}" fill="url(#luz${u})"/>
+  <path d="M484 90 Q492 92 493 102 L494 114 Q487 114 486 104 Q485 96 480 92 Z" fill="#060607"/>
+  <path d="M456 86 L458 78 L488 78 L490 86 Z" fill="#111214"/>
+  <path d="M458 79 L488 79" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
+  <path d="M640 152 C690 156 730 158 760 164 C810 176 860 192 900 204 C940 216 975 226 986 233" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" fill="none" stroke-linecap="round"/>
 
   <g clip-path="url(#tudo${u})">${(p.marcas ?? []).map(marca).join('')}${numeros(numero, p)}</g>
 
-  <path d="M436 118 C452 104 508 102 548 140" stroke="#141416" stroke-width="7" fill="none" stroke-linecap="round"/>
-  <path d="M442 113 C458 106 500 106 534 128" stroke="#fff" stroke-opacity=".25" stroke-width="1.5" fill="none"/>
-  <path d="M570 146 L578 134" stroke="#141416" stroke-width="3"/>
-  <path d="M572 128 L598 127 L598 137 L574 138 Z" fill="${p.retrovisor ?? p.base}"/>
-  <path d="M572 128 L598 127 L598 137 L574 138 Z" fill="url(#luz${u})"/>
+  <path d="M496 120 C520 114 570 112 600 120 C626 126 644 140 654 154" stroke="#141416" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M502 116 C526 111 568 110 596 116" stroke="#fff" stroke-opacity=".25" stroke-width="1.5" fill="none"/>
+  <path d="M606 150 L612 140" stroke="#141416" stroke-width="3"/>
+  <path d="M598 133 L624 132 L624 142 L600 143 Z" fill="${p.retrovisor ?? p.base}"/>
+  <path d="M598 133 L624 132 L624 142 L600 143 Z" fill="url(#luz${u})"/>
 
-  <path d="M792 215 L680 196 M792 215 L690 220 M792 215 L700 180" stroke="#1a1a1d" stroke-width="4" stroke-linecap="round"/>
+  <path d="M819 209 L700 196 M819 209 L706 222 M819 209 L714 182" stroke="#1a1a1d" stroke-width="4" stroke-linecap="round"/>
 
   ${roda(RODA_TRAS, `pt${u}`, u, p.aro)}
   ${roda(RODA_FRENTE, `pf${u}`, u, p.aro)}
 
-  <path d="M846 266 L986 260 L988 272 L848 276 Z" fill="#141416"/>
-  <path d="M872 254 C920 248 955 245 982 244 L982 253 C955 255 920 258 874 262 Z" fill="${p.flapDianteiro ?? p.base}"/>
-  <path d="M872 254 C920 248 955 245 982 244 L982 253 C955 255 920 258 874 262 Z" fill="url(#luz${u})"/>
-  <path d="M958 238 L984 235 Q993 242 992 272 L960 274 Z" fill="${p.endplate ?? p.base}"/>
-  <path d="M958 238 L984 235 Q993 242 992 272 L960 274 Z" fill="url(#lado${u})"/>
+  <path d="M872 254 L990 250 L992 262 L874 266 Z" fill="#141416"/>
+  <path d="M900 246 C940 244 968 244 990 243 L990 250 C968 251 940 252 902 253 Z" fill="${p.flapDianteiro ?? p.base}"/>
+  <path d="M900 246 C940 244 968 244 990 243 L990 250 C968 251 940 252 902 253 Z" fill="url(#luz${u})"/>
   ${p.frente ?? ''}`;
 }

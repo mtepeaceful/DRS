@@ -58,7 +58,7 @@ const classificacaoDePilotos = z.object({
               position: z.coerce.number().int().optional(),
               points: z.coerce.number(),
               wins: z.coerce.number().int(),
-              Driver: nomeDoPiloto,
+              Driver: nomeDoPiloto.extend({ driverId: z.string().optional() }),
               Constructors: z.array(z.object({ name: z.string() })),
             }),
           ),
@@ -78,7 +78,7 @@ const classificacaoDeConstrutores = z.object({
               position: z.coerce.number().int().optional(),
               points: z.coerce.number(),
               wins: z.coerce.number().int(),
-              Constructor: z.object({ name: z.string() }),
+              Constructor: z.object({ name: z.string(), constructorId: z.string().optional() }),
             }),
           ),
         }),
@@ -366,6 +366,7 @@ export class FonteCampeonatoJolpica implements FonteDoCampeonato {
       rodadasDisputadas: tabelaDePilotos?.round ?? 0,
       proximaCorrida: corridas.find((corrida) => corrida.inicio > agora) ?? null,
       pilotos: (tabelaDePilotos?.DriverStandings ?? []).map((linha, indice) => ({
+        id: linha.Driver.driverId,
         posicao: linha.position ?? indice + 1,
         nome: nome(linha.Driver),
         equipe: linha.Constructors.at(-1)?.name ?? '',
@@ -373,6 +374,7 @@ export class FonteCampeonatoJolpica implements FonteDoCampeonato {
         vitorias: linha.wins,
       })),
       construtores: (tabelaDeConstrutores?.ConstructorStandings ?? []).map((linha, indice) => ({
+        id: linha.Constructor.constructorId,
         posicao: linha.position ?? indice + 1,
         nome: linha.Constructor.name,
         pontos: linha.points,

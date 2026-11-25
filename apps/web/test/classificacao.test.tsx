@@ -113,4 +113,58 @@ describe('Classificação do campeonato', () => {
     );
     expect(within(construtores).queryByRole('link', { name: 'Equipe Nova' })).toBeNull();
   });
+  it('liga pelo id da classificação mesmo com as listas da história fora do ar', async () => {
+    servidor.use(
+      http.get('*/api/painel', () =>
+        HttpResponse.json({
+          campeonato: {
+            ano: 2026,
+            totalDeRodadas: 23,
+            rodadasDisputadas: 20,
+            proximaCorrida: null,
+            ultimaCorrida: null,
+            pilotos: [
+              {
+                id: 'hulkenberg',
+                posicao: 1,
+                nome: 'Nico Hülkenberg',
+                equipe: 'Sauber',
+                pontos: 40,
+                vitorias: 0,
+              },
+            ],
+            construtores: [
+              { id: 'red_bull', posicao: 1, nome: 'Red Bull', pontos: 500, vitorias: 5 },
+            ],
+          },
+          noticias: [],
+        }),
+      ),
+      http.get('*/api/historia/pilotos', () =>
+        HttpResponse.json(
+          { mensagem: 'Não foi possível obter os dados de api.jolpi.ca.' },
+          { status: 503 },
+        ),
+      ),
+      http.get('*/api/historia/equipes', () =>
+        HttpResponse.json(
+          { mensagem: 'Não foi possível obter os dados de api.jolpi.ca.' },
+          { status: 503 },
+        ),
+      ),
+    );
+    renderizar('/classificacao');
+
+    const pilotos = await screen.findByRole('region', { name: 'Pilotos' });
+    const construtores = screen.getByRole('region', { name: 'Construtores' });
+
+    expect(await within(pilotos).findByRole('link', { name: 'Nico Hülkenberg' })).toHaveAttribute(
+      'href',
+      '/historia/pilotos/hulkenberg',
+    );
+    expect(within(construtores).getByRole('link', { name: 'Red Bull' })).toHaveAttribute(
+      'href',
+      '/equipes/red_bull',
+    );
+  });
 });

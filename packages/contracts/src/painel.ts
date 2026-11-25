@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { corridaSchema } from './calendario.js';
 
 const posicaoSchema = z.object({
+  /** Id da Jolpica (driverId ou constructorId), quando a fonte manda. */
+  id: z.string().optional(),
   posicao: z.number().int(),
   nome: z.string(),
   pontos: z.number(),

@@ -1,139 +1,20 @@
 .carro {
-  --apagado: #202027;
-  --apagado-detalhe: #2a2a32;
-  --troca: 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
-
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
+  /* Um contorno claro e fino separa o carro do fundo, mesmo quando as cores se parecem. */
+  filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 0.55))
+    drop-shadow(0 0 6px rgb(255 255 255 / 0.08));
+  transition: filter 420ms ease;
 }
 
-.carroceria,
-.pintura,
-.secundaria,
-.capacete {
-  transition: fill var(--troca);
-}
-
-.carroceria,
-.pintura {
-  fill: var(--apagado);
-}
-
-.carroceria {
-  stroke: rgb(255 255 255 / 0.16);
-  stroke-width: 1;
-  stroke-linejoin: round;
-}
-
-.secundaria,
-.capacete {
-  fill: var(--apagado-detalhe);
-}
-
-.sombreado {
-  fill: #000;
-  opacity: 0.28;
-  pointer-events: none;
-}
-
-.brilho {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  opacity: 0;
-  transition: opacity var(--troca);
-}
-
-.carro[data-acesa] .brilho {
-  opacity: 0.35;
-}
-
-.entrada,
-.mecanica {
-  fill: #0c0c0f;
-}
-
-.suspensao,
-.halo {
-  fill: none;
-  stroke: #0c0c0f;
-  stroke-linecap: round;
-}
-
-.suspensao {
-  stroke-width: 3;
-}
-
-.halo {
-  stroke-width: 5;
-}
-
-.pneu {
-  fill: #0e0e11;
-}
-
-.faixa {
-  fill: none;
-  stroke: #2a2a31;
-  stroke-width: 1.5;
-  transition: stroke var(--troca);
-}
-
-.aro {
-  fill: #1c1c22;
-  stroke: #33333b;
-  stroke-width: 1;
-}
-
-.sombraNoChao {
-  fill: #000;
-  opacity: 0.5;
-}
-
-.linha {
-  fill: none;
-  stroke: var(--cor-carro);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0;
-  transition:
-    stroke-dashoffset 900ms cubic-bezier(0.3, 0.6, 0.2, 1),
-    opacity 300ms ease;
-}
-
-.carro[data-acesa] .carroceria,
-.carro[data-acesa] .pintura {
-  fill: var(--cor-carro);
-}
-
-.carro[data-acesa] .secundaria,
-.carro[data-acesa] .capacete {
-  fill: var(--cor-carro-secundaria);
-}
-
-.carro[data-acesa] .faixa {
-  stroke: var(--cor-carro-secundaria);
-}
-
-.carro[data-acesa] .linha {
-  stroke-dashoffset: 0;
-  opacity: 1;
-  filter: drop-shadow(0 0 6px var(--cor-carro));
+.carro[data-acesa] {
+  filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 0.7)) drop-shadow(0 10px 18px rgb(0 0 0 / 0.45));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .carroceria,
-  .pintura,
-  .secundaria,
-  .capacete,
-  .faixa,
-  .brilho,
-  .linha {
+  .carro {
     transition: none;
   }
 }

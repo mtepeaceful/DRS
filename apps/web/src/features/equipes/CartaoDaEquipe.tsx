@@ -73,7 +73,12 @@ export function CartaoDaEquipe({ equipe }: { equipe: EquipeDoCartao }) {
       )}
 
       <div className={styles.carro}>
-        <SilhuetaDoCarro {...equipe.cores} acesa={acesa} />
+        <SilhuetaDoCarro
+          nome={equipe.nome}
+          numero={equipe.pilotos[0]?.numero}
+          {...equipe.cores}
+          acesa={acesa}
+        />
       </div>
 
       {equipe.id && (

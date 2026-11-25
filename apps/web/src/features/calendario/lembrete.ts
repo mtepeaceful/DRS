@@ -1,4 +1,4 @@
-import { nomeDoGp } from '../../shared/lib/traducoes';
+import { nomeDaSessao, nomeDoGp } from '../../shared/lib/traducoes';
 
 export interface Compromisso {
   id: string;
@@ -134,7 +134,7 @@ export function compromissosDoFimDeSemana(corrida: Corrida) {
 
   return corrida.sessoes.map((sessao): Compromisso => ({
     id: `${ano}-${corrida.rodada}-${identificador(sessao.nome)}`,
-    titulo: `${nomeDoGp(corrida.nome)} · ${sessao.nome}`,
+    titulo: `${nomeDoGp(corrida.nome)} · ${nomeDaSessao(sessao.nome)}`,
     local: `${corrida.circuito}, ${corrida.cidade}`,
     inicio: new Date(sessao.inicio),
     duracaoEmMinutos: sessao.nome === 'Corrida' ? DURACAO_DA_CORRIDA : DURACAO_DAS_OUTRAS_SESSOES,
@@ -150,7 +150,7 @@ export function compromissosDaTemporada(
     .filter((corrida) => !corrida.vencedor && new Date(corrida.inicio) > agora)
     .map((corrida): Compromisso => ({
       id: `${new Date(corrida.inicio).getUTCFullYear()}-${corrida.rodada}-corrida`,
-      titulo: `${nomeDoGp(corrida.nome)} · Corrida`,
+      titulo: `${nomeDoGp(corrida.nome)} · ${nomeDaSessao('Corrida')}`,
       local: `${corrida.circuito}, ${corrida.cidade}`,
       inicio: new Date(corrida.inicio),
       duracaoEmMinutos: DURACAO_DA_CORRIDA,

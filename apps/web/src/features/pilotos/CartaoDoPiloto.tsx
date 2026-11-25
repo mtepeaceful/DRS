@@ -7,6 +7,24 @@ import { Bandeira } from '../../shared/ui/Bandeira';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import styles from './CartaoDoPiloto.module.css';
 import { rotuloDeTitulos } from './titulos';
+import { useTextos } from '../../shared/i18n/idioma';
+
+const TEXTOS = {
+  pt: {
+    foto: 'Foto',
+    semEquipe: 'Sem equipe',
+    nome: 'Nome do piloto',
+    numero: 'número',
+    pais: 'País',
+  },
+  en: {
+    foto: 'Photo',
+    semEquipe: 'No team',
+    nome: 'Driver name',
+    numero: 'number',
+    pais: 'Country',
+  },
+};
 
 interface Props {
   nome: string;
@@ -21,6 +39,7 @@ interface Props {
 export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto }: Props) {
   const numeroValido = numero !== undefined && Number.isInteger(numero);
   const [quebrada, setQuebrada] = useState<string | null>(null);
+  const t = useTextos(TEXTOS);
 
   return (
     <article className={styles.cartao} style={estiloDaEquipe(equipe)}>
@@ -38,7 +57,7 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto
         <img
           src={foto.url}
           alt=""
-          title={['Foto', foto.autor, foto.licenca].filter(Boolean).join(' · ')}
+          title={[t.foto, foto.autor, foto.licenca].filter(Boolean).join(' · ')}
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
@@ -50,16 +69,20 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto
       <div className={styles.corpo}>
         <p className={styles.equipe}>
           {equipe && <SimboloDaEquipe {...equipe} />}
-          {equipe?.nome ?? 'Sem equipe'}
+          {equipe?.nome ?? t.semEquipe}
         </p>
         <h2 className={styles.nome}>
           {para ? (
             <Link to={para} className={styles.link} viewTransition>
-              {nome || 'Nome do piloto'}
-              {numeroValido && <span className="apenas-leitor">, número {numero}</span>}
+              {nome || t.nome}
+              {numeroValido && (
+                <span className="apenas-leitor">
+                  , {t.numero} {numero}
+                </span>
+              )}
             </Link>
           ) : (
-            nome || 'Nome do piloto'
+            nome || t.nome
           )}
         </h2>
       </div>
@@ -67,7 +90,7 @@ export function CartaoDoPiloto({ nome, numero, pais, titulos, equipe, para, foto
       <div className={styles.rodape}>
         <span className={styles.pais}>
           <Bandeira pais={pais} />
-          {pais ? nomeDoPais(pais) : 'País'}
+          {pais ? nomeDoPais(pais) : t.pais}
         </span>
         {titulos > 0 && <span className={styles.campeao}>{rotuloDeTitulos(titulos)}</span>}
       </div>

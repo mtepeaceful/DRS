@@ -1,3 +1,5 @@
+import { idiomaAtual } from '../i18n/idioma';
+
 const nomesDosGps: Record<string, string> = {
   '70th Anniversary Grand Prix': 'GP do 70º Aniversário',
   'Abu Dhabi Grand Prix': 'GP de Abu Dhabi',
@@ -95,11 +97,36 @@ const paises: Record<string, { nome: string; codigo: string }> = {
   USA: { nome: 'Estados Unidos', codigo: 'US' },
 };
 
+const nomesDosPaisesEmIngles: Record<string, string> = {
+  Korea: 'South Korea',
+  UAE: 'United Arab Emirates',
+  UK: 'United Kingdom',
+  USA: 'United States',
+};
+
+const sessoesEmIngles: Record<string, string> = {
+  'Treino livre 1': 'Practice 1',
+  'Treino livre 2': 'Practice 2',
+  'Treino livre 3': 'Practice 3',
+  'Classificação sprint': 'Sprint qualifying',
+  Sprint: 'Sprint',
+  Classificação: 'Qualifying',
+  Corrida: 'Race',
+};
+
+export function nomeDaSessao(nome: string) {
+  return idiomaAtual() === 'en' ? (sessoesEmIngles[nome] ?? nome) : nome;
+}
+
 export function nomeDoGp(nome: string) {
+  if (idiomaAtual() === 'en') return nome;
+
   return nomesDosGps[nome] ?? nome.replace(/ Grand Prix$/, ' GP');
 }
 
 export function nomeDoPaisEmPortugues(pais: string) {
+  if (idiomaAtual() === 'en') return nomesDosPaisesEmIngles[pais] ?? pais;
+
   return paises[pais]?.nome ?? pais;
 }
 

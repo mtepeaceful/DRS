@@ -12,11 +12,12 @@ import { desempenhoDaTemporada } from './api';
 import { confronto, type Placar, pontosAcumulados } from './comparacao';
 import styles from './ComparacaoPage.module.css';
 import { GraficoDePontos } from './GraficoDePontos';
+import { porIdioma } from '../../shared/i18n/idioma';
 
 const COR_A = 'var(--cor-piloto-a)';
 const COR_B = 'var(--cor-piloto-b)';
 
-const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+const decimal = porIdioma((locale) => new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }));
 
 type Piloto = DesempenhoDoPilotoDTO;
 
@@ -28,7 +29,7 @@ interface Metrica {
   semVencedor?: boolean;
 }
 
-const ordinal = (valor: number) => `${decimal.format(valor)}º`;
+const ordinal = (valor: number) => `${decimal().format(valor)}º`;
 
 const METRICAS: Metrica[] = [
   {
@@ -168,7 +169,9 @@ function Numeros({ a, b }: { a: Piloto; b: Piloto }) {
           const exibir = (piloto: Piloto) => {
             const valor = metrica.valor(piloto);
 
-            return valor === null ? '—' : (metrica.formatar ?? decimal.format)(valor);
+            return valor === null
+              ? '—'
+              : (metrica.formatar ?? ((numero: number) => decimal().format(numero)))(valor);
           };
 
           return (

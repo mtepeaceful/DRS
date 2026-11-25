@@ -2,9 +2,11 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { encerrarSessao } from '../src/shared/api/sessao';
+import { trocarIdioma } from '../src/shared/i18n/idioma';
 import { servidor } from './servidor';
 
 configure({ asyncUtilTimeout: 10_000 });
+trocarIdioma('pt');
 
 beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {});
@@ -33,6 +35,7 @@ afterEach(() => {
   cleanup();
   servidor.resetHandlers();
   encerrarSessao();
+  trocarIdioma('pt');
 });
 
 afterAll(() => servidor.close());

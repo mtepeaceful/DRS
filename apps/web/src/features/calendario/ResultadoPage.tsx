@@ -16,46 +16,127 @@ import { resultadoDaEtapa } from './api';
 import { CORES_NEUTRAS } from './cores';
 import { Podio } from './Podio';
 import styles from './ResultadoPage.module.css';
+import { porIdioma, useIdioma, useTextos } from '../../shared/i18n/idioma';
 
 type Linha = ResultadoDaEtapaDTO['classificacao'][number];
 type LinhaDaQualificacao = ResultadoDaEtapaDTO['qualificacao'][number];
 type Sessao = 'corrida' | 'sprint' | 'classificacao';
 
-const NOMES_DAS_SESSOES: Record<Sessao, string> = {
-  corrida: 'Corrida',
-  sprint: 'Sprint',
-  classificacao: 'Classificação',
+const TEXTOS = {
+  pt: {
+    sessoes: { corrida: 'Corrida', sprint: 'Sprint', classificacao: 'Classificação' } as Record<
+      Sessao,
+      string
+    >,
+    box: 'Box',
+    ganhou: ' posições ganhas',
+    perdeu: ' posições perdidas',
+    piloto: 'Piloto',
+    largada: 'Largada',
+    voltas: 'Voltas',
+    tempo: 'Tempo',
+    naoClassificado: 'Não classificado',
+    nc: 'NC',
+    voltaRapida: 'Volta mais rápida',
+    vr: 'VR',
+    vrLegenda: 'VR: volta mais rápida',
+    ncLegenda: 'NC: não classificado',
+    pontos: 'Como funcionam os pontos',
+    paraACorrida: 'Classificação para a corrida',
+    melhorVolta: 'Melhor volta',
+    calendario: '← Calendário',
+    carregando: 'Carregando resultado…',
+    naoEncontrada: 'Etapa não encontrada',
+    erro: 'Não foi possível carregar o resultado',
+    voltarAoCalendario: 'Voltar ao calendário',
+    foraDoCalendario: 'Essa etapa não faz parte do calendário.',
+    etapa: 'Etapa',
+    sessoesDoFimDeSemana: 'Sessões do fim de semana',
+    aindaNao: 'Essa corrida ainda não aconteceu',
+    largadaMarcada: (quando: string) =>
+      `A largada está marcada para ${quando}, no seu horário. A classificação aparece aqui assim que a prova terminar.`,
+    podio: 'Pódio',
+    finalDaCorrida: 'Classificação final da corrida',
+    daSprint: 'Resultado da sprint',
+  },
+  en: {
+    sessoes: { corrida: 'Race', sprint: 'Sprint', classificacao: 'Qualifying' } as Record<
+      Sessao,
+      string
+    >,
+    box: 'Pit lane',
+    ganhou: ' places gained',
+    perdeu: ' places lost',
+    piloto: 'Driver',
+    largada: 'Grid',
+    voltas: 'Laps',
+    tempo: 'Time',
+    naoClassificado: 'Not classified',
+    nc: 'NC',
+    voltaRapida: 'Fastest lap',
+    vr: 'FL',
+    vrLegenda: 'FL: fastest lap',
+    ncLegenda: 'NC: not classified',
+    pontos: 'How points work',
+    paraACorrida: 'Qualifying for the race',
+    melhorVolta: 'Best lap',
+    calendario: '← Calendar',
+    carregando: 'Loading the result…',
+    naoEncontrada: 'Round not found',
+    erro: 'Could not load the result',
+    voltarAoCalendario: 'Back to the calendar',
+    foraDoCalendario: 'This round is not on the calendar.',
+    etapa: 'Round',
+    sessoesDoFimDeSemana: 'Weekend sessions',
+    aindaNao: 'This race has not happened yet',
+    largadaMarcada: (quando: string) =>
+      `The start is set for ${quando}, in your time zone. The result shows up here as soon as the race ends.`,
+    podio: 'Podium',
+    finalDaCorrida: 'Final race classification',
+    daSprint: 'Sprint result',
+  },
 };
 
-const dataDaCorrida = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
-const dataEHora = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full', timeStyle: 'short' });
+function ordinal(posicao: number, idioma: 'pt' | 'en') {
+  if (idioma === 'pt') return `${posicao}º`;
+
+  return `P${posicao}`;
+}
+
+const dataDaCorrida = porIdioma((locale) => new Intl.DateTimeFormat(locale, { dateStyle: 'long' }));
+const dataEHora = porIdioma(
+  (locale) => new Intl.DateTimeFormat(locale, { dateStyle: 'full', timeStyle: 'short' }),
+);
 
 function Largada({ linha }: { linha: Linha }) {
+  const t = useTextos(TEXTOS);
+  const idioma = useIdioma();
+
   if (linha.largada === 0) {
-    return <span className={styles.largada}>Box</span>;
+    return <span className={styles.largada}>{t.box}</span>;
   }
 
   const ganho = linha.largada - linha.posicao;
 
   if (!linha.classificado || ganho === 0) {
-    return <span className={styles.largada}>{linha.largada}º</span>;
+    return <span className={styles.largada}>{ordinal(linha.largada, idioma)}</span>;
   }
 
   return (
     <span className={styles.largada}>
-      {linha.largada}º{' '}
+      {ordinal(linha.largada, idioma)}{' '}
       <span className={ganho > 0 ? styles.subiu : styles.caiu}>
         <span aria-hidden="true">{ganho > 0 ? '▲' : '▼'}</span>
         {Math.abs(ganho)}
-        <span className="apenas-leitor">
-          {ganho > 0 ? ' posições ganhas' : ' posições perdidas'}
-        </span>
+        <span className="apenas-leitor">{ganho > 0 ? t.ganhou : t.perdeu}</span>
       </span>
     </span>
   );
 }
 
 function Classificacao({ linhas, legenda }: { linhas: Linha[]; legenda: string }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <>
       <div className={styles.cartao}>
@@ -66,14 +147,14 @@ function Classificacao({ linhas, legenda }: { linhas: Linha[]; legenda: string }
               <th scope="col" className={styles.colunaPosicao}>
                 Pos
               </th>
-              <th scope="col">Piloto</th>
+              <th scope="col">{t.piloto}</th>
               <th scope="col" className={styles.opcional}>
-                Largada
+                {t.largada}
               </th>
               <th scope="col" className={styles.opcional}>
-                Voltas
+                {t.voltas}
               </th>
-              <th scope="col">Tempo</th>
+              <th scope="col">{t.tempo}</th>
               <th scope="col" className={styles.colunaPontos}>
                 Pts
               </th>
@@ -86,7 +167,11 @@ function Classificacao({ linhas, legenda }: { linhas: Linha[]; legenda: string }
                 className={linha.classificado ? undefined : styles.foraDaProva}
               >
                 <td className={styles.colunaPosicao}>
-                  {linha.classificado ? linha.posicao : <abbr title="Não classificado">NC</abbr>}
+                  {linha.classificado ? (
+                    linha.posicao
+                  ) : (
+                    <abbr title={t.naoClassificado}>{t.nc}</abbr>
+                  )}
                 </td>
                 <th scope="row" className={styles.colunaPiloto}>
                   <span className={styles.piloto}>
@@ -95,9 +180,9 @@ function Classificacao({ linhas, legenda }: { linhas: Linha[]; legenda: string }
                       <span>
                         {linha.nome}
                         {linha.voltaMaisRapida && (
-                          <span className={styles.voltaRapida} title="Volta mais rápida">
-                            <span aria-hidden="true">VR</span>
-                            <span className="apenas-leitor"> (volta mais rápida)</span>
+                          <span className={styles.voltaRapida} title={t.voltaRapida}>
+                            <span aria-hidden="true">{t.vr}</span>
+                            <span className="apenas-leitor"> ({t.voltaRapida})</span>
                           </span>
                         )}
                       </span>
@@ -121,9 +206,9 @@ function Classificacao({ linhas, legenda }: { linhas: Linha[]; legenda: string }
         </table>
       </div>
       <p className={styles.siglas}>
-        <Link to="/glossario#volta-mais-rapida">VR: volta mais rápida</Link>
-        <Link to="/glossario#nao-classificado">NC: não classificado</Link>
-        <Link to="/glossario#pontuacao">Como funcionam os pontos</Link>
+        <Link to="/glossario#volta-mais-rapida">{t.vrLegenda}</Link>
+        <Link to="/glossario#nao-classificado">{t.ncLegenda}</Link>
+        <Link to="/glossario#pontuacao">{t.pontos}</Link>
       </p>
     </>
   );
@@ -137,16 +222,18 @@ function melhorTempo(linha: LinhaDaQualificacao) {
 }
 
 function Qualificacao({ linhas }: { linhas: LinhaDaQualificacao[] }) {
+  const t = useTextos(TEXTOS);
+
   return (
     <div className={styles.cartao}>
       <table className={styles.tabela}>
-        <caption className="apenas-leitor">Classificação para a corrida</caption>
+        <caption className="apenas-leitor">{t.paraACorrida}</caption>
         <thead>
           <tr>
             <th scope="col" className={styles.colunaPosicao}>
               Pos
             </th>
-            <th scope="col">Piloto</th>
+            <th scope="col">{t.piloto}</th>
             <th scope="col" className={styles.opcional}>
               Q1
             </th>
@@ -157,7 +244,7 @@ function Qualificacao({ linhas }: { linhas: LinhaDaQualificacao[] }) {
               Q3
             </th>
             <th scope="col" className={styles.soNoCelular}>
-              Melhor volta
+              {t.melhorVolta}
             </th>
           </tr>
         </thead>
@@ -194,10 +281,11 @@ export function ResultadoPage() {
   const { rodada = '' } = useParams();
   const [parametros] = useSearchParams();
   const resultado = useQuery(resultadoDaEtapa(rodada));
+  const t = useTextos(TEXTOS);
 
   const voltar = (
     <Link to="/calendario" className={styles.voltar} viewTransition>
-      ← Calendário
+      {t.calendario}
     </Link>
   );
 
@@ -206,7 +294,7 @@ export function ResultadoPage() {
       <>
         {voltar}
         <div className={styles.esqueleto} role="status">
-          <span className="apenas-leitor">Carregando resultado…</span>
+          <span className="apenas-leitor">{t.carregando}</span>
         </div>
       </>
     );
@@ -219,14 +307,14 @@ export function ResultadoPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo={inexistente ? 'Etapa não encontrada' : 'Não foi possível carregar o resultado'}
+        titulo={inexistente ? t.naoEncontrada : t.erro}
         acao={
           <Link to="/calendario" className={botao.secundario}>
-            Voltar ao calendário
+            {t.voltarAoCalendario}
           </Link>
         }
       >
-        {inexistente ? 'Essa etapa não faz parte do calendário.' : mensagemDoErro(resultado.error)}
+        {inexistente ? t.foraDoCalendario : mensagemDoErro(resultado.error)}
       </Aviso>
     );
   }
@@ -253,7 +341,7 @@ export function ResultadoPage() {
 
       <header className={styles.destaque}>
         <p className={styles.sobretitulo}>
-          Etapa {etapa.rodada} · {dataDaCorrida.format(new Date(etapa.inicio))}
+          {t.etapa} {etapa.rodada} · {dataDaCorrida().format(new Date(etapa.inicio))}
         </p>
         <h1 className={styles.nomeDoGp}>{titulo}</h1>
         <p className={styles.local}>
@@ -268,7 +356,7 @@ export function ResultadoPage() {
       </header>
 
       {disponiveis.length > 1 && (
-        <nav aria-label="Sessões do fim de semana" className={styles.sessoes}>
+        <nav aria-label={t.sessoesDoFimDeSemana} className={styles.sessoes}>
           {disponiveis.map((opcao) => (
             <Link
               key={opcao}
@@ -278,31 +366,30 @@ export function ResultadoPage() {
               className={opcao === sessao ? styles.sessaoAtiva : styles.sessao}
               aria-current={opcao === sessao ? 'page' : undefined}
             >
-              {NOMES_DAS_SESSOES[opcao]}
+              {t.sessoes[opcao]}
             </Link>
           ))}
         </nav>
       )}
 
       {sessao === undefined && (
-        <Aviso titulo="Essa corrida ainda não aconteceu">
-          A largada está marcada para {dataEHora.format(new Date(etapa.inicio))}, no seu horário. A
-          classificação aparece aqui assim que a prova terminar.
+        <Aviso titulo={t.aindaNao}>
+          {t.largadaMarcada(dataEHora().format(new Date(etapa.inicio)))}
         </Aviso>
       )}
 
       {sessao === 'corrida' && (
         <>
           {podio.length === 3 && (
-            <section className={styles.secaoDoPodio} aria-label="Pódio">
+            <section className={styles.secaoDoPodio} aria-label={t.podio}>
               <Podio pilotos={podio} />
             </section>
           )}
-          <Classificacao linhas={classificacao} legenda="Classificação final da corrida" />
+          <Classificacao linhas={classificacao} legenda={t.finalDaCorrida} />
         </>
       )}
 
-      {sessao === 'sprint' && <Classificacao linhas={sprint} legenda="Resultado da sprint" />}
+      {sessao === 'sprint' && <Classificacao linhas={sprint} legenda={t.daSprint} />}
 
       {sessao === 'classificacao' && <Qualificacao linhas={qualificacao} />}
     </>

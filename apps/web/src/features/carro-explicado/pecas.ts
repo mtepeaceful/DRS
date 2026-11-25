@@ -45,7 +45,7 @@ export const PECAS: Peca[] = [
   {
     id: 'halo',
     nome: 'Halo',
-    ponto: [-0.05, 0.98, 0],
+    ponto: [0.2, 0.84, 0],
     texto:
       'Arco de titânio sobre a cabeça do piloto, obrigatório desde 2018. Aguenta cargas de mais de 12 toneladas e já evitou ferimentos graves em vários acidentes.',
     termos: ['halo'],
@@ -53,7 +53,7 @@ export const PECAS: Peca[] = [
   {
     id: 'sidepods',
     nome: 'Sidepods',
-    ponto: [-0.45, 0.56, 0.8],
+    ponto: [-0.2, 0.46, 0.72],
     texto:
       'As laterais guardam os radiadores do motor e da parte elétrica. O formato muda muito de equipe para equipe, porque decide como o ar chega à traseira do carro.',
     termos: [],

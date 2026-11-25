@@ -111,6 +111,23 @@ describe('ConsultarDicionario', () => {
     });
   });
 
+  it('traz o perfil da equipe do grid atual pela tabela versionada', async () => {
+    const ficha = await (await criar()).detalhar('ferrari', AGORA);
+
+    expect(ficha.perfil).toMatchObject({
+      nomeCompleto: 'Scuderia Ferrari HP',
+      sede: { cidade: 'Maranello', pais: 'IT' },
+      chassi: 'SF-26',
+      motor: 'Ferrari',
+    });
+  });
+
+  it('não inventa perfil para equipe fora da tabela', async () => {
+    const ficha = await (await criar()).detalhar('team_lotus', AGORA);
+
+    expect(ficha.perfil).toBeNull();
+  });
+
   it('segue sem o verbete quando a enciclopédia está fora do ar', async () => {
     const dicionario = await criar({ verbete: () => Promise.reject(new Error('fora do ar')) });
 

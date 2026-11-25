@@ -27,12 +27,14 @@ import {
   SRGBColorSpace,
   Texture,
   TorusGeometry,
+  Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Efeitos } from './efeitos';
+import { corpoPorSecoes, haste, perfilDeAsa, placa, pneu, type Secao, tubo } from './formas';
 import { aparelhoForte } from './suporte';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
@@ -198,47 +200,202 @@ function caixa(largura: number, altura: number, profundidade: number, cor: MeshS
   return new Mesh(new BoxGeometry(largura, altura, profundidade), cor);
 }
 
-function monocoque(pintura: MeshStandardMaterial) {
-  const perfil = new Shape();
-  perfil.moveTo(2.75, 0.18);
-  perfil.lineTo(2.75, 0.26);
-  perfil.lineTo(1.3, 0.4);
-  perfil.lineTo(0.45, 0.52);
-  perfil.lineTo(0.05, 0.52);
-  perfil.lineTo(-0.35, 0.78);
-  perfil.lineTo(-0.75, 0.95);
-  perfil.lineTo(-1.1, 0.8);
-  perfil.lineTo(-2.25, 0.46);
-  perfil.lineTo(-2.45, 0.32);
-  perfil.lineTo(-2.45, 0.16);
-  perfil.lineTo(2.75, 0.18);
+const CORPO: Secao[] = [
+  { x: 2.8, largura: 0.035, base: 0.19, topo: 0.25 },
+  { x: 2.45, largura: 0.08, base: 0.17, topo: 0.31 },
+  { x: 1.9, largura: 0.13, base: 0.16, topo: 0.38 },
+  { x: 1.3, largura: 0.19, base: 0.15, topo: 0.46 },
+  { x: 0.7, largura: 0.26, base: 0.15, topo: 0.53 },
+  { x: 0.2, largura: 0.3, base: 0.15, topo: 0.56 },
+  { x: -0.25, largura: 0.3, base: 0.15, topo: 0.6 },
+  { x: -0.55, largura: 0.26, base: 0.15, topo: 0.88 },
+  { x: -0.95, largura: 0.22, base: 0.15, topo: 0.84 },
+  { x: -1.55, largura: 0.16, base: 0.15, topo: 0.64 },
+  { x: -2.05, largura: 0.11, base: 0.16, topo: 0.46 },
+  { x: -2.42, largura: 0.07, base: 0.18, topo: 0.32 },
+];
 
-  const geometria = new ExtrudeGeometry(perfil, {
-    depth: 0.62,
-    bevelEnabled: true,
-    bevelThickness: 0.06,
-    bevelSize: 0.05,
-    bevelSegments: 1,
-  });
-  geometria.translate(0, 0, -0.31);
+const SIDEPOD: Secao[] = [
+  { x: 0.64, largura: 0.2, base: 0.2, topo: 0.49, centroZ: 0.5 },
+  { x: 0.35, largura: 0.24, base: 0.16, topo: 0.52, centroZ: 0.5 },
+  { x: -0.25, largura: 0.24, base: 0.16, topo: 0.48, centroZ: 0.46 },
+  { x: -0.9, largura: 0.2, base: 0.16, topo: 0.38, centroZ: 0.34 },
+  { x: -1.5, largura: 0.12, base: 0.16, topo: 0.28, centroZ: 0.2 },
+  { x: -1.85, largura: 0.06, base: 0.17, topo: 0.22, centroZ: 0.12 },
+];
+
+function monocoque(pintura: MeshStandardMaterial) {
+  return new Mesh(corpoPorSecoes(CORPO), pintura);
+}
+
+function sidepod(lado: number, pintura: MeshStandardMaterial, carbono: MeshStandardMaterial) {
+  const conjunto = new Group();
+  const secoes = SIDEPOD.map((secao) => ({ ...secao, centroZ: lado * (secao.centroZ ?? 0) }));
+  conjunto.add(new Mesh(corpoPorSecoes(secoes, 4), pintura));
+
+  const entrada = new Mesh(new CircleGeometry(1, 32), carbono);
+  entrada.scale.set(0.17, 0.1, 1);
+  entrada.rotation.y = Math.PI / 2;
+  entrada.position.set(0.645, 0.35, lado * 0.5);
+  conjunto.add(entrada);
+
+  return conjunto;
+}
+
+function barbatana(pintura: MeshStandardMaterial) {
+  const geometria = placa(
+    [
+      [-0.62, 0.86],
+      [-0.8, 0.9],
+      [-2.3, 0.86],
+      [-2.3, 0.4],
+      [-1.6, 0.6],
+      [-1.0, 0.8],
+    ],
+    0.012,
+  );
 
   return new Mesh(geometria, pintura);
 }
 
+function halo(carbono: MeshStandardMaterial) {
+  const conjunto = new Group();
+  conjunto.add(
+    new Mesh(
+      tubo(
+        [
+          [-0.3, 0.6, -0.27],
+          [-0.05, 0.76, -0.26],
+          [0.22, 0.8, -0.12],
+          [0.3, 0.8, 0],
+          [0.22, 0.8, 0.12],
+          [-0.05, 0.76, 0.26],
+          [-0.3, 0.6, 0.27],
+        ],
+        0.03,
+      ),
+      carbono,
+    ),
+  );
+  conjunto.add(
+    new Mesh(
+      tubo(
+        [
+          [0.46, 0.55, 0],
+          [0.4, 0.7, 0],
+          [0.3, 0.8, 0],
+        ],
+        0.026,
+      ),
+      carbono,
+    ),
+  );
+
+  return conjunto;
+}
+
+function retrovisor(lado: number, pintura: MeshStandardMaterial, carbono: MeshStandardMaterial) {
+  const conjunto = new Group();
+  conjunto.add(new Mesh(haste([0.42, 0.5, lado * 0.42], [0.42, 0.64, lado * 0.52], 0.01), carbono));
+  const carcaca = new Mesh(new SphereGeometry(1, 20, 12), pintura);
+  carcaca.scale.set(0.04, 0.03, 0.075);
+  carcaca.position.set(0.42, 0.65, lado * 0.55);
+  conjunto.add(carcaca);
+
+  return conjunto;
+}
+
+function suspensao(carbono: MeshStandardMaterial) {
+  const conjunto = new Group();
+  const bracos: [Ponto, Ponto][] = [];
+
+  for (const lado of [-1, 1]) {
+    const [xf, xt] = [1.85, -1.65];
+    bracos.push(
+      [
+        [xf + 0.25, 0.27, lado * 0.12],
+        [xf, 0.3, lado * 0.68],
+      ],
+      [
+        [xf - 0.3, 0.27, lado * 0.14],
+        [xf, 0.3, lado * 0.68],
+      ],
+      [
+        [xf + 0.22, 0.42, lado * 0.12],
+        [xf, 0.46, lado * 0.66],
+      ],
+      [
+        [xf - 0.25, 0.44, lado * 0.15],
+        [xf, 0.46, lado * 0.66],
+      ],
+      [
+        [xf - 0.05, 0.28, lado * 0.62],
+        [xf - 0.15, 0.48, lado * 0.15],
+      ],
+      [
+        [xt + 0.3, 0.24, lado * 0.16],
+        [xt, 0.3, lado * 0.68],
+      ],
+      [
+        [xt - 0.25, 0.24, lado * 0.1],
+        [xt, 0.3, lado * 0.68],
+      ],
+      [
+        [xt + 0.28, 0.4, lado * 0.14],
+        [xt, 0.46, lado * 0.66],
+      ],
+      [
+        [xt - 0.2, 0.4, lado * 0.08],
+        [xt, 0.46, lado * 0.66],
+      ],
+    );
+  }
+
+  for (const [de, ate] of bracos) {
+    conjunto.add(new Mesh(haste(de, ate), carbono));
+  }
+
+  return conjunto;
+}
+
 function roda(x: number, z: number, aro: MeshStandardMaterial, composto: Composto | null) {
   const conjunto = new Group();
-  const pneu = new Mesh(new CylinderGeometry(0.36, 0.36, 0.4, 48), borracha());
-  const centro = new Mesh(new CylinderGeometry(0.21, 0.21, 0.42, 32), aro);
-  pneu.rotation.x = Math.PI / 2;
-  centro.rotation.x = Math.PI / 2;
-  conjunto.add(pneu, centro);
+  const lado = Math.sign(z);
+  const traseira = x < 0;
+  const largura = traseira ? 0.44 : 0.38;
+  const borrachaDoPneu = borracha();
+  borrachaDoPneu.side = DoubleSide;
+  conjunto.add(new Mesh(pneu(0.36, largura, 0.235), borrachaDoPneu));
+
+  const tambor = new Mesh(new CylinderGeometry(0.235, 0.235, largura * 0.9, 40, 1, true), aro);
+  tambor.rotation.x = Math.PI / 2;
+  conjunto.add(tambor);
+
+  const fundo = new Mesh(new CircleGeometry(0.235, 40), material('#0d0d10', 0.6));
+  fundo.position.z = lado * (largura * 0.2);
+  fundo.rotation.y = lado === 1 ? 0 : Math.PI;
+  conjunto.add(fundo);
+
+  const raios = 10;
+  for (let indice = 0; indice < raios; indice++) {
+    const angulo = (indice / raios) * Math.PI * 2;
+    const raio = new Mesh(new BoxGeometry(0.16, 0.022, 0.03), aro);
+    raio.position.set(Math.cos(angulo) * 0.13, Math.sin(angulo) * 0.13, lado * largura * 0.36);
+    raio.rotation.z = angulo;
+    conjunto.add(raio);
+  }
+
+  const cubo = new Mesh(new CylinderGeometry(0.055, 0.055, 0.06, 24), aro);
+  cubo.rotation.x = Math.PI / 2;
+  cubo.position.z = lado * largura * 0.4;
+  conjunto.add(cubo);
 
   if (composto) {
     const faixa = new Mesh(
-      new TorusGeometry(0.29, 0.022, 8, 48),
+      new TorusGeometry(0.3, 0.014, 8, 64),
       material(COR_DO_COMPOSTO[composto], 0.6),
     );
-    faixa.position.z = Math.sign(z) * 0.205;
+    faixa.position.z = lado * (largura / 2 - 0.005);
     conjunto.add(faixa);
   }
   conjunto.position.set(x, 0.36, z);
@@ -296,16 +453,47 @@ function corDoTexto(fundo: string) {
   return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? '#0a0a0b' : '#ffffff';
 }
 
-function asaDianteira(variacao: VariacaoDeAsa, detalhe: MeshStandardMaterial) {
+function asaDianteira(
+  variacao: VariacaoDeAsa,
+  detalhe: MeshStandardMaterial,
+  carbono: MeshStandardMaterial,
+) {
   const conjunto = new Group();
-  const elementos = { padrao: 1, carga: 2, arrasto: 1, evolucao: 3 }[variacao];
-  const espessura = variacao === 'arrasto' ? 0.025 : 0.04;
+  const elementos = { padrao: 2, carga: 3, arrasto: 1, evolucao: 4 }[variacao];
+  const espessura = variacao === 'arrasto' ? 0.08 : 0.12;
 
   for (let indice = 0; indice < elementos; indice++) {
-    const elemento = caixa(0.55 - indice * 0.13, espessura, 2 - indice * 0.06, detalhe);
-    elemento.position.set(2.6 - indice * 0.12, 0.12 + indice * 0.06, 0);
-    elemento.rotation.z = indice * 0.16;
+    const elemento = new Mesh(
+      perfilDeAsa(0.42 - indice * 0.07, 1.92 - indice * 0.04, espessura),
+      indice === 0 ? carbono : detalhe,
+    );
+    elemento.position.set(2.92 - indice * 0.22, 0.1 + indice * 0.055, 0);
+    elemento.rotation.z = 0.06 + indice * 0.17;
     conjunto.add(elemento);
+  }
+
+  for (const lado of [-1, 1]) {
+    const placaLateral = new Mesh(
+      placa(
+        [
+          [2.95, 0.06],
+          [2.3, 0.06],
+          [2.25, 0.26],
+          [2.6, 0.32],
+          [2.95, 0.18],
+        ],
+        0.02,
+      ),
+      detalhe,
+    );
+    placaLateral.position.z = lado * 0.97;
+    conjunto.add(placaLateral);
+  }
+
+  for (const lado of [-1, 1]) {
+    conjunto.add(
+      new Mesh(haste([2.55, 0.12, lado * 0.06], [2.5, 0.22, lado * 0.05], 0.012), carbono),
+    );
   }
 
   return conjunto;
@@ -317,9 +505,41 @@ function assoalho(
   detalhe: MeshStandardMaterial,
 ) {
   const conjunto = new Group();
-  const base = caixa(4.6, 0.05, variacao === 'borda' ? 1.62 : 1.5, carbono);
-  base.position.set(0, 0.12, 0);
+  const meia = variacao === 'borda' ? 0.81 : 0.75;
+  const contorno = new Shape(
+    [
+      [1.35, 0.3],
+      [0.95, meia * 0.9],
+      [0.6, meia],
+      [-1.2, meia],
+      [-1.45, meia * 0.62],
+      [-2.2, meia * 0.55],
+      [-2.3, 0.25],
+      [-2.3, -0.25],
+      [-2.2, -meia * 0.55],
+      [-1.45, -meia * 0.62],
+      [-1.2, -meia],
+      [0.6, -meia],
+      [0.95, -meia * 0.9],
+      [1.35, -0.3],
+    ].map(([x = 0, z = 0]) => new Vector2(x, z)),
+  );
+  const geometria = new ExtrudeGeometry(contorno, {
+    depth: 0.035,
+    bevelEnabled: true,
+    bevelThickness: 0.008,
+    bevelSize: 0.008,
+    bevelSegments: 1,
+  });
+  geometria.rotateX(Math.PI / 2);
+  const base = new Mesh(geometria, material('#121216', 0.7));
+  base.position.y = 0.14;
   conjunto.add(base);
+
+  const difusor = caixa(0.5, 0.02, meia * 1.05, carbono);
+  difusor.position.set(-2.25, 0.2, 0);
+  difusor.rotation.z = -0.32;
+  conjunto.add(difusor);
 
   if (variacao === 'canais') {
     for (const z of [-0.5, -0.25, 0.25, 0.5]) {
@@ -351,84 +571,112 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
     : null;
 
   conjunto.add(monocoque(pintura));
+  conjunto.add(barbatana(pintura));
   conjunto.add(assoalho(visual.assoalho, carbono, detalhe));
+  conjunto.add(halo(carbono));
+  conjunto.add(suspensao(carbono));
+
+  const cockpit = new Mesh(new CircleGeometry(1, 40), material('#08080a', 0.8));
+  cockpit.scale.set(0.38, 0.19, 1);
+  cockpit.rotation.x = -Math.PI / 2;
+  cockpit.position.set(0.05, 0.598, 0);
+  conjunto.add(cockpit);
+
+  const tomadaDeAr = new Mesh(new CircleGeometry(1, 32), material('#08080a', 0.8));
+  tomadaDeAr.scale.set(0.09, 0.07, 1);
+  tomadaDeAr.rotation.y = Math.PI / 2 - 0.5;
+  tomadaDeAr.position.set(-0.4, 0.8, 0);
+  conjunto.add(tomadaDeAr);
 
   for (const lado of [-1, 1]) {
-    const sidepod = caixa(1.9, 0.34, 0.42, pintura);
-    sidepod.position.set(-0.45, 0.36, lado * 0.58);
-    conjunto.add(sidepod);
+    conjunto.add(sidepod(lado, pintura, carbono));
+    conjunto.add(retrovisor(lado, pintura, carbono));
 
-    const entrada = caixa(0.08, 0.26, 0.34, carbono);
-    entrada.position.set(0.52, 0.38, lado * 0.58);
-    conjunto.add(entrada);
-
-    const placaDianteira = caixa(0.6, 0.22, 0.04, detalhe);
-    placaDianteira.position.set(2.62, 0.2, lado * 0.98);
-    conjunto.add(placaDianteira);
-
-    const placaTraseira = caixa(0.62, 0.68, 0.04, pintura);
-    placaTraseira.position.set(-2.4, 0.74, lado * 0.8);
+    const placaTraseira = new Mesh(
+      placa(
+        [
+          [-2.08, 0.32],
+          [-2.12, 1.02],
+          [-2.62, 1.02],
+          [-2.68, 0.5],
+          [-2.55, 0.32],
+        ],
+        0.025,
+      ),
+      pintura,
+    );
+    placaTraseira.position.z = lado * 0.8;
     conjunto.add(placaTraseira);
 
     if (numero !== undefined) {
-      const numeroNaLateral = new Mesh(
-        new PlaneGeometry(0.5, 0.5),
+      const numeroNaBarbatana = new Mesh(
+        new PlaneGeometry(0.3, 0.3),
         adesivo(texturaDoNumero(numero, corSecundaria), true),
       );
-      numeroNaLateral.position.set(-1.25, 0.62, lado * 0.37);
-      numeroNaLateral.rotation.y = lado === 1 ? 0 : Math.PI;
-      conjunto.add(numeroNaLateral);
+      numeroNaBarbatana.position.set(-1.55, 0.7, lado * 0.012);
+      numeroNaBarbatana.rotation.y = lado === 1 ? 0 : Math.PI;
+      conjunto.add(numeroNaBarbatana);
+
+      const numeroNoBico = new Mesh(
+        new PlaneGeometry(0.16, 0.16),
+        adesivo(texturaDoNumero(numero, corSecundaria), true),
+      );
+      numeroNoBico.position.set(2.1, 0.37, lado * 0.075);
+      numeroNoBico.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
+      numeroNoBico.visible = lado === 1;
+      conjunto.add(numeroNoBico);
     }
 
     if (patrocinio) {
-      const naLateral = new Mesh(new PlaneGeometry(1.2, 0.3), patrocinio);
-      naLateral.position.set(-0.5, 0.37, lado * 0.792);
+      const naLateral = new Mesh(new PlaneGeometry(0.6, 0.15), patrocinio);
+      naLateral.position.set(0.1, 0.34, lado * 0.735);
       naLateral.rotation.y = lado === 1 ? 0 : Math.PI;
       conjunto.add(naLateral);
 
-      const naPlaca = new Mesh(new PlaneGeometry(0.56, 0.14), patrocinio);
-      naPlaca.position.set(-2.4, 0.86, lado * 0.822);
+      const naPlaca = new Mesh(new PlaneGeometry(0.44, 0.12), patrocinio);
+      naPlaca.position.set(-2.38, 0.88, lado * 0.82);
       naPlaca.rotation.y = lado === 1 ? 0 : Math.PI;
       conjunto.add(naPlaca);
     }
   }
 
-  conjunto.add(asaDianteira(visual.asaDianteira, detalhe));
+  conjunto.add(asaDianteira(visual.asaDianteira, detalhe, carbono));
 
   const asa = ASA_TRASEIRA[visual.asaTraseira];
-  const planoTraseiro = caixa(asa.plano, 0.05, 1.56, pintura);
-  planoTraseiro.position.set(-2.38, 0.82, 0);
+  const planoTraseiro = new Mesh(perfilDeAsa(asa.plano, 1.58, 0.11), pintura);
+  planoTraseiro.position.set(-2.38 + asa.plano / 2, 0.82, 0);
+  planoTraseiro.rotation.z = 0.12;
   conjunto.add(planoTraseiro);
 
   if (visual.asaTraseira === 'evolucao') {
-    const planoInferior = caixa(0.32, 0.04, 1.2, carbono);
-    planoInferior.position.set(-2.32, 0.42, 0);
+    const planoInferior = new Mesh(perfilDeAsa(0.3, 1.2, 0.1), carbono);
+    planoInferior.position.set(-2.17, 0.44, 0);
+    planoInferior.rotation.z = 0.1;
     conjunto.add(planoInferior);
   }
 
-  const flap = caixa(asa.flap, 0.04, 1.56, detalhe);
-  flap.position.set(-asa.flap / 2, 0, 0);
+  const flap = new Mesh(perfilDeAsa(asa.flap, 1.58, 0.1), detalhe);
   const dobradica = new Group();
   dobradica.position.set(-2.18, 0.9, 0);
   dobradica.rotation.z = FLAP_FECHADO;
   dobradica.add(flap);
   conjunto.add(dobradica);
 
-  const suporte = caixa(0.08, 0.4, 0.06, carbono);
-  suporte.position.set(-2.3, 0.6, 0);
-  conjunto.add(suporte);
+  for (const lado of [-1, 1]) {
+    conjunto.add(
+      new Mesh(haste([-2.15, 0.36, lado * 0.06], [-2.32, 0.84, lado * 0.08], 0.02), carbono),
+    );
+  }
 
-  const halo = new Mesh(new TorusGeometry(0.34, 0.035, 12, 40, Math.PI), carbono);
-  halo.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
-  halo.position.set(0.05, 0.74, 0);
-  conjunto.add(halo);
-
-  const pilar = caixa(0.05, 0.22, 0.05, carbono);
-  pilar.position.set(0.38, 0.64, 0);
-  conjunto.add(pilar);
+  const luzDeChuva = new Mesh(
+    new BoxGeometry(0.03, 0.06, 0.12),
+    new MeshStandardMaterial({ color: '#ff2a14', emissive: '#ff2a14', emissiveIntensity: 1.5 }),
+  );
+  luzDeChuva.position.set(-2.44, 0.26, 0);
+  conjunto.add(luzDeChuva);
 
   const capacete = new Mesh(new SphereGeometry(0.16, 32, 20), detalhe);
-  capacete.position.set(-0.08, 0.66, 0);
+  capacete.position.set(-0.05, 0.68, 0);
   conjunto.add(capacete);
 
   const viseira = new Mesh(

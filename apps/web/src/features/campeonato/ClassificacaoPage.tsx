@@ -10,6 +10,7 @@ import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { painel } from '../home/api';
 import { COMUNS } from '../../shared/i18n/comuns';
 import { useTextos } from '../../shared/i18n/idioma';
+import { useLinksDaClassificacao } from './links';
 import styles from './ClassificacaoPage.module.css';
 
 const TEXTOS = {
@@ -52,6 +53,7 @@ interface Linha {
   detalhe?: string;
   vitorias: number;
   pontos: number;
+  link: string | null;
 }
 
 function Tabela({ titulo, linhas, rotulo }: { titulo: string; linhas: Linha[]; rotulo: string }) {
@@ -87,7 +89,13 @@ function Tabela({ titulo, linhas, rotulo }: { titulo: string; linhas: Linha[]; r
                 <span className={styles.identidade}>
                   <SimboloDaEquipe nome={linha.equipe} {...CORES_NEUTRAS} />
                   <span className={styles.textos}>
-                    {linha.nome}
+                    {linha.link ? (
+                      <Link to={linha.link} className={styles.link}>
+                        {linha.nome}
+                      </Link>
+                    ) : (
+                      linha.nome
+                    )}
                     {linha.detalhe && <span className={styles.detalhe}>{linha.detalhe}</span>}
                     <span className={styles.barra} aria-hidden="true">
                       <span style={{ width: `${(linha.pontos / lider) * 100}%` }} />
@@ -105,15 +113,22 @@ function Tabela({ titulo, linhas, rotulo }: { titulo: string; linhas: Linha[]; r
   );
 }
 
-function linhasDePilotos({ pilotos }: Campeonato): Linha[] {
-  return pilotos.map((piloto) => ({ ...piloto, detalhe: nomeDaEquipe(piloto.equipe) }));
+type Links = ReturnType<typeof useLinksDaClassificacao>;
+
+function linhasDePilotos({ pilotos }: Campeonato, links: Links): Linha[] {
+  return pilotos.map((piloto) => ({
+    ...piloto,
+    detalhe: nomeDaEquipe(piloto.equipe),
+    link: links.piloto(piloto.nome),
+  }));
 }
 
-function linhasDeConstrutores({ construtores }: Campeonato): Linha[] {
+function linhasDeConstrutores({ construtores }: Campeonato, links: Links): Linha[] {
   return construtores.map((equipe) => ({
     ...equipe,
     nome: nomeDaEquipe(equipe.nome),
     equipe: equipe.nome,
+    link: links.equipe(equipe.nome),
   }));
 }
 
@@ -121,6 +136,7 @@ export function ClassificacaoPage() {
   const dados = useQuery(painel);
   const t = useTextos(TEXTOS);
   const comuns = useTextos(COMUNS);
+  const links = useLinksDaClassificacao();
 
   if (dados.isPending) {
     return (
@@ -161,11 +177,11 @@ export function ClassificacaoPage() {
         </p>
       </header>
       <div className={styles.colunas}>
-        <Tabela titulo={t.pilotos} rotulo={t.piloto} linhas={linhasDePilotos(campeonato)} />
+        <Tabela titulo={t.pilotos} rotulo={t.piloto} linhas={linhasDePilotos(campeonato, links)} />
         <Tabela
           titulo={t.construtores}
           rotulo={t.equipe}
-          linhas={linhasDeConstrutores(campeonato)}
+          linhas={linhasDeConstrutores(campeonato, links)}
         />
       </div>
     </>

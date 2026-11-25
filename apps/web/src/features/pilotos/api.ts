@@ -34,6 +34,14 @@ export function listaDePilotos(busca: string, pagina: number) {
   });
 }
 
+/** Todos os pilotos cadastrados de uma vez (o grid cabe numa página). */
+export const pilotosDoGrid = queryOptions({
+  queryKey: [...chaves.listas, 'grid'] as const,
+  queryFn: ({ signal }) =>
+    buscar('/pilotos?pagina=1&porPagina=50', paginaDePilotosSchema, { signal }),
+  staleTime: 60 * 60_000,
+});
+
 export function detalheDoPiloto(id: string) {
   return queryOptions({
     queryKey: chaves.detalhe(id),

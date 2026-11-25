@@ -33,7 +33,9 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import type { Efeitos } from './efeitos';
 import { corpoPorSecoes, haste, perfilDeAsa, placa, pneu, type Secao, tubo } from './formas';
+import { aparelhoForte } from './suporte';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
 export type VariacaoDeAssoalho = 'padrao' | 'canais' | 'borda';
@@ -853,8 +855,23 @@ export function montarGaragem(
     }
 
     renderizador.setSize(largura, altura);
+    efeitos?.ajustar(largura, altura);
     camera.aspect = largura / altura;
     camera.updateProjectionMatrix();
+  }
+
+  let efeitos: Efeitos | null = null;
+  let destruida = false;
+
+  if (aparelhoForte()) {
+    void import('./efeitos').then(({ criarEfeitos }) => {
+      if (destruida) {
+        return;
+      }
+
+      const { clientWidth: largura, clientHeight: altura } = recipiente;
+      efeitos = criarEfeitos(renderizador, cena, camera, largura || 1, altura || 1);
+    });
   }
 
   const observador = new ResizeObserver(ajustar);
@@ -865,7 +882,11 @@ export function montarGaragem(
     atual.dobradica.rotation.z += (anguloDesejado - atual.dobradica.rotation.z) * 0.12;
     controles.target.lerp(alvoDesejado, 0.08);
     controles.update();
-    renderizador.render(cena, camera);
+    if (efeitos) {
+      efeitos.renderizar();
+    } else {
+      renderizador.render(cena, camera);
+    }
   });
 
   return {
@@ -896,7 +917,9 @@ export function montarGaragem(
       };
     },
     destruir: () => {
+      destruida = true;
       renderizador.setAnimationLoop(null);
+      efeitos?.destruir();
       observador.disconnect();
       controles.dispose();
       liberar(cena);

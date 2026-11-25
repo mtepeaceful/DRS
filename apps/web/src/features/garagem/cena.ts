@@ -680,7 +680,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   conjunto.add(capacete);
 
   const viseira = new Mesh(
-    new SphereGeometry(0.165, 32, 20, -Math.PI / 4, Math.PI / 2, Math.PI / 2.6, Math.PI / 5),
+    new SphereGeometry(0.165, 32, 20, (3 * Math.PI) / 4, Math.PI / 2, Math.PI / 2.6, Math.PI / 5),
     viseiraEspelhada(),
   );
   viseira.position.copy(capacete.position);

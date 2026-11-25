@@ -44,7 +44,7 @@ export class ConsultarDicionario {
 
   async listar(agora: Date): Promise<ResumoDaEquipe[]> {
     const [equipes, campeoes, gridAtual] = await Promise.all([
-      this.equipes.listar(),
+      this.todasAsEquipes(agora),
       this.campeoes.listar(),
       this.equipesDoGridAtual(agora),
     ]);
@@ -55,7 +55,7 @@ export class ConsultarDicionario {
   }
 
   async detalhar(id: string, agora: Date): Promise<FichaDaEquipe> {
-    const equipe = (await this.equipes.listar()).find((candidata) => candidata.id === id);
+    const equipe = (await this.todasAsEquipes(agora)).find((candidata) => candidata.id === id);
 
     if (!equipe) {
       throw new EquipeNaoEncontrada();
@@ -95,6 +95,30 @@ export class ConsultarDicionario {
             }
           : null,
     };
+  }
+
+  /**
+   * A lista completa vem da Jolpica, que às vezes não responde (ou limita as
+   * chamadas). Nesse caso, as equipes do campeonato atual seguram a página:
+   * a classificação traz o mesmo `constructorId` usado na rota /equipes/:id.
+   */
+  private async todasAsEquipes(agora: Date): Promise<EquipeDaHistoria[]> {
+    try {
+      return await this.equipes.listar();
+    } catch (erro) {
+      const campeonato = await this.campeonato.buscarCampeonato(agora).catch(() => null);
+      const doGrid = (campeonato?.construtores ?? []).flatMap((construtor) =>
+        construtor.id
+          ? [{ id: construtor.id, nome: construtor.nome, pais: null, wikipedia: null }]
+          : [],
+      );
+
+      if (doGrid.length === 0) {
+        throw erro;
+      }
+
+      return doGrid;
+    }
   }
 
   private async equipesDoGridAtual(agora: Date) {

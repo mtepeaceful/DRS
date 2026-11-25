@@ -156,3 +156,64 @@ describe('ConsultarDicionario', () => {
     await expect((await criar()).detalhar('inventada', AGORA)).rejects.toThrow(EquipeNaoEncontrada);
   });
 });
+
+describe('ConsultarDicionario com a Jolpica fora do ar', () => {
+  it('lista as equipes do campeonato atual quando a lista completa falha', async () => {
+    const fonte: FonteDasEquipes = {
+      listar: async () => {
+        throw new Error('Não foi possível obter os dados de api.jolpi.ca.');
+      },
+      numeros: async () => ({ temporadas: [], corridas: 0, vitorias: 0, podios: 0, poles: 0 }),
+    };
+    const campeonatoAtual: FonteDoCampeonato = {
+      buscarCampeonato: async () => ({
+        ...campeonato,
+        construtores: [
+          { id: 'mclaren', posicao: 1, nome: 'McLaren', pontos: 700, vitorias: 12 },
+          { id: 'ferrari', posicao: 2, nome: 'Ferrari', pontos: 510, vitorias: 2 },
+        ],
+      }),
+      buscarCalendario: async () => [],
+      buscarResultado: async () => null,
+      buscarParticipacoes: async () => [],
+    };
+    const consulta = new ConsultarDicionario(
+      fonte,
+      { verbete: async () => null },
+      new CampeoesRepositoryEmMemoria(),
+      campeonatoAtual,
+    );
+
+    const lista = await consulta.listar(AGORA);
+
+    expect(lista.map(({ id, noGridAtual }) => ({ id, noGridAtual }))).toEqual([
+      { id: 'ferrari', noGridAtual: true },
+      { id: 'mclaren', noGridAtual: true },
+    ]);
+  });
+
+  it('continua falhando quando nem o campeonato responde', async () => {
+    const fonte: FonteDasEquipes = {
+      listar: async () => {
+        throw new Error('fora do ar');
+      },
+      numeros: async () => ({ temporadas: [], corridas: 0, vitorias: 0, podios: 0, poles: 0 }),
+    };
+    const semCampeonato: FonteDoCampeonato = {
+      buscarCampeonato: async () => {
+        throw new Error('fora do ar');
+      },
+      buscarCalendario: async () => [],
+      buscarResultado: async () => null,
+      buscarParticipacoes: async () => [],
+    };
+    const consulta = new ConsultarDicionario(
+      fonte,
+      { verbete: async () => null },
+      new CampeoesRepositoryEmMemoria(),
+      semCampeonato,
+    );
+
+    await expect(consulta.listar(AGORA)).rejects.toThrow('fora do ar');
+  });
+});

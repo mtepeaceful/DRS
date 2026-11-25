@@ -1,24 +1,25 @@
 import type { VerbeteDTO } from '@drs/contracts';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import styles from './FotoDoCommons.module.css';
 
 interface Props {
   foto: NonNullable<VerbeteDTO['foto']>;
   descricao: string;
   className?: string | undefined;
+  substituto?: ReactNode;
 }
 
 function ehDesenho(endereco: string) {
   return /\.svg(\.png)?$/i.test(new URL(endereco).pathname);
 }
 
-export function FotoDoCommons({ foto, descricao, className }: Props) {
+export function FotoDoCommons({ foto, descricao, className, substituto }: Props) {
   const [quebrada, setQuebrada] = useState<string | null>(null);
   const credito = [foto.autor, foto.licenca].filter(Boolean).join(' · ');
   const desenho = ehDesenho(foto.url);
 
   if (quebrada === foto.url) {
-    return null;
+    return substituto ?? null;
   }
 
   return (

@@ -73,6 +73,11 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'garagem',
+        lazy: () =>
+          import('../features/montagem/MontagemPage').then((m) => ({ Component: m.MontagemPage })),
+      },
+      {
         path: 'pilotos/:id/garagem',
         lazy: () =>
           import('../features/garagem/GaragemPage').then((m) => ({ Component: m.GaragemPage })),

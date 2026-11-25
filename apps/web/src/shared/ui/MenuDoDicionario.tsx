@@ -9,6 +9,7 @@ const PAGINAS = [
   { para: '/historia/carros', nome: 'Evolução dos carros' },
   { para: '/carro', nome: 'O carro por dentro' },
   { para: '/historia/drs', nome: 'A história do DRS' },
+  { para: '/garagem', nome: 'Garagem com peças' },
   { para: '/classificacao', nome: 'Campeonato' },
   { para: '/comparar', nome: 'Comparar pilotos' },
 ];

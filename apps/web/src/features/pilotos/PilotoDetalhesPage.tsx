@@ -94,7 +94,16 @@ export function PilotoDetalhesPage() {
             <h1 className={styles.nome}>{nome}</h1>
           </header>
           {foto && (
-            <FotoDoCommons foto={foto} descricao={`Foto de ${nome}`} className={styles.foto} />
+            <FotoDoCommons
+              foto={foto}
+              descricao={`Foto de ${nome}`}
+              className={styles.foto}
+              substituto={
+                <div className={styles.semFoto} aria-hidden="true">
+                  {numero}
+                </div>
+              }
+            />
           )}
         </div>
 

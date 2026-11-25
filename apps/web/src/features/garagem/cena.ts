@@ -13,6 +13,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  type Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   RingGeometry,
@@ -26,10 +27,23 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
+export type VariacaoDeAssoalho = 'padrao' | 'canais' | 'borda';
+export type Composto = 'macio' | 'medio' | 'duro';
+
+export interface Visual {
+  asaDianteira: VariacaoDeAsa;
+  asaTraseira: VariacaoDeAsa;
+  assoalho: VariacaoDeAssoalho;
+  pneus: Composto | null;
+  patrocinio: string | null;
+}
+
 export interface Pintura {
   cor: string;
   corSecundaria: string;
-  numero: number;
+  numero?: number;
+  visual?: Partial<Visual>;
 }
 
 export type Ponto = readonly [number, number, number];
@@ -41,6 +55,7 @@ export interface PontoNaTela {
 }
 
 export interface Garagem {
+  pintar: (pintura: Pintura) => void;
   abrirAsa: (aberta: boolean) => void;
   girar: (girando: boolean) => void;
   focar: (ponto: Ponto | null) => void;
@@ -54,6 +69,27 @@ const CARBONO = '#1c1c22';
 const BORRACHA = '#111114';
 const FLAP_FECHADO = -0.7;
 const FLAP_ABERTO = -0.05;
+
+const VISUAL_PADRAO: Visual = {
+  asaDianteira: 'padrao',
+  asaTraseira: 'padrao',
+  assoalho: 'padrao',
+  pneus: null,
+  patrocinio: null,
+};
+
+const COR_DO_COMPOSTO: Record<Composto, string> = {
+  macio: '#ff2a14',
+  medio: '#ffd100',
+  duro: '#f4f4f5',
+};
+
+const ASA_TRASEIRA: Record<VariacaoDeAsa, { plano: number; flap: number }> = {
+  padrao: { plano: 0.42, flap: 0.36 },
+  carga: { plano: 0.52, flap: 0.46 },
+  arrasto: { plano: 0.3, flap: 0.22 },
+  evolucao: { plano: 0.42, flap: 0.36 },
+};
 
 function material(cor: string, rugosidade = 0.55) {
   return new MeshStandardMaterial({
@@ -95,13 +131,22 @@ function monocoque(pintura: MeshStandardMaterial) {
   return new Mesh(geometria, pintura);
 }
 
-function roda(x: number, z: number, aro: MeshStandardMaterial) {
+function roda(x: number, z: number, aro: MeshStandardMaterial, composto: Composto | null) {
   const conjunto = new Group();
   const pneu = new Mesh(new CylinderGeometry(0.36, 0.36, 0.4, 18), material(BORRACHA, 0.9));
   const centro = new Mesh(new CylinderGeometry(0.21, 0.21, 0.42, 12), aro);
   pneu.rotation.x = Math.PI / 2;
   centro.rotation.x = Math.PI / 2;
   conjunto.add(pneu, centro);
+
+  if (composto) {
+    const faixa = new Mesh(
+      new TorusGeometry(0.29, 0.022, 4, 24),
+      material(COR_DO_COMPOSTO[composto], 0.6),
+    );
+    faixa.position.z = Math.sign(z) * 0.205;
+    conjunto.add(faixa);
+  }
   conjunto.position.set(x, 0.36, z);
 
   return conjunto;
@@ -127,17 +172,94 @@ function texturaDoNumero(numero: number, cor: string) {
   return textura;
 }
 
-function carro({ cor, corSecundaria, numero }: Pintura) {
+function texturaDoPatrocinio(texto: string, fundo: string, cor: string) {
+  const tela = document.createElement('canvas');
+  tela.width = 512;
+  tela.height = 128;
+  const contexto = tela.getContext('2d');
+
+  if (contexto) {
+    contexto.fillStyle = fundo;
+    contexto.fillRect(0, 0, 512, 128);
+    contexto.fillStyle = cor;
+    contexto.font = 'italic 800 64px "Segoe UI", system-ui, sans-serif';
+    contexto.textAlign = 'center';
+    contexto.textBaseline = 'middle';
+    contexto.fillText(texto.toUpperCase(), 256, 68, 480);
+  }
+
+  const textura = new CanvasTexture(tela);
+  textura.colorSpace = SRGBColorSpace;
+
+  return textura;
+}
+
+function corDoTexto(fundo: string) {
+  const [r = 0, g = 0, b = 0] = [1, 3, 5].map((inicio) =>
+    Number.parseInt(fundo.slice(inicio, inicio + 2), 16),
+  );
+
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? '#0a0a0b' : '#ffffff';
+}
+
+function asaDianteira(variacao: VariacaoDeAsa, detalhe: MeshStandardMaterial) {
+  const conjunto = new Group();
+  const elementos = { padrao: 1, carga: 2, arrasto: 1, evolucao: 3 }[variacao];
+  const espessura = variacao === 'arrasto' ? 0.025 : 0.04;
+
+  for (let indice = 0; indice < elementos; indice++) {
+    const elemento = caixa(0.55 - indice * 0.13, espessura, 2 - indice * 0.06, detalhe);
+    elemento.position.set(2.6 - indice * 0.12, 0.12 + indice * 0.06, 0);
+    elemento.rotation.z = indice * 0.16;
+    conjunto.add(elemento);
+  }
+
+  return conjunto;
+}
+
+function assoalho(
+  variacao: VariacaoDeAssoalho,
+  carbono: MeshStandardMaterial,
+  detalhe: MeshStandardMaterial,
+) {
+  const conjunto = new Group();
+  const base = caixa(4.6, 0.05, variacao === 'borda' ? 1.62 : 1.5, carbono);
+  base.position.set(0, 0.12, 0);
+  conjunto.add(base);
+
+  if (variacao === 'canais') {
+    for (const z of [-0.5, -0.25, 0.25, 0.5]) {
+      const aleta = caixa(0.7, 0.1, 0.03, detalhe);
+      aleta.position.set(1.05, 0.17, z);
+      conjunto.add(aleta);
+    }
+  }
+
+  if (variacao === 'borda') {
+    for (const lado of [-1, 1]) {
+      const borda = caixa(2.6, 0.06, 0.05, detalhe);
+      borda.position.set(-0.3, 0.16, lado * 0.8);
+      conjunto.add(borda);
+    }
+  }
+
+  return conjunto;
+}
+
+function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
+  const visual = { ...VISUAL_PADRAO, ...pedido };
   const pintura = material(cor, 0.4);
   const detalhe = material(corSecundaria, 0.45);
   const carbono = material(CARBONO, 0.7);
   const conjunto = new Group();
+  const patrocinio = visual.patrocinio
+    ? new MeshBasicMaterial({
+        map: texturaDoPatrocinio(visual.patrocinio, corSecundaria, corDoTexto(corSecundaria)),
+      })
+    : null;
 
   conjunto.add(monocoque(pintura));
-
-  const assoalho = caixa(4.6, 0.05, 1.5, carbono);
-  assoalho.position.set(0, 0.12, 0);
-  conjunto.add(assoalho);
+  conjunto.add(assoalho(visual.assoalho, carbono, detalhe));
 
   for (const lado of [-1, 1]) {
     const sidepod = caixa(1.9, 0.34, 0.42, pintura);
@@ -156,25 +278,44 @@ function carro({ cor, corSecundaria, numero }: Pintura) {
     placaTraseira.position.set(-2.4, 0.74, lado * 0.8);
     conjunto.add(placaTraseira);
 
-    const numeroNaLateral = new Mesh(
-      new PlaneGeometry(0.5, 0.5),
-      new MeshBasicMaterial({ map: texturaDoNumero(numero, corSecundaria), transparent: true }),
-    );
-    numeroNaLateral.position.set(-1.25, 0.62, lado * 0.37);
-    numeroNaLateral.rotation.y = lado === 1 ? 0 : Math.PI;
-    conjunto.add(numeroNaLateral);
+    if (numero !== undefined) {
+      const numeroNaLateral = new Mesh(
+        new PlaneGeometry(0.5, 0.5),
+        new MeshBasicMaterial({ map: texturaDoNumero(numero, corSecundaria), transparent: true }),
+      );
+      numeroNaLateral.position.set(-1.25, 0.62, lado * 0.37);
+      numeroNaLateral.rotation.y = lado === 1 ? 0 : Math.PI;
+      conjunto.add(numeroNaLateral);
+    }
+
+    if (patrocinio) {
+      const naLateral = new Mesh(new PlaneGeometry(1.2, 0.3), patrocinio);
+      naLateral.position.set(-0.5, 0.37, lado * 0.792);
+      naLateral.rotation.y = lado === 1 ? 0 : Math.PI;
+      conjunto.add(naLateral);
+
+      const naPlaca = new Mesh(new PlaneGeometry(0.56, 0.14), patrocinio);
+      naPlaca.position.set(-2.4, 0.86, lado * 0.822);
+      naPlaca.rotation.y = lado === 1 ? 0 : Math.PI;
+      conjunto.add(naPlaca);
+    }
   }
 
-  const asaDianteira = caixa(0.55, 0.04, 2, detalhe);
-  asaDianteira.position.set(2.6, 0.12, 0);
-  conjunto.add(asaDianteira);
+  conjunto.add(asaDianteira(visual.asaDianteira, detalhe));
 
-  const planoTraseiro = caixa(0.42, 0.05, 1.56, pintura);
+  const asa = ASA_TRASEIRA[visual.asaTraseira];
+  const planoTraseiro = caixa(asa.plano, 0.05, 1.56, pintura);
   planoTraseiro.position.set(-2.38, 0.82, 0);
   conjunto.add(planoTraseiro);
 
-  const flap = caixa(0.36, 0.04, 1.56, detalhe);
-  flap.position.set(-0.18, 0, 0);
+  if (visual.asaTraseira === 'evolucao') {
+    const planoInferior = caixa(0.32, 0.04, 1.2, carbono);
+    planoInferior.position.set(-2.32, 0.42, 0);
+    conjunto.add(planoInferior);
+  }
+
+  const flap = caixa(asa.flap, 0.04, 1.56, detalhe);
+  flap.position.set(-asa.flap / 2, 0, 0);
   const dobradica = new Group();
   dobradica.position.set(-2.18, 0.9, 0);
   dobradica.rotation.z = FLAP_FECHADO;
@@ -212,7 +353,7 @@ function carro({ cor, corSecundaria, numero }: Pintura) {
     [-1.65, 0.86],
     [-1.65, -0.86],
   ] as const) {
-    conjunto.add(roda(x, z, aro));
+    conjunto.add(roda(x, z, aro, visual.pneus));
   }
 
   return { conjunto, dobradica };
@@ -238,6 +379,23 @@ function chao() {
   return conjunto;
 }
 
+function liberar(raiz: Object3D) {
+  raiz.traverse((objeto) => {
+    if (objeto instanceof Mesh) {
+      objeto.geometry.dispose();
+      const materiais = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
+
+      for (const usado of materiais) {
+        if ('map' in usado && usado.map) {
+          usado.map.dispose();
+        }
+
+        usado.dispose();
+      }
+    }
+  });
+}
+
 export function montarGaragem(
   recipiente: HTMLElement,
   pintura: Pintura,
@@ -258,8 +416,8 @@ export function montarGaragem(
   sol.position.set(5, 8, 4);
   cena.add(sol);
 
-  const { conjunto, dobradica } = carro(pintura);
-  cena.add(chao(), conjunto);
+  let atual = carro(pintura);
+  cena.add(chao(), atual.conjunto);
 
   const controles = new OrbitControls(camera, renderizador.domElement);
   controles.target.set(...CENTRO_DO_CARRO);
@@ -292,13 +450,21 @@ export function montarGaragem(
   ajustar();
 
   renderizador.setAnimationLoop(() => {
-    dobradica.rotation.z += (anguloDesejado - dobradica.rotation.z) * 0.12;
+    atual.dobradica.rotation.z += (anguloDesejado - atual.dobradica.rotation.z) * 0.12;
     controles.target.lerp(alvoDesejado, 0.08);
     controles.update();
     renderizador.render(cena, camera);
   });
 
   return {
+    pintar: (nova) => {
+      const angulo = atual.dobradica.rotation.z;
+      cena.remove(atual.conjunto);
+      liberar(atual.conjunto);
+      atual = carro(nova);
+      atual.dobradica.rotation.z = angulo;
+      cena.add(atual.conjunto);
+    },
     abrirAsa: (aberta) => {
       anguloDesejado = aberta ? FLAP_ABERTO : FLAP_FECHADO;
     },
@@ -321,20 +487,7 @@ export function montarGaragem(
       renderizador.setAnimationLoop(null);
       observador.disconnect();
       controles.dispose();
-      cena.traverse((objeto) => {
-        if (objeto instanceof Mesh) {
-          objeto.geometry.dispose();
-          const materiais = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
-
-          for (const usado of materiais) {
-            if ('map' in usado && usado.map) {
-              usado.map.dispose();
-            }
-
-            usado.dispose();
-          }
-        }
-      });
+      liberar(cena);
       renderizador.dispose();
       renderizador.domElement.remove();
     },

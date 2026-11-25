@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { renderizar } from './renderizar';
@@ -39,6 +39,30 @@ describe('Página do piloto', () => {
       'href',
       foto.pagina,
     );
+  });
+
+  it('mostra o número do piloto na cor da equipe quando a foto não carrega', async () => {
+    const { usuario } = renderizar('/pilotos');
+    banco.pilotos = banco.pilotos.map((piloto) =>
+      piloto.nome === 'Lewis Hamilton' ? { ...piloto, foto } : piloto,
+    );
+
+    const link = await screen.findByRole('link', { name: /Lewis Hamilton/ });
+    const cartao = link.closest('article');
+    const retrato = cartao?.querySelector(`img[src="${foto.url}"]`);
+
+    expect(retrato).toBeTruthy();
+    fireEvent.error(retrato as HTMLImageElement);
+
+    expect(cartao?.querySelector(`img[src="${foto.url}"]`)).toBeNull();
+    expect(within(cartao as HTMLElement).getAllByText('44')).toHaveLength(2);
+
+    await usuario.click(link);
+    fireEvent.error(await screen.findByRole('img', { name: 'Foto de Lewis Hamilton' }));
+
+    expect(screen.queryByRole('img', { name: 'Foto de Lewis Hamilton' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Foto: Fotógrafo/ })).not.toBeInTheDocument();
+    expect(screen.getAllByText('44')).toHaveLength(2);
   });
 
   it('mostra a carreira com os anos de título levando à história', async () => {

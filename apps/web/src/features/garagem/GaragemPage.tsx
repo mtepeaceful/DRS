@@ -10,6 +10,7 @@ import { detalheDoPiloto } from '../pilotos/api';
 import { CarroIlustrado } from './CarroIlustrado';
 import { Garagem3D } from './Garagem3D';
 import styles from './GaragemPage.module.css';
+import { pinturaDaEquipe } from './pinturas';
 import { aparelhoModesto, preferePoucoMovimento, temWebgl } from './suporte';
 
 const TEXTOS = {
@@ -109,7 +110,7 @@ export function GaragemPage() {
   }
 
   const { nome, numero, equipe } = piloto.data;
-  const pintura = { cor: equipe.cor, corSecundaria: equipe.corSecundaria, numero };
+  const pintura = { ...pinturaDaEquipe(equipe.nome, equipe), numero };
 
   return (
     <>

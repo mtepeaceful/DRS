@@ -23,6 +23,69 @@
   backdrop-filter: blur(14px);
 }
 
+/*
+ * Modo DRS: a linha no topo acende quando a asa do logo abre (carregando
+ * dados, trocando de página ou com o ponteiro e o foco no logo), como a
+ * zona de ativação marcada na pista.
+ */
+.zonaDrs {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(90deg, #1f9d55, var(--cor-sucesso) 70%, #d9ffe8);
+  box-shadow: 0 0 10px rgb(95 211 141 / 0.65);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition:
+    transform 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 200ms ease 120ms;
+}
+
+.zonaDrs::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 18%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.85), transparent);
+  transform: translateX(-100%);
+}
+
+.zonaDrs[data-aberta],
+.cabecalho:has(.marca:hover, .marca:focus-visible) .zonaDrs {
+  opacity: 1;
+  transform: scaleX(1);
+  transition:
+    transform 420ms cubic-bezier(0.2, 0.9, 0.25, 1),
+    opacity 120ms ease;
+}
+
+.zonaDrs[data-aberta]::after,
+.cabecalho:has(.marca:hover, .marca:focus-visible) .zonaDrs::after {
+  animation: vacuo 1100ms linear infinite;
+}
+
+@keyframes vacuo {
+  to {
+    transform: translateX(560%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zonaDrs,
+  .zonaDrs[data-aberta],
+  .cabecalho:has(.marca:hover, .marca:focus-visible) .zonaDrs {
+    transform: none;
+    transition: opacity 120ms ease;
+  }
+
+  .zonaDrs::after {
+    display: none;
+  }
+}
+
 .barra {
   display: flex;
   align-items: center;

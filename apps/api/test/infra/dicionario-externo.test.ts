@@ -292,7 +292,7 @@ describe('EnciclopediaWikimedia · fotos', () => {
     });
   }
 
-  it('usa a foto do Commons em tamanho maior, com autor e licença', async () => {
+  it('usa a miniatura que a Wikipédia devolve, com autor e licença', async () => {
     const pedidos = simular(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/330px-Senna_1993.jpg?utm_source=pt.wikipedia.org',
     );
@@ -300,7 +300,7 @@ describe('EnciclopediaWikimedia · fotos', () => {
     const verbete = await new EnciclopediaWikimedia().verbete('Ayrton Senna');
 
     expect(verbete?.foto).toEqual({
-      url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/500px-Senna_1993.jpg',
+      url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/330px-Senna_1993.jpg',
       pagina: 'https://commons.wikimedia.org/wiki/File:Senna_1993.jpg',
       autor: 'Martin Lee from London',
       licenca: 'CC BY-SA 2.0',
@@ -310,7 +310,7 @@ describe('EnciclopediaWikimedia · fotos', () => {
     ).toBe('File:Senna_1993.jpg');
   });
 
-  it('aumenta também os mapas em SVG, que chegam com o idioma no nome', async () => {
+  it('mantém os mapas em SVG com o idioma no nome', async () => {
     simular(
       'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Monza_track_map.svg/langpt-330px-Monza_track_map.svg.png',
     );
@@ -318,7 +318,7 @@ describe('EnciclopediaWikimedia · fotos', () => {
     const verbete = await new EnciclopediaWikimedia().verbete('Monza');
 
     expect(verbete?.foto?.url).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Monza_track_map.svg/langpt-500px-Monza_track_map.svg.png',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Monza_track_map.svg/langpt-330px-Monza_track_map.svg.png',
     );
   });
 
@@ -330,7 +330,7 @@ describe('EnciclopediaWikimedia · fotos', () => {
     const foto = await new EnciclopediaWikimedia().foto('Ayrton Senna');
 
     expect(foto?.url).toBe(
-      'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/500px-Senna_1993.jpg',
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Senna_1993.jpg/330px-Senna_1993.jpg',
     );
     expect(pedidos.map((url) => url.hostname)).toEqual([
       'en.wikipedia.org',

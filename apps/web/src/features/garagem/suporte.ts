@@ -21,3 +21,10 @@ export function aparelhoModesto() {
 
   return (memoria !== undefined && memoria <= 2) || navigator.hardwareConcurrency <= 2;
 }
+
+export function aparelhoForte() {
+  const memoria = (navigator as NavegadorComMemoria).deviceMemory;
+  const toque = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+
+  return !toque && (memoria === undefined || memoria >= 8) && navigator.hardwareConcurrency >= 8;
+}

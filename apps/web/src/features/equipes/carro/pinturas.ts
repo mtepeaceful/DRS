@@ -85,7 +85,7 @@ const PINTURAS: Record<string, Pintura> = {
     pinturaCorpo: `
       <path d="M100 140 L460 60 L560 60 L560 146 C470 146 380 162 300 178 L100 212 Z" fill="#1d1f24"/>
       <path d="M100 212 L300 178 C380 162 470 146 560 146 L560 150 C470 150 380 166 300 182 L100 216 Z" fill="#ff8000" opacity=".9"/>
-      <path d="M600 150 C700 170 820 196 960 206 L960 212 C820 204 700 178 600 160 Z" fill="#1d1f24"/>`,
+      <path d="M600 150 C700 170 820 196 976 224 L976 230 C820 204 700 178 600 160 Z" fill="#1d1f24"/>`,
     pinturaPod:
       '<path d="M380 140 L606 140 L606 166 C520 162 430 166 360 176 L240 198 L150 198 L150 180 Z" fill="#1d1f24"/>',
     marcas: [
@@ -112,7 +112,7 @@ const PINTURAS: Record<string, Pintura> = {
       { x: 350, y: 194, svg: mastercard(350, 194) },
     ],
     asa: texto(110, 142, 11, '#1d1f24', 'Dropbox'),
-    frente: texto(972, 256, 8, '#fff', 'workday', ' transform="rotate(-90 972 256)"'),
+    frente: texto(946, 250, 6, '#fff', 'workday'),
   },
 
   ferrari: {
@@ -124,7 +124,7 @@ const PINTURAS: Record<string, Pintura> = {
     flap: '#f4efe6',
     flapDianteiro: '#f4efe6',
     pinturaCorpo: `
-      <path d="M300 196 C340 140 370 90 400 40 L700 40 L700 168 C620 152 540 150 460 156 C400 162 350 176 300 196 Z" fill="#f4efe6"/>
+      <path d="M300 196 C340 140 370 90 400 40 L760 40 L760 173 C680 156 540 150 460 156 C400 162 350 176 300 196 Z" fill="#f4efe6"/>
       <path d="M100 210 L960 210 L960 260 L100 260 Z" fill="#000" opacity=".25"/>`,
     pinturaPod: `
       <path d="M356 196 L400 140 L620 140 L620 176 C540 170 460 172 400 182 Z" fill="#f4efe6"/>
@@ -136,7 +136,7 @@ const PINTURAS: Record<string, Pintura> = {
       { x: 330, y: 194, svg: shell(330, 194) },
       { x: 450, y: 196, texto: 'ceva', tamanho: 16, cor: '#fff', espaco: 2 },
       { x: 535, y: 190, texto: 'ambipar', tamanho: 14, cor: '#fff', peso: 600 },
-      { x: 690, y: 183, texto: 'UniCredit', tamanho: 11, cor: '#fff', giro: 9 },
+      { x: 648, y: 178, texto: 'UniCredit', tamanho: 10, cor: '#fff', giro: 7 },
     ],
     asa: `
       ${texto(110, 128, 10, '#fff', 'V-Power', ' font-style="italic"')}
@@ -153,8 +153,8 @@ const PINTURAS: Record<string, Pintura> = {
     flap: '#1c2747',
     flapDianteiro: '#1c2747',
     pinturaCorpo: `
-      <path d="M880 200 L960 200 L960 232 L870 232 Z" fill="#d8102b"/>
-      <path d="M860 200 L880 200 L870 232 L850 232 Z" fill="#ffcc00"/>`,
+      <path d="M880 196 L980 196 L980 260 L870 260 Z" fill="#d8102b"/>
+      <path d="M860 196 L880 196 L870 260 L850 260 Z" fill="#ffcc00"/>`,
     marcas: [
       { x: 330, y: 168, svg: touros(330, 168, 1.15) },
       { x: 330, y: 198, texto: 'Red Bull', tamanho: 16, cor: '#d8102b', peso: 900, giro: -4 },
@@ -188,7 +188,7 @@ const PINTURAS: Record<string, Pintura> = {
     numero: { cor: '#ffffff', contorno: '#00a19c' },
     flapDianteiro: '#c9ccd1',
     pinturaCorpo: `
-      <path d="M560 160 C680 175 820 200 960 214 L960 222 C820 210 680 186 560 172 Z" fill="#00d2be"/>
+      <path d="M560 160 C680 175 820 200 976 232 L976 240 C820 210 680 186 560 172 Z" fill="#00d2be"/>
       <path d="M120 218 C220 200 300 190 380 186 L380 192 C300 198 220 208 120 226 Z" fill="#00d2be"/>
       <path d="M380 70 L470 60 L380 200 L340 200 Z" fill="#c9ccd1" opacity=".2"/>`,
     pinturaPod: `
@@ -212,7 +212,7 @@ const PINTURAS: Record<string, Pintura> = {
     aro: RODA_PRETA,
     numero: { cor: '#cedc00', contorno: '#07261d' },
     pinturaCorpo:
-      '<path d="M560 166 C680 180 820 200 960 212 L960 216 C820 206 680 186 560 172 Z" fill="#cedc00"/>',
+      '<path d="M560 166 C680 180 820 200 976 230 L976 234 C820 206 680 186 560 172 Z" fill="#cedc00"/>',
     pinturaPod:
       '<path d="M150 200 C260 186 420 178 606 178 L606 184 C420 184 260 192 150 206 Z" fill="#cedc00"/>',
     marcas: [
@@ -234,7 +234,7 @@ const PINTURAS: Record<string, Pintura> = {
     numero: NUMERO_CLARO,
     flapDianteiro: '#00a3e0',
     pinturaCorpo:
-      '<path d="M560 162 C680 178 820 200 960 212 L960 218 C820 206 680 184 560 170 Z" fill="#00a3e0"/>',
+      '<path d="M560 162 C680 178 820 200 976 230 L976 236 C820 206 680 184 560 170 Z" fill="#00a3e0"/>',
     pinturaPod:
       '<path d="M150 200 C260 184 420 176 606 176 L606 182 C420 182 260 190 150 206 Z" fill="#00a3e0"/>',
     marcas: [
@@ -256,7 +256,7 @@ const PINTURAS: Record<string, Pintura> = {
     endplate: '#0b0c10',
     pinturaCorpo: `
       <path d="M100 150 L460 60 L560 60 L560 146 C470 146 380 162 300 178 L100 212 Z" fill="#0b0c10"/>
-      <path d="M600 156 C700 174 820 198 960 210 L960 216 C820 206 700 182 600 164 Z" fill="#ff87bc"/>`,
+      <path d="M600 156 C700 174 820 198 976 228 L976 234 C820 206 700 182 600 164 Z" fill="#ff87bc"/>`,
     pinturaPod: `
       <path d="M380 140 L606 140 L606 160 C520 158 430 162 360 172 L150 196 L150 180 Z" fill="#0b0c10"/>
       <path d="M150 196 L360 172 C430 162 520 158 606 160 L606 166 C520 164 430 168 360 178 L150 202 Z" fill="#ff87bc"/>`,
@@ -270,22 +270,23 @@ const PINTURAS: Record<string, Pintura> = {
   'racing-bulls': {
     base: '#f2f4f8',
     capacete: '#1634cc',
-    aro: RODA_PRETA,
+    aro: { disco: '#c9cacf', linha: '#e8e8ea', borda: '#0c0c0e' },
     numero: NUMERO_ESCURO,
-    tampa: '#1634cc',
+    tampa: '#121214',
+    airbox: '#f2c500',
     flapDianteiro: '#1634cc',
     endplate: '#1634cc',
-    asaTraseira: '#1634cc',
+    asaTraseira: '#121214',
     pinturaCorpo:
-      '<path d="M600 168 C700 184 820 204 960 214 L960 232 L600 232 Z" fill="#1634cc"/>',
-    pinturaPod: '<path d="M150 196 C260 180 420 174 606 172 L606 220 L150 220 Z" fill="#1634cc"/>',
+      '<path d="M600 168 C700 184 820 204 980 222 L980 260 L600 260 Z" fill="#1634cc"/>',
+    pinturaPod: '<path d="M150 206 C300 230 470 222 606 186 L606 240 L150 240 Z" fill="#1634cc"/>',
     marcas: [
       {
         x: 470,
         y: 196,
         texto: 'VISA',
-        tamanho: 20,
-        cor: '#fff',
+        tamanho: 26,
+        cor: '#1634cc',
         peso: 900,
         italico: true,
         espaco: 1,
@@ -307,7 +308,7 @@ const PINTURAS: Record<string, Pintura> = {
     endplate: '#e6002b',
     flapDianteiro: '#121214',
     pinturaCorpo:
-      '<path d="M100 200 L960 200 L960 260 L100 260 Z" fill="#121214"/><path d="M600 170 C700 186 820 204 960 212 L960 218 C820 210 700 192 600 176 Z" fill="#e6002b"/>',
+      '<path d="M100 200 L960 200 L960 260 L100 260 Z" fill="#121214"/><path d="M600 170 C700 186 820 204 976 230 L976 236 C820 210 700 192 600 176 Z" fill="#e6002b"/>',
     pinturaPod:
       '<path d="M150 200 C260 186 420 180 606 178 L606 230 L150 230 Z" fill="#121214"/><path d="M150 196 C260 182 420 176 606 174 L606 180 C420 182 260 188 150 202 Z" fill="#e6002b"/>',
     marcas: [
@@ -328,7 +329,7 @@ const PINTURAS: Record<string, Pintura> = {
     endplate: '#121214',
     flapDianteiro: '#121214',
     pinturaCorpo:
-      '<path d="M100 120 L380 60 L420 240 L100 240 Z" fill="#121214"/><path d="M600 168 C700 184 820 204 960 212 L960 216 C820 208 700 190 600 174 Z" fill="#f50537"/>',
+      '<path d="M100 120 L380 60 L420 240 L100 240 Z" fill="#121214"/><path d="M600 168 C700 184 820 204 976 230 L976 234 C820 208 700 190 600 174 Z" fill="#f50537"/>',
     pinturaPod:
       '<path d="M150 140 L360 140 L330 240 L150 240 Z" fill="#121214"/><path d="M360 140 L368 140 L338 240 L330 240 Z" fill="#f50537"/>',
     marcas: [
@@ -366,7 +367,7 @@ function pinturaGenerica({ cor, corSecundaria }: CoresDaEquipe): Pintura {
     aro: RODA_PRETA,
     numero: NUMERO_CLARO,
     pinturaPod: `<path d="M150 196 C260 180 420 174 606 172 L606 180 C420 182 260 188 150 204 Z" fill="${corSecundaria}"/>`,
-    pinturaCorpo: `<path d="M600 162 C700 178 820 200 960 212 L960 218 C820 208 700 186 600 170 Z" fill="${corSecundaria}"/>`,
+    pinturaCorpo: `<path d="M600 162 C700 178 820 200 976 230 L976 236 C820 208 700 186 600 170 Z" fill="${corSecundaria}"/>`,
   };
 }
 

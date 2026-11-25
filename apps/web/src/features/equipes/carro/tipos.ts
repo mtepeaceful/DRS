@@ -7,6 +7,10 @@ export interface Aro {
   larguraDoAnel?: number;
   borda?: string;
   centro?: string;
+  /** Calota lisa por cima dos raios. */
+  disco?: string;
+  /** Filete fino no flanco do pneu, em volta do aro. */
+  linha?: string;
 }
 
 interface MarcaBase {
@@ -38,6 +42,8 @@ export interface Pintura {
   aro: Aro;
   numero: { cor: string; contorno: string };
   tampa?: string;
+  /** Cor do airbox; sem ela, usa a da tampa. */
+  airbox?: string;
   sidepod?: string;
   asaTraseira?: string;
   flap?: string;

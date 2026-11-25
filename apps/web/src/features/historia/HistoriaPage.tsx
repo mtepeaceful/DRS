@@ -7,6 +7,7 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import botao from '../../shared/ui/botao.module.css';
 import { campeoesDaHistoria } from './api';
+import { LinhaDoTempo } from './LinhaDoTempo';
 import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './HistoriaPage.module.css';
 import { pontos } from './numeros';
@@ -133,6 +134,8 @@ export function HistoriaPage() {
           </p>
         )}
       </header>
+
+      {temporadas.length > 0 && <LinhaDoTempo temporadas={temporadas} />}
 
       {temporadas.length > 0 && (
         <section aria-labelledby="maiores-campeoes" className={styles.secao}>

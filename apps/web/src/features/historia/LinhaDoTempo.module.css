@@ -1,0 +1,135 @@
+.linhaDoTempo {
+  display: grid;
+  gap: 14px;
+  margin-top: 36px;
+  min-width: 0;
+}
+
+.titulo {
+  font-size: 1.4rem;
+}
+
+.resumo {
+  max-width: 62ch;
+  color: var(--cor-texto-suave);
+}
+
+.trilho {
+  overflow-x: auto;
+  padding: 4px 2px 0;
+  scrollbar-width: thin;
+}
+
+.faixas {
+  display: flex;
+  min-width: 760px;
+  margin: 0;
+  padding: 0 0 26px;
+  list-style: none;
+}
+
+.ano {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.faixa {
+  display: block;
+  height: 56px;
+  margin-inline: 1px;
+  border-radius: 3px;
+  background: var(--cor-titulo, var(--cor-linha-forte));
+  transition:
+    transform var(--transicao),
+    filter var(--transicao);
+}
+
+a.faixa:hover,
+a.faixa:focus-visible,
+a.faixa[data-destaque] {
+  filter: brightness(1.25);
+  transform: scaleY(1.12);
+}
+
+a.faixa:focus-visible {
+  outline: 2px solid var(--cor-texto);
+  outline-offset: 2px;
+}
+
+.vazia {
+  background: repeating-linear-gradient(-45deg, var(--cor-linha-forte) 0 3px, transparent 3px 6px);
+}
+
+.marca {
+  position: absolute;
+  top: 64px;
+  left: 1px;
+  padding-left: 4px;
+  border-left: 1px solid var(--cor-linha-forte);
+  color: var(--cor-texto-suave);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+.destaque {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-height: 1.6em;
+  font-weight: 700;
+}
+
+.anoEmDestaque {
+  font-family: var(--fonte-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.amostra {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--cor-titulo);
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.equipe {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--cor-linha);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.titulos {
+  color: var(--cor-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faixa {
+    transition: none;
+  }
+
+  a.faixa:hover,
+  a.faixa:focus-visible,
+  a.faixa[data-destaque] {
+    transform: none;
+  }
+}

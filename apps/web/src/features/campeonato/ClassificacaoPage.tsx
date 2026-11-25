@@ -119,7 +119,7 @@ function linhasDePilotos({ pilotos }: Campeonato, links: Links): Linha[] {
   return pilotos.map((piloto) => ({
     ...piloto,
     detalhe: nomeDaEquipe(piloto.equipe),
-    link: links.piloto(piloto.nome),
+    link: links.piloto(piloto.nome, piloto.id),
   }));
 }
 
@@ -128,7 +128,7 @@ function linhasDeConstrutores({ construtores }: Campeonato, links: Links): Linha
     ...equipe,
     nome: nomeDaEquipe(equipe.nome),
     equipe: equipe.nome,
-    link: links.equipe(equipe.nome),
+    link: links.equipe(equipe.nome, equipe.id),
   }));
 }
 

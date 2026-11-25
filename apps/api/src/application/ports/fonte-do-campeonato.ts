@@ -15,6 +15,8 @@ export interface Corrida {
 }
 
 export interface PosicaoDePiloto {
+  /** O `driverId` da Jolpica, o mesmo id da ficha em /historia/pilotos/:id. */
+  id?: string | undefined;
   posicao: number;
   nome: string;
   equipe: string;
@@ -23,6 +25,8 @@ export interface PosicaoDePiloto {
 }
 
 export interface PosicaoDeConstrutor {
+  /** O `constructorId` da Jolpica, o mesmo id da ficha em /equipes/:id. */
+  id?: string | undefined;
   posicao: number;
   nome: string;
   pontos: number;

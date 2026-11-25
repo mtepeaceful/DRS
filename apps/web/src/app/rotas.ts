@@ -147,6 +147,13 @@ export const rotas: RouteObject[] = [
           })),
       },
       {
+        path: 'historia/drs',
+        lazy: () =>
+          import('../features/historia-do-drs/HistoriaDoDrsPage').then((m) => ({
+            Component: m.HistoriaDoDrsPage,
+          })),
+      },
+      {
         path: 'historia/pilotos',
         lazy: () =>
           import('../features/pilotos-da-historia/PilotosDaHistoriaPage').then((m) => ({

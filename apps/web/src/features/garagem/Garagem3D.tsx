@@ -4,6 +4,7 @@ import styles from './GaragemPage.module.css';
 import { idiomaAtual } from '../../shared/i18n/idioma';
 
 interface Props extends Pintura {
+  numero: number;
   asaAberta: boolean;
   girando: boolean;
 }

@@ -68,6 +68,7 @@ export function Layout() {
       </a>
 
       <header className={styles.cabecalho}>
+        <span className={styles.zonaDrs} data-aberta={buscando || undefined} aria-hidden="true" />
         <div className={styles.barra}>
           <Link to="/" className={styles.marca} aria-label={t.inicioDoSite}>
             <AsaTraseira aberta={buscando} />

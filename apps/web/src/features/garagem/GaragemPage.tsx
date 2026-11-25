@@ -170,6 +170,10 @@ export function GaragemPage() {
           <Link to="/carro" className={styles.saibaMais}>
             {t.pecas}
           </Link>
+          {' · '}
+          <Link to="/garagem" className={styles.saibaMais}>
+            Monte o carro de uma equipe com outras peças
+          </Link>
         </p>
       </section>
     </>

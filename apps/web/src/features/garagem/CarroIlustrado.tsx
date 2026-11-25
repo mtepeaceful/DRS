@@ -1,4 +1,10 @@
-import type { Pintura } from './cena';
+import type { Composto, Pintura } from './cena';
+
+const COR_DO_COMPOSTO: Record<Composto, string> = {
+  macio: '#ff2a14',
+  medio: '#ffd100',
+  duro: '#f4f4f5',
+};
 import styles from './GaragemPage.module.css';
 import { idiomaAtual } from '../../shared/i18n/idioma';
 
@@ -6,8 +12,12 @@ export function CarroIlustrado({
   cor,
   corSecundaria,
   numero,
+  visual,
   asaAberta,
 }: Pintura & { asaAberta: boolean }) {
+  const composto = visual?.pneus;
+  const patrocinio = visual?.patrocinio;
+
   return (
     <svg
       className={styles.ilustracao}
@@ -15,8 +25,12 @@ export function CarroIlustrado({
       role="img"
       aria-label={
         idiomaAtual() === 'en'
-          ? `Car number ${numero} seen from the side`
-          : `Carro número ${numero} visto de lado`
+          ? numero === undefined
+            ? 'Car seen from the side'
+            : `Car number ${numero} seen from the side`
+          : numero === undefined
+            ? 'Carro visto de lado'
+            : `Carro número ${numero} visto de lado`
       }
     >
       <ellipse cx="280" cy="196" rx="250" ry="10" fill="#000" opacity="0.45" />
@@ -40,20 +54,48 @@ export function CarroIlustrado({
       <circle cx="248" cy="96" r="16" fill={corSecundaria} />
       <path d="M244 92 L262 90 L262 100 L246 102 Z" fill="#0b0b0f" />
       <path d="M218 92 Q246 70 280 88" fill="none" stroke="#1c1c22" strokeWidth="6" />
-      <text
-        x="380"
-        y="122"
-        fill={corSecundaria}
-        fontSize="34"
-        fontWeight="800"
-        fontFamily="Segoe UI, system-ui, sans-serif"
-        textAnchor="middle"
-      >
-        {numero}
-      </text>
+      {numero !== undefined && (
+        <text
+          x="380"
+          y="122"
+          fill={corSecundaria}
+          fontSize="34"
+          fontWeight="800"
+          fontFamily="Segoe UI, system-ui, sans-serif"
+          textAnchor="middle"
+        >
+          {numero}
+        </text>
+      )}
+      {patrocinio && (
+        <text
+          x="300"
+          y="146"
+          fill={corSecundaria}
+          fontSize="18"
+          fontStyle="italic"
+          fontWeight="800"
+          fontFamily="Segoe UI, system-ui, sans-serif"
+          textAnchor="middle"
+          textLength="150"
+          lengthAdjust="spacingAndGlyphs"
+        >
+          {patrocinio.toUpperCase()}
+        </text>
+      )}
       {[130, 420].map((x) => (
         <g key={x}>
           <circle cx={x} cy="160" r="34" fill="#111114" />
+          {composto && (
+            <circle
+              cx={x}
+              cy="160"
+              r="27"
+              fill="none"
+              stroke={COR_DO_COMPOSTO[composto]}
+              strokeWidth="3"
+            />
+          )}
           <circle cx={x} cy="160" r="19" fill={corSecundaria} />
           <circle cx={x} cy="160" r="6" fill="#111114" />
         </g>

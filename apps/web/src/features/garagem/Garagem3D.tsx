@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { Garagem, Pintura } from './cena';
 import styles from './GaragemPage.module.css';
+import { idiomaAtual } from '../../shared/i18n/idioma';
 
 interface Props extends Pintura {
   numero: number;
@@ -53,7 +54,11 @@ export function Garagem3D({ cor, corSecundaria, numero, asaAberta, girando }: Pr
       ref={recipiente}
       className={styles.palco}
       role="img"
-      aria-label={`Carro número ${numero} em 3D. Arraste para girar.`}
+      aria-label={
+        idiomaAtual() === 'en'
+          ? `Car number ${numero} in 3D. Drag to rotate.`
+          : `Carro número ${numero} em 3D. Arraste para girar.`
+      }
     />
   );
 }

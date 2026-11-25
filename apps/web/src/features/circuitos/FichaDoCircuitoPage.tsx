@@ -15,15 +15,67 @@ import botao from '../../shared/ui/botao.module.css';
 import { fichaDoCircuito } from './api';
 import { NomeDoPiloto } from '../pilotos-da-historia/NomeDoPiloto';
 import styles from './FichaDoCircuitoPage.module.css';
-import { porIdioma } from '../../shared/i18n/idioma';
+import { porIdioma, useTextos } from '../../shared/i18n/idioma';
+import { COMUNS } from '../../shared/i18n/comuns';
 
 const dataEHora = porIdioma(
   (locale) => new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }),
 );
 
-function plural(quantidade: number, singular: string, plural: string) {
-  return `${quantidade} ${quantidade === 1 ? singular : plural}`;
-}
+const TEXTOS = {
+  pt: {
+    circuitos: '← Circuitos',
+    carregando: '{t.carregando}',
+    naoEncontrado: 'Circuito não encontrado',
+    erro: 'Não foi possível carregar o circuito',
+    verTodos: 'Ver todos os circuitos',
+    confira: 'Confira o endereço ou procure o circuito na lista.',
+    gps: 'GPs disputados',
+    primeiro: 'Primeiro GP',
+    ultimo: 'Último GP',
+    inauguracao: 'Inauguração',
+    noCalendario: (ano: number) => `No calendário de ${ano}`,
+    fora: 'Fora do calendário atual',
+    proxima: 'Próxima corrida aqui',
+    seuHorario: (quando: string) => `${quando}, no seu horário`,
+    historia: 'História',
+    foto: (nome: string) => `Foto de ${nome}`,
+    textoDa: 'Texto da',
+    licenca: ', sob a licença CC BY-SA.',
+    vencedores: 'Vencedores ano a ano',
+    ano: 'Ano',
+    piloto: 'Piloto',
+    equipe: 'Equipe',
+    quemMais: 'Quem mais venceu aqui',
+    equipesMais: 'Equipes que mais venceram',
+  },
+  en: {
+    circuitos: '← Circuits',
+    carregando: 'Loading the circuit…',
+    naoEncontrado: 'Circuit not found',
+    erro: 'Could not load the circuit',
+    verTodos: 'See all circuits',
+    confira: 'Check the address or look for the circuit in the list.',
+    gps: 'GPs held',
+    primeiro: 'First GP',
+    ultimo: 'Last GP',
+    inauguracao: 'Opened',
+    noCalendario: (ano: number) => `On the ${ano} calendar`,
+    fora: 'Not on the current calendar',
+    proxima: 'Next race here',
+    seuHorario: (quando: string) => `${quando}, your local time`,
+    historia: 'History',
+    foto: (nome: string) => `Photo of ${nome}`,
+    textoDa: 'Text from the Portuguese',
+    licenca: ', under the CC BY-SA licence.',
+    vencedores: 'Winners year by year',
+    ano: 'Year',
+    piloto: 'Driver',
+    equipe: 'Team',
+    quemMais: 'Most wins here',
+    equipesMais: 'Teams with most wins',
+  },
+};
 
 function Maiores({
   titulo,
@@ -34,6 +86,8 @@ function Maiores({
   lista: FichaDoCircuitoDTO['maioresPilotos'];
   pilotos?: boolean;
 }) {
+  const comuns = useTextos(COMUNS);
+
   if (lista.length === 0) {
     return null;
   }
@@ -45,7 +99,9 @@ function Maiores({
         {lista.map((maior) => (
           <li key={maior.nome}>
             <span>{pilotos ? <NomeDoPiloto nome={maior.nome} /> : nomeDaEquipe(maior.nome)}</span>
-            <span className={styles.numero}>{plural(maior.vitorias, 'vitória', 'vitórias')}</span>
+            <span
+              className={styles.numero}
+            >{`${maior.vitorias} ${comuns.vitorias(maior.vitorias)}`}</span>
           </li>
         ))}
       </ol>
@@ -57,10 +113,12 @@ export function FichaDoCircuitoPage() {
   const { id = '' } = useParams();
   const ficha = useQuery(fichaDoCircuito(id));
   const anoAtual = new Date().getFullYear();
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
 
   const voltar = (
     <Link to="/circuitos" className={styles.voltar} viewTransition>
-      ← Circuitos
+      {t.circuitos}
     </Link>
   );
 
@@ -69,7 +127,7 @@ export function FichaDoCircuitoPage() {
       <>
         {voltar}
         <div className={styles.esqueleto} role="status">
-          <span className="apenas-leitor">Carregando o circuito…</span>
+          <span className="apenas-leitor">{t.carregando}</span>
         </div>
       </>
     );
@@ -81,16 +139,14 @@ export function FichaDoCircuitoPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo={inexistente ? 'Circuito não encontrado' : 'Não foi possível carregar o circuito'}
+        titulo={inexistente ? t.naoEncontrado : t.erro}
         acao={
           <Link to="/circuitos" className={botao.secundario}>
-            Ver todos os circuitos
+            {t.verTodos}
           </Link>
         }
       >
-        {inexistente
-          ? 'Confira o endereço ou procure o circuito na lista.'
-          : mensagemDoErro(ficha.error)}
+        {inexistente ? t.confira : mensagemDoErro(ficha.error)}
       </Aviso>
     );
   }
@@ -99,10 +155,10 @@ export function FichaDoCircuitoPage() {
   const primeiro = dados.vitorias.at(-1)?.ano;
   const ultimo = dados.vitorias[0]?.ano;
   const numeros = [
-    ['GPs disputados', dados.vitorias.length],
-    ['Primeiro GP', primeiro],
-    ['Último GP', ultimo],
-    ['Inauguração', dados.verbete?.fundacao],
+    [t.gps, dados.vitorias.length],
+    [t.primeiro, primeiro],
+    [t.ultimo, ultimo],
+    [t.inauguracao, dados.verbete?.fundacao],
   ].filter((item): item is [string, number] => typeof item[1] === 'number');
 
   return (
@@ -112,7 +168,7 @@ export function FichaDoCircuitoPage() {
 
       <header className={styles.destaque}>
         <p className={styles.sobretitulo}>
-          {dados.noCalendarioAtual ? `No calendário de ${anoAtual}` : 'Fora do calendário atual'}
+          {dados.noCalendarioAtual ? t.noCalendario(anoAtual) : t.fora}
         </p>
         <h1 className={styles.titulo}>{dados.nome}</h1>
         <p className={styles.local}>
@@ -134,9 +190,9 @@ export function FichaDoCircuitoPage() {
 
       {dados.proximaCorrida && (
         <Link to="/calendario" className={styles.proxima}>
-          <span className={styles.rotulo}>Próxima corrida aqui</span>
+          <span className={styles.rotulo}>{t.proxima}</span>
           <span className={styles.nomeDaProxima}>{nomeDoGp(dados.proximaCorrida.nome)}</span>
-          <span>{dataEHora().format(new Date(dados.proximaCorrida.inicio))}, no seu horário</span>
+          <span>{t.seuHorario(dataEHora().format(new Date(dados.proximaCorrida.inicio)))}</span>
         </Link>
       )}
 
@@ -145,19 +201,19 @@ export function FichaDoCircuitoPage() {
           {dados.verbete && (
             <section className={styles.cartao} aria-labelledby="historia-do-circuito">
               <h2 id="historia-do-circuito" className={styles.tituloDoCartao}>
-                História
+                {t.historia}
               </h2>
               {dados.verbete.foto && (
-                <FotoDoCommons foto={dados.verbete.foto} descricao={`Foto de ${dados.nome}`} />
+                <FotoDoCommons foto={dados.verbete.foto} descricao={t.foto(dados.nome)} />
               )}
               <p className={styles.texto}>{dados.verbete.resumo}</p>
               <p className={styles.fonte}>
-                Texto da{' '}
+                {t.textoDa}{' '}
                 <a href={dados.verbete.fonte} target="_blank" rel="noopener noreferrer">
                   Wikipédia
-                  <span className="apenas-leitor"> (abre em nova aba)</span>
+                  <span className="apenas-leitor">{comuns.novaAba}</span>
                 </a>
-                , sob a licença CC BY-SA.
+                {t.licenca}
               </p>
             </section>
           )}
@@ -165,15 +221,15 @@ export function FichaDoCircuitoPage() {
           {dados.vitorias.length > 0 && (
             <section className={styles.cartao} aria-labelledby="vencedores">
               <h2 id="vencedores" className={styles.tituloDoCartao}>
-                Vencedores ano a ano
+                {t.vencedores}
               </h2>
               <table className={styles.tabela}>
                 <thead>
                   <tr>
-                    <th scope="col">Ano</th>
-                    <th scope="col">Piloto</th>
+                    <th scope="col">{t.ano}</th>
+                    <th scope="col">{t.piloto}</th>
                     <th scope="col" className={styles.opcional}>
-                      Equipe
+                      {t.equipe}
                     </th>
                   </tr>
                 </thead>
@@ -209,8 +265,8 @@ export function FichaDoCircuitoPage() {
         </div>
 
         <div className={styles.pilha}>
-          <Maiores titulo="Quem mais venceu aqui" lista={dados.maioresPilotos} pilotos />
-          <Maiores titulo="Equipes que mais venceram" lista={dados.maioresEquipes} />
+          <Maiores titulo={t.quemMais} lista={dados.maioresPilotos} pilotos />
+          <Maiores titulo={t.equipesMais} lista={dados.maioresEquipes} />
         </div>
       </div>
     </>

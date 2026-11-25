@@ -1,3 +1,4 @@
+import { idiomaAtual } from '../../shared/i18n/idioma';
 import type { Ponto } from '../garagem/cena';
 
 export interface Peca {
@@ -82,3 +83,57 @@ export const PECAS: Peca[] = [
     termos: ['downforce', 'efeito-solo'],
   },
 ];
+
+const EN: Record<string, Pick<Peca, 'nome' | 'texto'>> = {
+  'asa-dianteira': {
+    nome: 'Front wing',
+    texto:
+      'The first part to meet the air. It makes downforce at the front and guides the flow around the wheels and under the floor. In 2026 it gained flaps that change position between corners and straights.',
+  },
+  pneus: {
+    nome: 'Tyres',
+    texto:
+      'The car’s only contact with the ground. Pirelli brings dry compounds, from the hardest to the softest, and two wet ones. Since 2022 the wheels are 18 inches.',
+  },
+  assoalho: {
+    nome: 'Floor',
+    texto:
+      'Since 2022 it is the most important aerodynamic part. The tunnels under the car speed up the air and suck the car onto the track, making downforce without the drag of a big wing.',
+  },
+  volante: {
+    nome: 'Steering wheel',
+    texto:
+      'More computer than wheel: dozens of buttons and dials for brake balance, the differential, energy modes and the radio. It comes off so the driver can get in and out of the cockpit.',
+  },
+  halo: {
+    nome: 'Halo',
+    texto:
+      'A titanium hoop over the driver’s head, mandatory since 2018. It withstands loads of more than 12 tonnes and has already prevented serious injuries in several crashes.',
+  },
+  sidepods: {
+    nome: 'Sidepods',
+    texto:
+      'The sides hold the radiators for the engine and the electric system. Their shape varies a lot from team to team, because it decides how the air reaches the back of the car.',
+  },
+  'unidade-de-potencia': {
+    nome: 'Power unit',
+    texto:
+      'It sits behind the driver: a 1.6-litre turbo V6 working with an electric motor that recovers energy under braking. In 2026 the electric side came to provide almost half the power.',
+  },
+  'asa-traseira': {
+    nome: 'Rear wing',
+    texto:
+      'It gives the rear downforce so the car does not slide in corners. From 2011 to 2025 it had DRS, which opened the flap on straights only for the attacking car. In 2026 the wing began opening on straights for every car.',
+  },
+  difusor: {
+    nome: 'Diffuser',
+    texto:
+      'The exit of the floor tunnels, under the rear. By giving the air room to expand, it helps suck the car onto the ground.',
+  },
+};
+
+const PECAS_EN: Peca[] = PECAS.map((peca) => ({ ...peca, ...EN[peca.id] }));
+
+export function pecasNoIdioma(): Peca[] {
+  return idiomaAtual() === 'en' ? PECAS_EN : PECAS;
+}

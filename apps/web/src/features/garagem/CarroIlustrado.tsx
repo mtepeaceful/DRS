@@ -6,6 +6,7 @@ const COR_DO_COMPOSTO: Record<Composto, string> = {
   duro: '#f4f4f5',
 };
 import styles from './GaragemPage.module.css';
+import { idiomaAtual } from '../../shared/i18n/idioma';
 
 export function CarroIlustrado({
   cor,
@@ -23,7 +24,13 @@ export function CarroIlustrado({
       viewBox="0 0 560 220"
       role="img"
       aria-label={
-        numero === undefined ? 'Carro visto de lado' : `Carro número ${numero} visto de lado`
+        idiomaAtual() === 'en'
+          ? numero === undefined
+            ? 'Car seen from the side'
+            : `Car number ${numero} seen from the side`
+          : numero === undefined
+            ? 'Carro visto de lado'
+            : `Carro número ${numero} visto de lado`
       }
     >
       <ellipse cx="280" cy="196" rx="250" ry="10" fill="#000" opacity="0.45" />

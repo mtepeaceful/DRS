@@ -7,18 +7,79 @@ import { Aviso } from '../../shared/ui/Aviso';
 import { Bandeira } from '../../shared/ui/Bandeira';
 import { FotoDoCommons } from '../../shared/ui/FotoDoCommons';
 import botao from '../../shared/ui/botao.module.css';
+import { COMUNS } from '../../shared/i18n/comuns';
+import { porIdioma, useTextos } from '../../shared/i18n/idioma';
 import { fichaDoPilotoDaF1 } from './api';
 import styles from './FichaDoPilotoPage.module.css';
 
-const dataCurta = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeZone: 'UTC' });
+const dataCurta = porIdioma(
+  (locale) =>
+    new Intl.DateTimeFormat(locale, {
+      dateStyle: locale === 'pt-BR' ? 'short' : 'medium',
+      timeZone: 'UTC',
+    }),
+);
+
+const TEXTOS = {
+  pt: {
+    voltar: '← Pilotos da história',
+    carregando: '{t.carregando}',
+    naoEncontrado: 'Piloto não encontrado',
+    erro: 'Não foi possível carregar o piloto',
+    buscarOutro: 'Buscar outro piloto',
+    confira: 'Confira o endereço ou busque o piloto pelo nome.',
+    nascimento: 'Nascimento',
+    temporadas: 'Temporadas',
+    corridas: 'Corridas',
+    vitorias: 'Vitórias',
+    podios: 'Pódios',
+    poles: 'Largadas na pole',
+    titulos: 'Títulos mundiais',
+    pilotoDeF1: 'Piloto de Fórmula 1',
+    correuEm: (ano: number) => `Correu em ${ano}`,
+    correuDe: (de: number, a: number) => `Correu de ${de} a ${a}`,
+    foto: (nome: string) => `Foto de ${nome}`,
+    historia: 'História',
+    textoDa: 'Texto da',
+    licenca: ', sob a licença CC BY-SA.',
+    campeao: 'Campeão mundial',
+    equipes: 'Equipes',
+  },
+  en: {
+    voltar: '← Drivers in history',
+    carregando: 'Loading the driver…',
+    naoEncontrado: 'Driver not found',
+    erro: 'Could not load the driver',
+    buscarOutro: 'Search for another driver',
+    confira: 'Check the address or search for the driver by name.',
+    nascimento: 'Born',
+    temporadas: 'Seasons',
+    corridas: 'Races',
+    vitorias: 'Wins',
+    podios: 'Podiums',
+    poles: 'Pole positions',
+    titulos: 'World titles',
+    pilotoDeF1: 'Formula 1 driver',
+    correuEm: (ano: number) => `Raced in ${ano}`,
+    correuDe: (de: number, a: number) => `Raced from ${de} to ${a}`,
+    foto: (nome: string) => `Photo of ${nome}`,
+    historia: 'History',
+    textoDa: 'Text from the Portuguese',
+    licenca: ', under the CC BY-SA licence.',
+    campeao: 'World champion',
+    equipes: 'Teams',
+  },
+};
 
 export function FichaDoPilotoPage() {
   const { id = '' } = useParams();
   const ficha = useQuery(fichaDoPilotoDaF1(id));
+  const t = useTextos(TEXTOS);
+  const comuns = useTextos(COMUNS);
 
   const voltar = (
     <Link to="/historia/pilotos" className={styles.voltar} viewTransition>
-      ← Pilotos da história
+      {t.voltar}
     </Link>
   );
 
@@ -27,7 +88,7 @@ export function FichaDoPilotoPage() {
       <>
         {voltar}
         <div className={styles.esqueleto} role="status">
-          <span className="apenas-leitor">Carregando o piloto…</span>
+          <span className="apenas-leitor">{t.carregando}</span>
         </div>
       </>
     );
@@ -39,16 +100,14 @@ export function FichaDoPilotoPage() {
     return (
       <Aviso
         tipo="erro"
-        titulo={inexistente ? 'Piloto não encontrado' : 'Não foi possível carregar o piloto'}
+        titulo={inexistente ? t.naoEncontrado : t.erro}
         acao={
           <Link to="/historia/pilotos" className={botao.secundario}>
-            Buscar outro piloto
+            {t.buscarOutro}
           </Link>
         }
       >
-        {inexistente
-          ? 'Confira o endereço ou busque o piloto pelo nome.'
-          : mensagemDoErro(ficha.error)}
+        {inexistente ? t.confira : mensagemDoErro(ficha.error)}
       </Aviso>
     );
   }
@@ -57,13 +116,13 @@ export function FichaDoPilotoPage() {
   const primeira = dados.temporadas[0];
   const ultima = dados.temporadas.at(-1);
   const numeros = [
-    ['Nascimento', dados.nascimento ? dataCurta.format(new Date(dados.nascimento)) : null],
-    ['Temporadas', dados.temporadas.length],
-    ['Corridas', dados.corridas],
-    ['Vitórias', dados.vitorias],
-    ['Pódios', dados.podios],
-    ['Largadas na pole', dados.poles],
-    ['Títulos mundiais', dados.anosDeTitulo.length],
+    [t.nascimento, dados.nascimento ? dataCurta().format(new Date(dados.nascimento)) : null],
+    [t.temporadas, dados.temporadas.length],
+    [t.corridas, dados.corridas],
+    [t.vitorias, dados.vitorias],
+    [t.podios, dados.podios],
+    [t.poles, dados.poles],
+    [t.titulos, dados.anosDeTitulo.length],
   ].filter((item): item is [string, string | number] => item[1] !== null);
 
   return (
@@ -75,10 +134,10 @@ export function FichaDoPilotoPage() {
         <div className={styles.identidade}>
           <p className={styles.sobretitulo}>
             {primeira === undefined
-              ? 'Piloto de Fórmula 1'
-              : primeira === ultima
-                ? `Correu em ${primeira}`
-                : `Correu de ${primeira} a ${ultima}`}
+              ? t.pilotoDeF1
+              : primeira === ultima || ultima === undefined
+                ? t.correuEm(primeira)
+                : t.correuDe(primeira, ultima)}
           </p>
           <h1 className={styles.titulo}>{dados.nome}</h1>
           {dados.pais && (
@@ -91,7 +150,7 @@ export function FichaDoPilotoPage() {
         {dados.verbete?.foto && (
           <FotoDoCommons
             foto={dados.verbete.foto}
-            descricao={`Foto de ${dados.nome}`}
+            descricao={t.foto(dados.nome)}
             className={styles.foto}
           />
         )}
@@ -110,16 +169,16 @@ export function FichaDoPilotoPage() {
         {dados.verbete && (
           <section className={styles.cartao} aria-labelledby="historia-do-piloto">
             <h2 id="historia-do-piloto" className={styles.tituloDoCartao}>
-              História
+              {t.historia}
             </h2>
             <p className={styles.texto}>{dados.verbete.resumo}</p>
             <p className={styles.fonte}>
-              Texto da{' '}
+              {t.textoDa}{' '}
               <a href={dados.verbete.fonte} target="_blank" rel="noopener noreferrer">
                 Wikipédia
-                <span className="apenas-leitor"> (abre em nova aba)</span>
+                <span className="apenas-leitor">{comuns.novaAba}</span>
               </a>
-              , sob a licença CC BY-SA.
+              {t.licenca}
             </p>
           </section>
         )}
@@ -128,7 +187,7 @@ export function FichaDoPilotoPage() {
           {dados.anosDeTitulo.length > 0 && (
             <section className={styles.cartao} aria-labelledby="titulos-do-piloto">
               <h2 id="titulos-do-piloto" className={styles.tituloDoCartao}>
-                Campeão mundial
+                {t.campeao}
               </h2>
               <p className={styles.chips}>
                 {dados.anosDeTitulo.map((ano) => (
@@ -143,7 +202,7 @@ export function FichaDoPilotoPage() {
           {dados.equipes.length > 0 && (
             <section className={styles.cartao} aria-labelledby="equipes-do-piloto">
               <h2 id="equipes-do-piloto" className={styles.tituloDoCartao}>
-                Equipes
+                {t.equipes}
               </h2>
               <p className={styles.chips}>
                 {dados.equipes.map((equipe) => (

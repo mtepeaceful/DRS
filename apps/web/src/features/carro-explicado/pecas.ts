@@ -99,6 +99,30 @@ export const PECAS: Peca[] = [
     termos: ['unidade-de-potencia', 'ers'],
   },
   {
+    id: 'freios',
+    nome: 'Freios',
+    ponto: [2.05, 0.2, 0.95],
+    texto:
+      'Discos e pastilhas de carbono, escondidos dentro das rodas, que passam de 1.000 °C numa frenagem forte. Os dutos que levam ar até eles também são peças aerodinâmicas. Atrás, parte da frenagem é feita pelo motor elétrico, que transforma a desaceleração em energia para a bateria.',
+    termos: ['ers'],
+  },
+  {
+    id: 'prancha',
+    nome: 'Prancha',
+    ponto: [-0.3, 0.06, 0.5],
+    texto:
+      'Uma tábua presa embaixo do assoalho, de ponta a ponta. Ela se desgasta quando o carro raspa no chão e é medida depois da corrida: se estiver fina demais, o piloto é desclassificado. Assim ninguém pode andar baixo demais.',
+    termos: ['efeito-solo'],
+  },
+  {
+    id: 'luzes',
+    nome: 'Luzes traseiras',
+    ponto: [-2.55, 0.5, 0],
+    texto:
+      'A luz vermelha no centro da traseira acende na chuva e quando o carro está recarregando a bateria e perdendo velocidade. Em 2026 ganharam a companhia de luzes nas placas laterais da asa, que mostram o estado da parte elétrica para quem vem atrás.',
+    termos: ['ers'],
+  },
+  {
     id: 'asa-traseira',
     nome: 'Asa traseira',
     ponto: [-2.38, 1, 0.5],
@@ -171,6 +195,21 @@ const EN: Record<string, Pick<Peca, 'nome' | 'texto'>> = {
     nome: 'Power unit',
     texto:
       'It sits behind the driver: a 1.6-litre turbo V6 working with an electric motor that recovers energy under braking. In 2026 the combustion engine dropped to about 400 kW and the electric motor rose from 120 to 350 kW, almost half the power. The fuel became 100% sustainable.',
+  },
+  freios: {
+    nome: 'Brakes',
+    texto:
+      'Carbon discs and pads, hidden inside the wheels, that go past 1,000 °C under hard braking. The ducts that feed them air are aerodynamic parts too. At the rear, part of the braking is done by the electric motor, which turns the slowing down into energy for the battery.',
+  },
+  prancha: {
+    nome: 'Plank',
+    texto:
+      'A board fixed under the floor, from front to back. It wears when the car scrapes the ground and is measured after the race: if it is too thin, the driver is disqualified. That way nobody can run too low.',
+  },
+  luzes: {
+    nome: 'Rear lights',
+    texto:
+      'The red light at the centre of the rear comes on in the rain and when the car is recharging its battery and losing speed. In 2026 it was joined by lights on the wing endplates, which show the state of the electric system to the cars behind.',
   },
   'asa-traseira': {
     nome: 'Rear wing',

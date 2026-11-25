@@ -127,6 +127,10 @@ export function GaragemPage() {
           <Link to="/carro" className={styles.saibaMais}>
             O que cada peça do carro faz
           </Link>
+          {' · '}
+          <Link to="/garagem" className={styles.saibaMais}>
+            Monte o carro de uma equipe com outras peças
+          </Link>
         </p>
       </section>
     </>

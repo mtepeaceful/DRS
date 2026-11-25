@@ -1,0 +1,322 @@
+.topo {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sobretitulo {
+  color: var(--cor-corrida);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.titulo {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+}
+
+.resumo {
+  max-width: 68ch;
+  color: var(--cor-texto-suave);
+}
+
+.equipes,
+.categoria {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.equipes {
+  margin-bottom: 20px;
+}
+
+.legenda {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: var(--fonte-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.listaDeEquipes {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.equipe,
+.equipeAtiva {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-superficie);
+  cursor: pointer;
+  transition: border-color var(--transicao);
+}
+
+.equipe:hover {
+  border-color: var(--cor-linha-forte);
+}
+
+.equipeAtiva {
+  border-color: var(--cor-corrida);
+  background: var(--cor-superficie-alta);
+}
+
+.equipe:focus-within,
+.equipeAtiva:focus-within,
+.peca:focus-within,
+.pecaAtiva:focus-within {
+  outline: 2px solid var(--cor-corrida);
+  outline-offset: 2px;
+}
+
+.nomeDaEquipe {
+  display: block;
+  font-weight: 700;
+}
+
+.nivel {
+  display: block;
+  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  align-items: start;
+  gap: 20px;
+}
+
+.vitrine {
+  position: sticky;
+  top: 16px;
+  display: grid;
+  gap: 14px;
+  padding: clamp(12px, 3vw, 20px);
+  border: 1px solid var(--cor-linha);
+  border-radius: calc(var(--raio) * 1.5);
+  background:
+    radial-gradient(700px 320px at 50% 0%, rgb(255 42 20 / 0.14), transparent 70%),
+    var(--cor-superficie);
+}
+
+.palco {
+  width: 100%;
+  height: clamp(280px, 42vw, 440px);
+  border-radius: var(--raio);
+  cursor: grab;
+  touch-action: none;
+}
+
+.palco:active {
+  cursor: grabbing;
+}
+
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dica,
+.motor {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.dica:empty {
+  display: none;
+}
+
+.saibaMais {
+  color: var(--cor-texto);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+.atributos {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.atributo {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.atributo dd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.barra {
+  flex: 1;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--cor-superficie-alta);
+}
+
+.barra > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cor-corrida);
+  transition: width 300ms ease;
+}
+
+.barra > .gasto {
+  background: var(--cor-ouro);
+}
+
+.valor {
+  min-width: 7.5em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+}
+
+.ganho {
+  color: var(--cor-sucesso);
+}
+
+.perda {
+  color: var(--cor-perigo);
+}
+
+.pecas {
+  display: grid;
+  gap: 18px;
+}
+
+.categoria {
+  display: grid;
+  gap: 6px;
+}
+
+.peca,
+.pecaAtiva,
+.pecaTravada {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-superficie);
+  cursor: pointer;
+}
+
+.peca input,
+.pecaAtiva input,
+.pecaTravada input {
+  margin-top: 4px;
+  accent-color: var(--cor-corrida);
+}
+
+.peca:hover {
+  border-color: var(--cor-linha-forte);
+}
+
+.pecaAtiva {
+  border-color: var(--cor-corrida);
+  background: var(--cor-superficie-alta);
+}
+
+.pecaTravada {
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.pecaTravada .nomeDaPeca,
+.pecaTravada .descricao {
+  color: var(--cor-texto-suave);
+}
+
+.textoDaPeca {
+  display: grid;
+  gap: 2px;
+}
+
+.nomeDaPeca {
+  font-weight: 700;
+}
+
+.preco {
+  color: var(--cor-texto-suave);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.descricao {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.motivo {
+  color: var(--cor-ouro);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .listaDeEquipes {
+    grid-template-columns: none;
+    grid-auto-columns: 150px;
+    grid-auto-flow: column;
+    overflow-x: auto;
+    padding: 2px 2px 8px;
+    scroll-snap-type: x proximity;
+  }
+
+  .equipe,
+  .equipeAtiva {
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vitrine {
+    position: static;
+  }
+}
+
+@media (max-width: 420px) {
+  .atributo {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barra > span {
+    transition: none;
+  }
+}

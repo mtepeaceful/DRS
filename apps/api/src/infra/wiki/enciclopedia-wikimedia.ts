@@ -35,7 +35,6 @@ const momento = z.object({ time: z.string().regex(/^[+-]\d{4,}/) });
 
 const COMMONS = 'https://commons.wikimedia.org/w/api.php';
 const SERVIDORES_DE_IMAGEM = new Set(['thumb.wikimedia.org', 'upload.wikimedia.org']);
-const LARGURA_DA_FOTO = '500px';
 
 const resumo = z.object({
   extract: z.string(),
@@ -86,14 +85,6 @@ function arquivoDoCommons(endereco: string) {
   }
 
   url.search = '';
-
-  if (miniatura) {
-    partes[partes.length - 1] = (partes.at(-1) ?? '').replace(
-      /^((?:lang[a-z-]+-)?)\d+px-/,
-      `$1${LARGURA_DA_FOTO}-`,
-    );
-    url.pathname = partes.join('/');
-  }
 
   return { arquivo, url: url.href };
 }

@@ -131,6 +131,52 @@ export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
   return solta;
 }
 
+/**
+ * Coordenadas de textura da placa da asa traseira: o desenho dela cobre a
+ * placa de ponta a ponta. De cada lado da placa o desenho é virado para o
+ * texto ficar legível; as bordas, que olham para a frente, para trás ou para
+ * cima, pegam o canto do desenho, que só tem a cor da asa.
+ */
+export function projetarNaPlaca(geometria: BufferGeometry) {
+  geometria.computeBoundingBox();
+  const limites = geometria.boundingBox;
+  const solta = geometria.index ? geometria.toNonIndexed() : geometria;
+  const posicoes = solta.getAttribute('position');
+  const normais = solta.getAttribute('normal');
+  const uvs: number[] = [];
+  const minX = limites?.min.x ?? 0;
+  const minY = limites?.min.y ?? 0;
+  const largura = (limites?.max.x ?? 1) - minX || 1;
+  const altura = (limites?.max.y ?? 1) - minY || 1;
+  const normal = new Vector3();
+  const auxiliar = new Vector3();
+
+  for (let i = 0; i < posicoes.count; i += 3) {
+    normal.fromBufferAttribute(normais, i);
+    normal.add(auxiliar.fromBufferAttribute(normais, i + 1));
+    normal.add(auxiliar.fromBufferAttribute(normais, i + 2)).normalize();
+    const deLado = Math.abs(normal.z) >= FACE_DE_LADO;
+
+    for (let j = i; j < i + 3; j++) {
+      if (!deLado) {
+        uvs.push(0.02, 0.02);
+        continue;
+      }
+
+      const t = (posicoes.getX(j) - minX) / largura;
+      uvs.push(normal.z > 0 ? t : 1 - t, (posicoes.getY(j) - minY) / altura);
+    }
+  }
+
+  solta.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+
+  if (solta !== geometria) {
+    geometria.dispose();
+  }
+
+  return solta;
+}
+
 function carregarImagem(svg: string, caixa: string, largura: number, altura: number) {
   const completo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${caixa}" width="${largura}" height="${altura}">${svg}</svg>`;
 

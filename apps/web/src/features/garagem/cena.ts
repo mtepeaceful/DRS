@@ -31,11 +31,18 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three';
+import type { BufferGeometry, Material } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Efeitos } from './efeitos';
 import { corpoPorSecoes, haste, perfilDeAsa, placa, pneu, type Secao, tubo } from './formas';
-import { type Caixa2D, projetarDeLado, texturaLateral, texturaQuadrada } from './lateral';
+import {
+  type Caixa2D,
+  projetarDeLado,
+  projetarNaPlaca,
+  texturaLateral,
+  texturaQuadrada,
+} from './lateral';
 import { aparelhoForte, desenhoPorSoftware } from './suporte';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
@@ -68,6 +75,8 @@ export interface PinturaDoRedesenho {
   sidepod: Caixa2D;
   /** A roda vista de lado (pneu com as letras da Pirelli e o aro da equipe) e o viewBox dela. */
   roda: { svg: string; caixa: string };
+  /** A placa da asa traseira de lado, com o patrocínio dela, e o viewBox. */
+  placaTraseira: { svg: string; caixa: string };
 }
 
 export interface Pintura {
@@ -769,6 +778,17 @@ function carro(
     });
   }
 
+  // A placa da asa traseira leva o patrocínio que o desenho 2D põe nela.
+  const placaPintada = pinturaMetalica(redesenho?.asaTraseira ?? cor);
+  if (redesenho) {
+    texturaQuadrada(redesenho.placaTraseira.svg, redesenho.placaTraseira.caixa, (textura) => {
+      placaPintada.map = textura;
+      placaPintada.color.set('#ffffff');
+      placaPintada.needsUpdate = true;
+      aoMudar();
+    });
+  }
+
   const pintarSeTiver = (objeto: Object3D, caixa?: Caixa2D) =>
     redesenho ? pintarDeLado(objeto, lataria, caixa) : objeto;
 
@@ -796,7 +816,7 @@ function carro(
     conjunto.add(retrovisor(lado, cores.retrovisor, carbono));
     conjunto.add(aletasDoAssoalho(lado, carbono));
 
-    const placaTraseira = new Mesh(
+    const placaTraseira = new Mesh<BufferGeometry, Material>(
       placa(
         [
           [-2.08, 0.32],
@@ -810,6 +830,10 @@ function carro(
       cores.asaTraseira,
     );
     placaTraseira.position.z = lado * 0.8;
+    if (redesenho) {
+      placaTraseira.geometry = projetarNaPlaca(placaTraseira.geometry);
+      placaTraseira.material = placaPintada;
+    }
     conjunto.add(placaTraseira);
 
     // A pintura do redesenho já traz o número desenhado nas laterais.

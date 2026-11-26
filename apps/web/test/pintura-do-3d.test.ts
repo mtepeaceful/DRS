@@ -2,7 +2,7 @@ import { BoxGeometry } from 'three';
 import { describe, expect, it } from 'vitest';
 import { desenharCarroceria } from '../src/features/equipes/carro/desenho';
 import { pinturaDaEquipe } from '../src/features/equipes/carro/pinturas';
-import { projetarDeLado } from '../src/features/garagem/lateral';
+import { projetarDeLado, projetarNaPlaca } from '../src/features/garagem/lateral';
 import { pinturaDoRedesenho } from '../src/features/garagem/pinturas';
 
 const WILLIAMS = { cor: '#0a2a6b', corSecundaria: '#00a0de' };
@@ -38,6 +38,22 @@ describe('Pintura do carro 3D', () => {
     for (let i = 0; i < uv.count; i++) {
       if (normal.getZ(i) > 0.9) expect(uv.getY(i)).toBeGreaterThanOrEqual(0.5);
       if (normal.getZ(i) < -0.9) expect(uv.getY(i)).toBeLessThanOrEqual(0.5);
+    }
+  });
+
+  it('põe o patrocínio da asa na placa traseira, legível dos dois lados', () => {
+    const pintura = pinturaDoRedesenho('Williams', WILLIAMS);
+    expect(pintura.placaTraseira.svg).toContain('KOMATSU');
+
+    const placa = projetarNaPlaca(new BoxGeometry(0.6, 0.7, 0.02));
+    const uv = placa.getAttribute('uv');
+    const normal = placa.getAttribute('normal');
+    const posicao = placa.getAttribute('position');
+    // Na face de fora (z > 0) o u cresce para a frente; na de dentro, ao contrário.
+    for (let i = 0; i < uv.count; i++) {
+      if (Math.abs(normal.getZ(i)) < 0.9) continue;
+      const t = (posicao.getX(i) + 0.3) / 0.6;
+      expect(uv.getX(i)).toBeCloseTo(normal.getZ(i) > 0 ? t : 1 - t);
     }
   });
 });

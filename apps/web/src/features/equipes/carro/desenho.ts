@@ -386,3 +386,18 @@ export function desenharCarroceria(
     <g clip-path="url(#tudo${u})">${marcas}${numerosLegiveis}</g>
   </g>`;
 }
+
+/** A roda vista de lado, com o pneu, as letras da Pirelli e o aro da equipe. */
+export const CAIXA_DA_RODA = '0 0 150 150';
+
+export function desenharRoda(pintura: Pintura, u: string) {
+  return `<defs>
+    <linearGradient id="pneu${u}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2b2e"/><stop offset=".5" stop-color="#151517"/><stop offset="1" stop-color="#0a0a0b"/>
+    </linearGradient>
+    <radialGradient id="calota${u}" cx=".4" cy=".35" r=".7">
+      <stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/>
+    </radialGradient>
+  </defs>
+  ${roda({ x: 75, y: 75, r: 70 }, `pr${u}`, u, pintura.aro)}`;
+}

@@ -1,5 +1,10 @@
 import { chaveDaEquipe } from '../../shared/lib/equipe';
-import { CAIXA_DO_SIDEPOD, desenharCarroceria } from '../equipes/carro/desenho';
+import {
+  CAIXA_DA_RODA,
+  CAIXA_DO_SIDEPOD,
+  desenharCarroceria,
+  desenharRoda,
+} from '../equipes/carro/desenho';
 import { pinturaDaEquipe as pinturaDoDesenho } from '../equipes/carro/pinturas';
 import type { PinturaDoRedesenho } from './cena';
 
@@ -76,5 +81,6 @@ export function pinturaDoRedesenho(
     capacete: desenho.capacete,
     retrovisor: desenho.retrovisor ?? desenho.base,
     sidepod: CAIXA_DO_SIDEPOD,
+    roda: { svg: desenharRoda(desenho, `${sufixo}r`), caixa: CAIXA_DA_RODA },
   };
 }

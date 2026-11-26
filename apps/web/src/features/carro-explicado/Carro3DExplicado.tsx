@@ -52,13 +52,15 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
       const atual = garagem.current;
 
       if (atual) {
+        // Sem carro no palco (ainda carregando), os números ficam escondidos.
+        const carregando = atual.carregando();
         for (const peca of PECAS) {
           const marcador = marcadores.current.get(peca.id);
           const { x, y, visivel } = atual.projetar(peca.ponto);
 
           if (marcador) {
             marcador.style.transform = `translate(${x}px, ${y}px)`;
-            marcador.hidden = !visivel;
+            marcador.hidden = carregando || !visivel;
           }
         }
       }
@@ -75,6 +77,8 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
           girando: false,
           aoDesenhar: posicionar,
         });
+        // O primeiro quadro sai antes de a garagem ficar guardada aqui.
+        posicionar();
       });
 
     return () => {

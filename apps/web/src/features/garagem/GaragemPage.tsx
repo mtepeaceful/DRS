@@ -11,7 +11,7 @@ import { CarroIlustrado } from './CarroIlustrado';
 import { Garagem3D } from './Garagem3D';
 import styles from './GaragemPage.module.css';
 import { pinturaDaEquipe } from './pinturas';
-import { aparelhoModesto, preferePoucoMovimento, temWebgl } from './suporte';
+import { preferePoucoMovimento, temWebgl } from './suporte';
 
 const TEXTOS = {
   pt: {
@@ -27,10 +27,7 @@ const TEXTOS = {
     carro: 'Carro',
     drs: (aberto: boolean) => `DRS ${aberto ? 'aberto' : 'fechado'}`,
     girar: (girando: boolean): string => (girando ? 'Parar de girar' : 'Girar sozinho'),
-    ver3d: 'Ver em 3D',
     dica3d: 'Arraste para girar e use a roda do mouse ou o gesto de pinça para aproximar.',
-    dicaIlustracao:
-      'Mostramos uma imagem parada para poupar o seu aparelho ou porque você prefere menos movimento.',
     dicaSem3d: 'Este navegador não consegue mostrar 3D, então mostramos o carro de lado.',
     oQueEDrs: 'O que é o DRS e por que ele saiu em 2026',
     pecas: 'O que cada peça do carro faz',
@@ -48,27 +45,24 @@ const TEXTOS = {
     carro: 'Car',
     drs: (aberto: boolean) => `DRS ${aberto ? 'open' : 'closed'}`,
     girar: (girando: boolean): string => (girando ? 'Stop spinning' : 'Spin on its own'),
-    ver3d: 'View in 3D',
     dica3d: 'Drag to rotate and use the mouse wheel or pinch to zoom.',
-    dicaIlustracao: 'We show a still image to spare your device or because you prefer less motion.',
     dicaSem3d: 'This browser cannot show 3D, so we show the car from the side.',
     oQueEDrs: 'What DRS is and why it left in 2026',
     pecas: 'What each part of the car does',
   },
 };
 
+// O carro 3D aparece sempre que o navegador tem WebGL. Quem prefere menos
+// movimento vê o mesmo carro, só que parado; a imagem de lado fica para
+// navegadores sem 3D.
 function modoInicial() {
-  if (!temWebgl()) {
-    return 'sem-3d' as const;
-  }
-
-  return preferePoucoMovimento() || aparelhoModesto() ? ('ilustracao' as const) : ('3d' as const);
+  return temWebgl() ? ('3d' as const) : ('sem-3d' as const);
 }
 
 export function GaragemPage() {
   const { id = '' } = useParams();
   const piloto = useQuery(detalheDoPiloto(id));
-  const [modo, setModo] = useState(modoInicial);
+  const [modo] = useState(modoInicial);
   const [asaAberta, setAsaAberta] = useState(false);
   const [girando, setGirando] = useState(() => !preferePoucoMovimento());
   const t = useTextos(TEXTOS);
@@ -151,16 +145,10 @@ export function GaragemPage() {
               {t.girar(girando)}
             </button>
           )}
-          {modo === 'ilustracao' && (
-            <button type="button" className={botao.secundario} onClick={() => setModo('3d')}>
-              {t.ver3d}
-            </button>
-          )}
         </div>
 
         <p className={styles.dica}>
           {modo === '3d' && t.dica3d}
-          {modo === 'ilustracao' && t.dicaIlustracao}
           {modo === 'sem-3d' && t.dicaSem3d}
         </p>
         <p className={styles.dica}>

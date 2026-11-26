@@ -193,6 +193,21 @@
   overflow-wrap: anywhere;
 }
 
+.linkDoNome {
+  justify-self: start;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--cor-linha-forte);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.15s;
+}
+
+.linkDoNome:hover,
+.linkDoNome:focus-visible {
+  text-decoration-color: var(--cor-corrida);
+}
+
 .barra {
   display: block;
   height: 3px;

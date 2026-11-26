@@ -168,3 +168,48 @@ describe('Classificação do campeonato', () => {
     );
   });
 });
+
+describe('Classificação na página inicial', () => {
+  it('liga os nomes dos pilotos e das equipes aos perfis', async () => {
+    servidor.use(
+      http.get('*/api/painel', () =>
+        HttpResponse.json({
+          campeonato: {
+            ano: 2026,
+            totalDeRodadas: 23,
+            rodadasDisputadas: 20,
+            proximaCorrida: null,
+            ultimaCorrida: null,
+            pilotos: [
+              {
+                id: 'hulkenberg',
+                posicao: 1,
+                nome: 'Nico Hülkenberg',
+                equipe: 'Sauber',
+                pontos: 40,
+                vitorias: 0,
+              },
+            ],
+            construtores: [
+              { id: 'mercedes', posicao: 1, nome: 'Mercedes', pontos: 666, vitorias: 12 },
+            ],
+          },
+          noticias: [],
+        }),
+      ),
+    );
+    renderizar('/');
+
+    const pilotos = await screen.findByRole('region', { name: 'Campeonato de pilotos' });
+    const construtores = screen.getByRole('region', { name: 'Construtores' });
+
+    expect(await within(pilotos).findByRole('link', { name: 'Nico Hülkenberg' })).toHaveAttribute(
+      'href',
+      '/historia/pilotos/hulkenberg',
+    );
+    expect(within(construtores).getByRole('link', { name: 'Mercedes' })).toHaveAttribute(
+      'href',
+      '/equipes/mercedes',
+    );
+  });
+});

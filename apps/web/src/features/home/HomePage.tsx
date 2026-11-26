@@ -8,6 +8,7 @@ import { CORES_NEUTRAS } from '../calendario/cores';
 import { BotaoDeLembrete } from '../calendario/BotaoDeLembrete';
 import { compromissosDoFimDeSemana } from '../calendario/lembrete';
 import { Podio } from '../calendario/Podio';
+import { useLinksDaClassificacao } from '../campeonato/links';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { painel } from './api';
 import { ContagemRegressiva } from './ContagemRegressiva';
@@ -155,8 +156,20 @@ function ProximaCorrida({ corrida, total }: { corrida: Corrida; total: number })
   );
 }
 
+/** O nome vira link para o perfil quando há perfil; sem perfil, fica só o texto. */
+function NomeComLink({ texto, para }: { texto: string; para: string | null }) {
+  return para ? (
+    <Link to={para} className={styles.linkDoNome}>
+      {texto}
+    </Link>
+  ) : (
+    texto
+  );
+}
+
 function Classificacao({ campeonato }: { campeonato: Campeonato }) {
   const t = useTextos(TEXTOS);
+  const links = useLinksDaClassificacao();
   const lider = campeonato.pilotos[0]?.pontos || 1;
 
   return (
@@ -175,7 +188,7 @@ function Classificacao({ campeonato }: { campeonato: Campeonato }) {
             <span className={styles.posicao}>{piloto.posicao}</span>
             <SimboloDaEquipe nome={piloto.equipe} {...CORES_NEUTRAS} />
             <span className={styles.nome}>
-              {piloto.nome}
+              <NomeComLink texto={piloto.nome} para={links.piloto(piloto.nome, piloto.id)} />
               <span className={styles.barra} aria-hidden="true">
                 <span style={{ width: `${(piloto.pontos / lider) * 100}%` }} />
               </span>
@@ -196,6 +209,7 @@ function Classificacao({ campeonato }: { campeonato: Campeonato }) {
 
 function Construtores({ campeonato }: { campeonato: Campeonato }) {
   const t = useTextos(TEXTOS);
+  const links = useLinksDaClassificacao();
 
   return (
     <section className={styles.cartao} aria-labelledby="classificacao-construtores">
@@ -209,7 +223,12 @@ function Construtores({ campeonato }: { campeonato: Campeonato }) {
           <li key={equipe.nome} className={styles.linha}>
             <span className={styles.posicao}>{equipe.posicao}</span>
             <SimboloDaEquipe nome={equipe.nome} {...CORES_NEUTRAS} />
-            <span className={styles.nome}>{nomeDaEquipe(equipe.nome)}</span>
+            <span className={styles.nome}>
+              <NomeComLink
+                texto={nomeDaEquipe(equipe.nome)}
+                para={links.equipe(equipe.nome, equipe.id)}
+              />
+            </span>
             <span className={styles.pontos}>
               {equipe.pontos}
               <span className="apenas-leitor">{t.pontos}</span>

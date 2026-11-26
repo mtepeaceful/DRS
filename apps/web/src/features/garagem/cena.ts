@@ -35,6 +35,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Efeitos } from './efeitos';
 import { corpoPorSecoes, haste, perfilDeAsa, placa, pneu, type Secao, tubo } from './formas';
+import { type Caixa2D, projetarDeLado, texturaLateral } from './lateral';
 import { aparelhoForte } from './suporte';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
@@ -49,11 +50,30 @@ export interface Visual {
   patrocinio: string | null;
 }
 
+/**
+ * A pintura do redesenho 2D das equipes: as laterais desenhadas (SVG de
+ * 1000 x 300, bico para a direita e, espelhado, para a esquerda) e a cor de
+ * cada peça que o desenho pinta à parte.
+ */
+export interface PinturaDoRedesenho {
+  direita: string;
+  esquerda: string;
+  asaTraseira: string;
+  flap: string;
+  endplate: string;
+  flapDianteiro: string;
+  capacete: string;
+  retrovisor: string;
+  /** Onde fica o sidepod no desenho, para a pintura dele cair inteira no sidepod 3D. */
+  sidepod: Caixa2D;
+}
+
 export interface Pintura {
   cor: string;
   corSecundaria: string;
   numero?: number;
   visual?: Partial<Visual>;
+  redesenho?: PinturaDoRedesenho | undefined;
 }
 
 export type Ponto = readonly [number, number, number];
@@ -563,6 +583,7 @@ function asaDianteira(
   variacao: VariacaoDeAsa,
   detalhe: MeshStandardMaterial,
   carbono: MeshStandardMaterial,
+  placas = detalhe,
 ) {
   const conjunto = new Group();
   const elementos = { padrao: 2, carga: 3, arrasto: 1, evolucao: 4 }[variacao];
@@ -590,7 +611,7 @@ function asaDianteira(
         ],
         0.02,
       ),
-      detalhe,
+      placas,
     );
     placaLateral.position.z = lado * 0.97;
     conjunto.add(placaLateral);
@@ -666,7 +687,20 @@ function assoalho(
   return conjunto;
 }
 
-function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
+// Leva a pintura desenhada para as laterais: a peça ganha coordenadas de
+// textura de lado e o material recebe o desenho assim que ele fica pronto.
+function pintarDeLado(objeto: Object3D, lataria: MeshPhysicalMaterial, caixa?: Caixa2D) {
+  const malha = objeto instanceof Mesh ? objeto : objeto.children[0];
+
+  if (malha instanceof Mesh) {
+    malha.geometry = projetarDeLado(malha.geometry, caixa);
+    malha.material = lataria;
+  }
+
+  return objeto;
+}
+
+function carro({ cor, corSecundaria, numero, visual: pedido, redesenho }: Pintura) {
   const visual = { ...VISUAL_PADRAO, ...pedido };
   const pintura = pinturaMetalica(cor);
   const detalhe = pinturaMetalica(corSecundaria, 0.3);
@@ -675,9 +709,29 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   const patrocinio = visual.patrocinio
     ? adesivo(texturaDoPatrocinio(visual.patrocinio, corSecundaria, corDoTexto(corSecundaria)))
     : null;
+  const lataria = pinturaMetalica(cor);
+  const cores = {
+    asaTraseira: redesenho ? pinturaMetalica(redesenho.asaTraseira) : pintura,
+    flap: redesenho ? pinturaMetalica(redesenho.flap, 0.3) : detalhe,
+    endplate: redesenho ? pinturaMetalica(redesenho.endplate, 0.3) : detalhe,
+    flapDianteiro: redesenho ? pinturaMetalica(redesenho.flapDianteiro, 0.3) : detalhe,
+    capacete: redesenho ? pinturaMetalica(redesenho.capacete, 0.3) : detalhe,
+    retrovisor: redesenho ? pinturaMetalica(redesenho.retrovisor) : pintura,
+  };
 
-  conjunto.add(monocoque(pintura));
-  conjunto.add(barbatana(pintura));
+  if (redesenho) {
+    texturaLateral(redesenho.direita, redesenho.esquerda, (textura) => {
+      lataria.map = textura;
+      lataria.color.set('#ffffff');
+      lataria.needsUpdate = true;
+    });
+  }
+
+  const pintarSeTiver = (objeto: Object3D, caixa?: Caixa2D) =>
+    redesenho ? pintarDeLado(objeto, lataria, caixa) : objeto;
+
+  conjunto.add(pintarSeTiver(monocoque(pintura)));
+  conjunto.add(pintarSeTiver(barbatana(pintura)));
   conjunto.add(assoalho(visual.assoalho, carbono, detalhe));
   conjunto.add(halo(carbono));
   conjunto.add(suspensao(carbono));
@@ -696,8 +750,8 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   conjunto.add(tomadaDeAr);
 
   for (const lado of [-1, 1]) {
-    conjunto.add(sidepod(lado, pintura, carbono));
-    conjunto.add(retrovisor(lado, pintura, carbono));
+    conjunto.add(pintarSeTiver(sidepod(lado, pintura, carbono), redesenho?.sidepod));
+    conjunto.add(retrovisor(lado, cores.retrovisor, carbono));
     conjunto.add(aletasDoAssoalho(lado, carbono));
 
     const placaTraseira = new Mesh(
@@ -711,12 +765,13 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
         ],
         0.025,
       ),
-      pintura,
+      cores.asaTraseira,
     );
     placaTraseira.position.z = lado * 0.8;
     conjunto.add(placaTraseira);
 
-    if (numero !== undefined) {
+    // A pintura do redesenho já traz o número desenhado nas laterais.
+    if (numero !== undefined && !redesenho) {
       const numeroNaBarbatana = new Mesh(
         new PlaneGeometry(0.3, 0.3),
         adesivo(texturaDoNumero(numero, corSecundaria), true),
@@ -748,10 +803,10 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
     }
   }
 
-  conjunto.add(asaDianteira(visual.asaDianteira, detalhe, carbono));
+  conjunto.add(asaDianteira(visual.asaDianteira, cores.flapDianteiro, carbono, cores.endplate));
 
   const asa = ASA_TRASEIRA[visual.asaTraseira];
-  const planoTraseiro = new Mesh(perfilDeAsa(asa.plano, 1.58, 0.11), pintura);
+  const planoTraseiro = new Mesh(perfilDeAsa(asa.plano, 1.58, 0.11), cores.asaTraseira);
   planoTraseiro.position.set(-2.38 + asa.plano / 2, 0.82, 0);
   planoTraseiro.rotation.z = 0.12;
   conjunto.add(planoTraseiro);
@@ -763,7 +818,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
     conjunto.add(planoInferior);
   }
 
-  const flap = new Mesh(perfilDeAsa(asa.flap, 1.58, 0.1), detalhe);
+  const flap = new Mesh(perfilDeAsa(asa.flap, 1.58, 0.1), cores.flap);
   const dobradica = new Group();
   dobradica.position.set(-2.18, 0.9, 0);
   dobradica.rotation.z = FLAP_FECHADO;
@@ -783,7 +838,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   luzDeChuva.position.set(-2.44, 0.26, 0);
   conjunto.add(luzDeChuva);
 
-  const capacete = new Mesh(new SphereGeometry(0.16, 32, 20), detalhe);
+  const capacete = new Mesh(new SphereGeometry(0.16, 32, 20), cores.capacete);
   capacete.position.set(-0.05, 0.68, 0);
   conjunto.add(capacete);
 

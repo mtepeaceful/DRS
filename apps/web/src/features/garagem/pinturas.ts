@@ -1,3 +1,8 @@
+import { chaveDaEquipe } from '../../shared/lib/equipe';
+import { CAIXA_DO_SIDEPOD, desenharCarroceria } from '../equipes/carro/desenho';
+import { pinturaDaEquipe as pinturaDoDesenho } from '../equipes/carro/pinturas';
+import type { PinturaDoRedesenho } from './cena';
+
 export interface PinturaDaEquipe {
   cor: string;
   corSecundaria: string;
@@ -47,4 +52,29 @@ export function pinturaDaEquipe(nome: string, daApi: PinturaDaEquipe): PinturaDa
   )[0];
 
   return encontrado ? PINTURAS[encontrado[1]] : daApi;
+}
+
+/**
+ * A pintura do carro 3D tirada do redesenho 2D da equipe: as laterais
+ * desenhadas, com patrocínios e número, e a cor de cada peça.
+ */
+export function pinturaDoRedesenho(
+  nome: string,
+  daApi: PinturaDaEquipe,
+  numero?: number,
+): PinturaDoRedesenho {
+  const desenho = pinturaDoDesenho(nome, daApi);
+  const sufixo = chaveDaEquipe(nome) || 'equipe';
+
+  return {
+    direita: desenharCarroceria(desenho, numero, `${sufixo}d`),
+    esquerda: desenharCarroceria(desenho, numero, `${sufixo}e`, true),
+    asaTraseira: desenho.asaTraseira ?? desenho.base,
+    flap: desenho.flap ?? '#111114',
+    endplate: desenho.endplate ?? desenho.base,
+    flapDianteiro: desenho.flapDianteiro ?? desenho.base,
+    capacete: desenho.capacete,
+    retrovisor: desenho.retrovisor ?? desenho.base,
+    sidepod: CAIXA_DO_SIDEPOD,
+  };
 }

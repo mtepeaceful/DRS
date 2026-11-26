@@ -39,6 +39,9 @@ C280 224 266 222 260 216 C258 210 260 206 266 204 C280 200 290 198 300 197
 C340 192 370 189 400 186 C440 182 470 178 500 175 C530 171 550 168 571 166
 C584 164 592 163 600 164 Z`;
 
+/** O retângulo em volta do sidepod, para quem usa a pintura dele em outro lugar. */
+export const CAIXA_DO_SIDEPOD = { esquerda: 258, direita: 608, topo: 163, base: 214 };
+
 /** Entrada de ar do sidepod: a boca escura na frente dele, abaixo do halo. */
 const ENTRADA =
   'M598 162 C614 166 630 172 642 178 L642 200 C628 196 614 192 602 188 C608 180 606 168 598 162 Z';
@@ -159,11 +162,23 @@ function numeros(numero: number | undefined, pintura: Pintura) {
     return '';
   }
 
-  const { cor, contorno } = pintura.numero;
-  const texto = (x: number, y: number, tamanho: number, giro: number) =>
-    `<text x="${x}" y="${y}" font-family="${FONTE_NUMERO}" font-weight="900" font-size="${tamanho}" fill="${cor}" stroke="${contorno}" stroke-width="3" paint-order="stroke" stroke-linejoin="round" text-anchor="middle" transform="rotate(${giro} ${x} ${y})">${numero}</text>`;
+  return POSICOES_DO_NUMERO.map((posicao) => numeroEm(posicao, numero, pintura)).join('');
+}
 
-  return texto(272, 140, 22, -12) + texto(928, 234, 13, 16);
+/** Onde o número vai: na tampa do motor e no bico (x, y, tamanho e giro). */
+const POSICOES_DO_NUMERO = [
+  { x: 272, y: 140, tamanho: 22, giro: -12 },
+  { x: 928, y: 234, tamanho: 13, giro: 16 },
+];
+
+function numeroEm(
+  { x, y, tamanho, giro }: (typeof POSICOES_DO_NUMERO)[number],
+  numero: number,
+  pintura: Pintura,
+) {
+  const { cor, contorno } = pintura.numero;
+
+  return `<text x="${x}" y="${y}" font-family="${FONTE_NUMERO}" font-weight="900" font-size="${tamanho}" fill="${cor}" stroke="${contorno}" stroke-width="3" paint-order="stroke" stroke-linejoin="round" text-anchor="middle" transform="rotate(${giro} ${x} ${y})">${numero}</text>`;
 }
 
 /**
@@ -320,4 +335,54 @@ export function desenharCarro(pintura: Pintura, numero: number | undefined, u: s
   <path d="M900 246 C940 244 968 244 990 243 L990 250 C968 251 940 252 902 253 Z" fill="${p.flapDianteiro ?? p.base}"/>
   <path d="M900 246 C940 244 968 244 990 243 L990 250 C968 251 940 252 902 253 Z" fill="url(#luz${u})"/>
   ${p.frente ?? ''}`;
+}
+
+/**
+ * Só a carroceria pintada, sem rodas, asas, halo, sombras nem reflexos: é a
+ * textura que o carro 3D estica nas laterais. Fora do contorno, tudo fica na
+ * cor de base, porque a carroceria 3D não tem o mesmo contorno do desenho.
+ *
+ * `espelhado` desenha o lado esquerdo do carro, com o bico para a esquerda.
+ * As faixas viram junto, mas os patrocínios e os números continuam legíveis,
+ * como num carro de verdade.
+ */
+export function desenharCarroceria(
+  pintura: Pintura,
+  numero: number | undefined,
+  u: string,
+  espelhado = false,
+) {
+  const p = pintura;
+  const legivel = (x: number, conteudo: string) =>
+    espelhado ? `<g transform="translate(${2 * x} 0) scale(-1 1)">${conteudo}</g>` : conteudo;
+  const marcas = (p.marcas ?? [])
+    .map((m) => legivel(m.x, marca(espelhado && m.giro ? { ...m, giro: -m.giro } : m)))
+    .join('');
+  const numerosLegiveis =
+    numero === undefined
+      ? ''
+      : POSICOES_DO_NUMERO.map((posicao) =>
+          legivel(
+            posicao.x,
+            numeroEm(espelhado ? { ...posicao, giro: -posicao.giro } : posicao, numero, p),
+          ),
+        ).join('');
+
+  return `<defs>
+    <clipPath id="tudo${u}"><path d="${CORPO}"/><path d="${SIDEPOD}"/><path d="${TAMPA}"/></clipPath>
+    <clipPath id="corpo${u}"><path d="${CORPO}"/></clipPath>
+    <clipPath id="tampa${u}"><path d="${TAMPA}"/></clipPath>
+    <clipPath id="pod${u}"><path d="${SIDEPOD}"/></clipPath>
+  </defs>
+  <g${espelhado ? ' transform="translate(1000 0) scale(-1 1)"' : ''}>
+    <rect width="1000" height="300" fill="${p.base}"/>
+    <path d="${CORPO}" fill="${p.base}"/>
+    <g clip-path="url(#corpo${u})">${p.pinturaCorpo ?? ''}</g>
+    <path d="${TAMPA}" fill="${p.tampa ?? p.base}"/>
+    <g clip-path="url(#tampa${u})">${p.pinturaTampa ?? ''}</g>
+    <path d="${SIDEPOD}" fill="${p.sidepod ?? p.base}"/>
+    <g clip-path="url(#pod${u})">${p.pinturaPod ?? ''}</g>
+    <path d="${AIRBOX}" fill="${p.airbox ?? p.tampa ?? p.base}"/>
+    <g clip-path="url(#tudo${u})">${marcas}${numerosLegiveis}</g>
+  </g>`;
 }

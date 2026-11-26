@@ -5,6 +5,7 @@ import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { CarroIlustrado } from '../garagem/CarroIlustrado';
 import type { Composto, Pintura, VariacaoDeAsa, VariacaoDeAssoalho } from '../garagem/cena';
 import { aparelhoModesto, preferePoucoMovimento, temWebgl } from '../garagem/suporte';
+import { pinturaDoRedesenho } from '../garagem/pinturas';
 import {
   ATRIBUTOS,
   atributos,
@@ -60,6 +61,7 @@ function pinturaDe(equipe: EquipeDaGaragem, montagem: Montagem): Pintura {
   return {
     cor: equipe.cor,
     corSecundaria: equipe.corSecundaria,
+    redesenho: pinturaDoRedesenho(equipe.nome, equipe),
     visual: {
       asaDianteira: pecaDaMontagem(montagem, 'asa-dianteira').visual as VariacaoDeAsa,
       asaTraseira: pecaDaMontagem(montagem, 'asa-traseira').visual as VariacaoDeAsa,

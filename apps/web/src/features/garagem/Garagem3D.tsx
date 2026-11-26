@@ -9,13 +9,13 @@ interface Props extends Pintura {
   girando: boolean;
 }
 
-export function Garagem3D({ cor, corSecundaria, numero, asaAberta, girando }: Props) {
+export function Garagem3D({ cor, corSecundaria, numero, redesenho, asaAberta, girando }: Props) {
   const recipiente = useRef<HTMLDivElement>(null);
   const garagem = useRef<Garagem | null>(null);
-  const estado = useRef({ asaAberta, girando });
+  const estado = useRef({ asaAberta, girando, redesenho });
 
   useEffect(() => {
-    estado.current = { asaAberta, girando };
+    estado.current = { asaAberta, girando, redesenho };
   });
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function Garagem3D({ cor, corSecundaria, numero, asaAberta, girando }: Pr
 
       garagem.current = montarGaragem(
         recipiente.current,
-        { cor, corSecundaria, numero },
+        { cor, corSecundaria, numero, redesenho: estado.current.redesenho },
         { girando: estado.current.girando },
       );
       garagem.current.abrirAsa(estado.current.asaAberta);
@@ -39,7 +39,9 @@ export function Garagem3D({ cor, corSecundaria, numero, asaAberta, girando }: Pr
       garagem.current?.destruir();
       garagem.current = null;
     };
-  }, [cor, corSecundaria, numero]);
+    // A pintura desenhada muda junto com a equipe e o número; o texto do
+    // lado direito basta para saber se ela mudou.
+  }, [cor, corSecundaria, numero, redesenho?.direita]);
 
   useEffect(() => {
     garagem.current?.abrirAsa(asaAberta);

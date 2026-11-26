@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { modeloDaEquipe } from '../src/features/garagem/modelos';
+import { carroDaEquipe, modeloDaEquipe } from '../src/features/garagem/modelos';
 
 describe('modeloDaEquipe', () => {
   it('acha o carro pelo id da montagem e pelo nome da API', () => {
@@ -19,7 +19,9 @@ describe('modeloDaEquipe', () => {
     expect(modeloDaEquipe('RB F1 Team')).toBe('vcarb03');
   });
 
-  it('deixa sem modelo uma equipe nova', () => {
+  it('dá o carro de reserva a uma equipe nova', () => {
     expect(modeloDaEquipe('Equipe Nova')).toBeUndefined();
+    expect(carroDaEquipe('Equipe Nova')).toBe('fw48');
+    expect(carroDaEquipe('McLaren')).toBe('mcl40');
   });
 });

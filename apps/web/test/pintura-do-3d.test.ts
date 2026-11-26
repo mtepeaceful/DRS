@@ -1,13 +1,11 @@
-import { BoxGeometry } from 'three';
 import { describe, expect, it } from 'vitest';
 import { desenharCarroceria } from '../src/features/equipes/carro/desenho';
 import { pinturaDaEquipe } from '../src/features/equipes/carro/pinturas';
-import { projetarDeLado, projetarNaPlaca } from '../src/features/garagem/lateral';
 import { pinturaDoRedesenho } from '../src/features/garagem/pinturas';
 
 const WILLIAMS = { cor: '#0a2a6b', corSecundaria: '#00a0de' };
 
-describe('Pintura do carro 3D', () => {
+describe('Pintura do redesenho para os modelos 3D', () => {
   it('desenha só a carroceria, com os patrocínios e o número', () => {
     const svg = desenharCarroceria(pinturaDaEquipe('Williams', WILLIAMS), 23, 'x');
 
@@ -30,50 +28,9 @@ describe('Pintura do carro 3D', () => {
     expect(pintura.direita).not.toBe(pintura.esquerda);
   });
 
-  it('projeta o desenho de lado, cada lado do carro na sua metade da textura', () => {
-    const geometria = projetarDeLado(new BoxGeometry(1, 0.5, 1).translate(0, 0.4, 0));
-    const uv = geometria.getAttribute('uv');
-    const normal = geometria.getAttribute('normal');
-
-    for (let i = 0; i < uv.count; i++) {
-      if (normal.getZ(i) > 0.9) expect(uv.getY(i)).toBeGreaterThanOrEqual(0.5);
-      if (normal.getZ(i) < -0.9) expect(uv.getY(i)).toBeLessThanOrEqual(0.5);
-    }
-  });
-
-  it('põe o patrocínio da asa na placa traseira, legível dos dois lados', () => {
+  it('põe o patrocínio da asa na placa traseira', () => {
     const pintura = pinturaDoRedesenho('Williams', WILLIAMS);
     expect(pintura.placaTraseira.svg).toContain('KOMATSU');
-
-    const placa = projetarNaPlaca(new BoxGeometry(0.6, 0.7, 0.02));
-    const uv = placa.getAttribute('uv');
-    const normal = placa.getAttribute('normal');
-    const posicao = placa.getAttribute('position');
-    // Na face de fora (z > 0) o u cresce para a frente; na de dentro, ao contrário.
-    for (let i = 0; i < uv.count; i++) {
-      if (Math.abs(normal.getZ(i)) < 0.9) continue;
-      const t = (posicao.getX(i) + 0.3) / 0.6;
-      expect(uv.getX(i)).toBeCloseTo(normal.getZ(i) > 0 ? t : 1 - t);
-    }
-  });
-
-  it('deixa o fim e o rebaixo do sidepod fora do desenho', () => {
-    const caixa = { esquerda: 258, direita: 608, topo: 163, base: 214 };
-    const geometria = new BoxGeometry(2, 1, 0.2).translate(0, 0.5, 0.5);
-    const solta = projetarDeLado(geometria, { ...caixa, inicio3D: 0, rebaixo3D: 0.3 });
-    const uv = solta.getAttribute('uv');
-    const posicao = solta.getAttribute('position');
-    const normal = solta.getAttribute('normal');
-
-    for (let i = 0; i < uv.count; i++) {
-      if (normal.getZ(i) < 0.9) continue;
-      const x2D = uv.getX(i) * 1000;
-      const y2D = (1 - (uv.getY(i) - 0.5) * 2) * 300;
-      // Atrás do início (x < 0) tudo cai na borda de trás do desenho do sidepod.
-      if (posicao.getX(i) < 0) expect(x2D).toBeCloseTo(caixa.esquerda);
-      // No rebaixo (30% de baixo) tudo cai na borda de baixo.
-      if (posicao.getY(i) < 0.3) expect(y2D).toBeCloseTo(caixa.base);
-    }
   });
 
   it('repete o patrocinador principal no sidepod e na asa dianteira e põe outro no bico', () => {
@@ -82,26 +39,5 @@ describe('Pintura do carro 3D', () => {
     expect(pintura.topoDoSidepod?.svg).toContain('ATLASSIAN');
     expect(pintura.placaDianteira?.svg).toContain('ATLASSIAN');
     expect(pintura.bico?.svg).toContain('KOMATSU');
-  });
-
-  it('deixa na cor de base a parte do corpo escondida atrás de outra peça', () => {
-    const geometria = new BoxGeometry(2, 1, 0.2, 1, 4, 1).translate(0, 0.5, 0);
-    const solta = projetarDeLado(geometria, undefined, ({ y }) => y < 0.3);
-    const uv = solta.getAttribute('uv');
-    const posicao = solta.getAttribute('position');
-    const normal = solta.getAttribute('normal');
-    // A face da frente (normal em x) sempre pega a cor de base.
-    const base = [...Array(uv.count).keys()].find((i) => Math.abs(normal.getX(i)) > 0.9) ?? 0;
-    const corDeBase = [uv.getX(base), uv.getY(base) % 0.5];
-
-    let escondidas = 0;
-    for (let i = 0; i < uv.count; i += 3) {
-      if (normal.getZ(i) < 0.9) continue;
-      const centroY = (posicao.getY(i) + posicao.getY(i + 1) + posicao.getY(i + 2)) / 3;
-      const naBase = uv.getX(i) === corDeBase[0] && uv.getY(i) % 0.5 === corDeBase[1];
-      expect(naBase).toBe(centroY < 0.3);
-      if (naBase) escondidas++;
-    }
-    expect(escondidas).toBeGreaterThan(0);
   });
 });

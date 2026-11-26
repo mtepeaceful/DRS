@@ -1,0 +1,4 @@
+"2026 Ferrari SF-26" por Dave Love (https://sketchfab.com/Tyler_Dave)
+https://sketchfab.com/3d-models/e5ca6cecdc42449283f4bed27360f2a7
+Licença: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Alterações: peças separadas, malha simplificada e texturas convertidas para WebP.

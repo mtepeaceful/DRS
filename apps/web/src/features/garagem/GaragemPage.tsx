@@ -10,6 +10,7 @@ import { detalheDoPiloto } from '../pilotos/api';
 import { CarroIlustrado } from './CarroIlustrado';
 import { Garagem3D } from './Garagem3D';
 import styles from './GaragemPage.module.css';
+import { modeloDaEquipe } from './modelos';
 import { pinturaDaEquipe, pinturaDoRedesenho } from './pinturas';
 import { preferePoucoMovimento, temWebgl } from './suporte';
 
@@ -108,8 +109,8 @@ export function GaragemPage() {
     ...pinturaDaEquipe(equipe.nome, equipe),
     numero,
     redesenho: pinturaDoRedesenho(equipe.nome, equipe, numero),
-    // A Red Bull usa o RB22 baixado do Sketchfab.
-    modelo: /red bull/i.test(equipe.nome) ? ('rb22' as const) : undefined,
+    // O carro baixado do Sketchfab, quando a equipe tem um.
+    modelo: modeloDaEquipe(equipe.nome),
   };
 
   return (

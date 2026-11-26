@@ -1,0 +1,4 @@
+"2026 Haas VF-26" por Dave Love (https://sketchfab.com/Tyler_Dave)
+https://sketchfab.com/3d-models/1f41e03886724bc6acd16c92402989bc
+Licença: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Alterações: peças separadas, malha simplificada e texturas convertidas para WebP.

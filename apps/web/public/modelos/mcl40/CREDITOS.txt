@@ -1,0 +1,4 @@
+"2026 McLaren MCL40" por Dave Love (https://sketchfab.com/Tyler_Dave)
+https://sketchfab.com/3d-models/96214ad5624f42a0861f77008f8d29e7
+Licença: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Alterações: peças separadas, malha simplificada e texturas convertidas para WebP.

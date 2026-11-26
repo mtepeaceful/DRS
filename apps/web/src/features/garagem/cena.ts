@@ -44,7 +44,8 @@ import {
   texturaQuadrada,
 } from './lateral';
 import { aparelhoForte, desenhoPorSoftware } from './suporte';
-import { carregarModelo, carroDoModelo, type ModeloDoSite, modeloPronto } from './modelo';
+import { carregarModelo, carroDoModelo, modeloPronto } from './modelo';
+import type { ModeloDoSite } from './modelos';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
 export type VariacaoDeAssoalho = 'padrao' | 'canais' | 'borda';

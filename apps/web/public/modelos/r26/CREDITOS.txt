@@ -1,0 +1,4 @@
+"2026 Audi R26" por Dave Love (https://sketchfab.com/Tyler_Dave)
+https://sketchfab.com/3d-models/32bf228264b047669b100b0f1b8769ac
+Licença: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Alterações: peças separadas, malha simplificada e texturas convertidas para WebP.

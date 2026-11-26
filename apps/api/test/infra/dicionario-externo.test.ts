@@ -382,6 +382,63 @@ describe('EnciclopediaWikimedia · fotos', () => {
     ]);
   });
 
+  it('usa a mesma foto do artigo em inglês nos dois idiomas', async () => {
+    responder((url) => {
+      if (url.hostname === 'www.wikidata.org') {
+        return Response.json({
+          entities: { Q1: { claims: {}, sitelinks: { ptwiki: { title: 'Ayrton Senna' } } } },
+        });
+      }
+
+      if (url.hostname === 'commons.wikimedia.org') {
+        return Response.json({ query: { pages: {} } });
+      }
+
+      const arquivo = url.hostname === 'pt.wikipedia.org' ? 'Senna_1989.jpg' : 'Senna_1993.jpg';
+
+      return Response.json({
+        extract: `Texto de ${url.hostname}`,
+        content_urls: { desktop: { page: `https://${url.hostname}/wiki/Ayrton_Senna` } },
+        thumbnail: {
+          source: `https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/${arquivo}/330px-${arquivo}`,
+        },
+      });
+    });
+
+    const enciclopedia = new EnciclopediaWikimedia();
+    const [emPortugues, emIngles] = [
+      await enciclopedia.verbete('Ayrton Senna', 'pt'),
+      await enciclopedia.verbete('Ayrton Senna', 'en'),
+    ];
+
+    expect(emPortugues?.resumo).toBe('Texto de pt.wikipedia.org');
+    expect(emPortugues?.foto?.pagina).toBe('https://commons.wikimedia.org/wiki/File:Senna_1993.jpg');
+    expect(emIngles?.foto).toEqual(emPortugues?.foto);
+  });
+
+  it('mantém o texto em português quando o artigo em inglês falha', async () => {
+    responder((url) => {
+      if (url.hostname === 'www.wikidata.org') {
+        return Response.json({
+          entities: { Q1: { claims: {}, sitelinks: { ptwiki: { title: 'Piloto' } } } },
+        });
+      }
+
+      if (url.hostname === 'en.wikipedia.org') {
+        return new Response(null, { status: 500 });
+      }
+
+      return Response.json({
+        extract: 'Texto em português.',
+        content_urls: { desktop: { page: 'https://pt.wikipedia.org/wiki/Piloto' } },
+      });
+    });
+
+    const verbete = await new EnciclopediaWikimedia().verbete('Piloto', 'pt');
+
+    expect(verbete).toMatchObject({ resumo: 'Texto em português.', foto: null });
+  });
+
   it('recusa imagem que não está no Commons, como as de uso justo', async () => {
     const pedidos = simular(
       'https://upload.wikimedia.org/wikipedia/en/thumb/a/ab/Logo.png/330px-Logo.png',

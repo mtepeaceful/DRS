@@ -129,6 +129,21 @@ async function fotoDoCommons(miniatura: string | undefined): Promise<Foto | null
   };
 }
 
+type Resumo = z.infer<typeof resumo>;
+
+// A foto vem sempre do artigo em inglês, para não mudar quando o site troca de idioma.
+// Se o outro idioma usa o mesmo arquivo (como um mapa com rótulos traduzidos), fica a versão dele.
+function miniaturaEstavel(texto: Resumo, emIngles: Resumo | null) {
+  const local = texto.thumbnail?.source;
+  const padrao = emIngles?.thumbnail?.source;
+
+  if (!local || !padrao) {
+    return padrao ?? local;
+  }
+
+  return arquivoDoCommons(local)?.arquivo === arquivoDoCommons(padrao)?.arquivo ? local : padrao;
+}
+
 type Entidade = z.infer<typeof entidades>['entities'][string];
 
 function referencias(entidade: Entidade | undefined, propriedade: string) {
@@ -185,13 +200,14 @@ export class EnciclopediaWikimedia implements Enciclopedia, GaleriaDeFotos {
       : referencias(empresaMae, SEDE);
     const nomes = await this.nomes([...fundadores, ...(sede ? [sede] : [])], idioma);
     const tituloEmPortugues = equipe?.sitelinks?.ptwiki?.title;
+    const emIngles = resumoDaWikipedia('en', artigoEmIngles);
+    const fotoEmIngles = emIngles.catch(() => null);
     const emPortugues = async () =>
       tituloEmPortugues ? resumoDaWikipedia('pt', tituloEmPortugues) : null;
-    const emIngles = () => resumoDaWikipedia('en', artigoEmIngles);
     const texto =
       idioma === 'en'
-        ? (await emIngles()) || (await emPortugues())
-        : (await emPortugues()) || (await emIngles());
+        ? (await emIngles) || (await emPortugues())
+        : (await emPortugues()) || (await emIngles);
 
     if (!texto) {
       return null;
@@ -200,7 +216,7 @@ export class EnciclopediaWikimedia implements Enciclopedia, GaleriaDeFotos {
     return {
       resumo: texto.extract,
       fonte: texto.content_urls.desktop.page,
-      foto: await fotoDoCommons(texto.thumbnail?.source),
+      foto: await fotoDoCommons(miniaturaEstavel(texto, await fotoEmIngles)),
       fundacao: ano(equipe),
       fundadores: fundadores.flatMap((id) => nomes.get(id) ?? []),
       sede: (sede && nomes.get(sede)) ?? null,

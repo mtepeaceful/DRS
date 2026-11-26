@@ -387,6 +387,13 @@ export function desenharCarroceria(
   </g>`;
 }
 
+/** A placa da asa traseira vista de lado, com o patrocínio dela. */
+export const CAIXA_DA_PLACA = '60 98 90 118';
+
+export function desenharPlacaTraseira(pintura: Pintura) {
+  return `<rect x="60" y="98" width="90" height="118" fill="${pintura.asaTraseira ?? pintura.base}"/>${pintura.asa ?? ''}`;
+}
+
 /** A roda vista de lado, com o pneu, as letras da Pirelli e o aro da equipe. */
 export const CAIXA_DA_RODA = '0 0 150 150';
 

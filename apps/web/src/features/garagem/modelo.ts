@@ -2,7 +2,7 @@ import { Group, Mesh, MeshStandardMaterial, TorusGeometry } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 /**
- * TESTE: o RB22 2026 baixado do Sketchfab ("2026 Redbull RB22", de Dave Love,
+ * O RB22 2026 baixado do Sketchfab ("2026 Redbull RB22", de Dave Love,
  * licença CC BY 4.0). O arquivo foi preparado antes de entrar no site: frente
  * para +x, rodas no mesmo lugar das do carro desenhado em código, peças
  * separadas (asas, flap, rodas, carroceria), malha simplificada e texturas em

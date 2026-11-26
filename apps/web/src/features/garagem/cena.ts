@@ -92,7 +92,7 @@ export interface Pintura {
   numero?: number;
   visual?: Partial<Visual>;
   redesenho?: PinturaDoRedesenho | undefined;
-  /** TESTE: usa o modelo baixado do Sketchfab no lugar do carro desenhado em código. */
+  /** Usa o modelo baixado do Sketchfab no lugar do carro desenhado em código. */
   modelo?: ModeloDoSite | undefined;
 }
 

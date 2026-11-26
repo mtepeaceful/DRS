@@ -27,6 +27,10 @@ function texto(valor: string) {
     .replace(/\r?\n/g, '\\n');
 }
 
+function fimDo(compromisso: Compromisso) {
+  return new Date(compromisso.inicio.getTime() + compromisso.duracaoEmMinutos * 60_000);
+}
+
 function dobrar(linha: string) {
   const bytes = new TextEncoder();
   const partes: string[] = [];
@@ -58,7 +62,7 @@ export function gerarIcs(compromissos: Compromisso[], agora = new Date()) {
   ];
 
   for (const compromisso of compromissos) {
-    const fim = new Date(compromisso.inicio.getTime() + compromisso.duracaoEmMinutos * 60_000);
+    const fim = fimDo(compromisso);
 
     linhas.push(
       'BEGIN:VEVENT',
@@ -156,4 +160,28 @@ export function compromissosDaTemporada(
       duracaoEmMinutos: DURACAO_DA_CORRIDA,
       avisoEmMinutos: AVISO_DA_CORRIDA,
     }));
+}
+
+export function linkDoGoogle(compromisso: Compromisso) {
+  const parametros = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: compromisso.titulo,
+    dates: `${instante(compromisso.inicio)}/${instante(fimDo(compromisso))}`,
+    location: compromisso.local,
+  });
+
+  return `https://calendar.google.com/calendar/render?${parametros.toString()}`;
+}
+
+export function linkDoOutlook(compromisso: Compromisso) {
+  const parametros = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: compromisso.titulo,
+    startdt: compromisso.inicio.toISOString(),
+    enddt: fimDo(compromisso).toISOString(),
+    location: compromisso.local,
+  });
+
+  return `https://outlook.live.com/calendar/0/action/compose?${parametros.toString()}`;
 }

@@ -11,6 +11,19 @@ trocarIdioma('pt');
 beforeAll(() => {
   vi.stubGlobal('scrollTo', () => {});
   Object.defineProperty(Element.prototype, 'scrollIntoView', { value: () => {}, writable: true });
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    value(this: HTMLDialogElement) {
+      this.open = true;
+    },
+    writable: true,
+  });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    value(this: HTMLDialogElement) {
+      this.open = false;
+      this.dispatchEvent(new Event('close'));
+    },
+    writable: true,
+  });
   Object.defineProperty(URL, 'createObjectURL', { value: () => 'blob:drs', writable: true });
   Object.defineProperty(URL, 'revokeObjectURL', { value: () => {}, writable: true });
   vi.stubGlobal(

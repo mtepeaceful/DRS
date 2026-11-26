@@ -24,6 +24,17 @@
 }
 
 /*
+ * No celular, desfocar o que passa por baixo do cabeçalho a cada passo da
+ * rolagem pesa na GPU e engasga a rolagem. Lá o fundo fica quase opaco.
+ */
+@media (pointer: coarse) {
+  .cabecalho {
+    background: rgb(8 8 10 / 0.94);
+    backdrop-filter: none;
+  }
+}
+
+/*
  * Modo DRS: a linha no topo acende quando a asa do logo abre (carregando
  * dados, trocando de página ou com o ponteiro e o foco no logo), como a
  * zona de ativação marcada na pista.

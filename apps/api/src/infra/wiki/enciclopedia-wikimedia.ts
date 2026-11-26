@@ -3,6 +3,7 @@ import type {
   Enciclopedia,
   Foto,
   GaleriaDeFotos,
+  Idioma,
   Verbete,
 } from '../../application/ports/fonte-das-equipes.js';
 import { buscarJson, buscarJsonSeExistir } from '../http-externo.js';
@@ -152,7 +153,7 @@ async function buscarEntidades(parametros: Record<string, string>) {
   return (await buscarJson(`${WIKIDATA}?${consulta}`, entidades)).entities;
 }
 
-function resumoDaWikipedia(idioma: 'pt' | 'en', titulo: string) {
+function resumoDaWikipedia(idioma: Idioma, titulo: string) {
   const caminho = encodeURIComponent(titulo.replaceAll(' ', '_'));
 
   return buscarJsonSeExistir(
@@ -168,7 +169,7 @@ export class EnciclopediaWikimedia implements Enciclopedia, GaleriaDeFotos {
     return fotoDoCommons(texto?.thumbnail?.source);
   }
 
-  async verbete(artigoEmIngles: string): Promise<Verbete | null> {
+  async verbete(artigoEmIngles: string, idioma: Idioma = 'pt'): Promise<Verbete | null> {
     const [equipe] = Object.values(
       await buscarEntidades({ sites: 'enwiki', titles: artigoEmIngles, props: 'claims|sitelinks' }),
     );
@@ -182,11 +183,15 @@ export class EnciclopediaWikimedia implements Enciclopedia, GaleriaDeFotos {
     const [sede] = referencias(equipe, SEDE).length
       ? referencias(equipe, SEDE)
       : referencias(empresaMae, SEDE);
-    const nomes = await this.nomes([...fundadores, ...(sede ? [sede] : [])]);
+    const nomes = await this.nomes([...fundadores, ...(sede ? [sede] : [])], idioma);
     const tituloEmPortugues = equipe?.sitelinks?.ptwiki?.title;
+    const emPortugues = async () =>
+      tituloEmPortugues ? resumoDaWikipedia('pt', tituloEmPortugues) : null;
+    const emIngles = () => resumoDaWikipedia('en', artigoEmIngles);
     const texto =
-      (tituloEmPortugues && (await resumoDaWikipedia('pt', tituloEmPortugues))) ||
-      (await resumoDaWikipedia('en', artigoEmIngles));
+      idioma === 'en'
+        ? (await emIngles()) || (await emPortugues())
+        : (await emPortugues()) || (await emIngles());
 
     if (!texto) {
       return null;
@@ -202,7 +207,7 @@ export class EnciclopediaWikimedia implements Enciclopedia, GaleriaDeFotos {
     };
   }
 
-  private async nomes(ids: string[]) {
+  private async nomes(ids: string[], idioma: Idioma) {
     if (ids.length === 0) {
       return new Map<string, string>();
     }
@@ -215,7 +220,8 @@ export class EnciclopediaWikimedia implements Enciclopedia, GaleriaDeFotos {
 
     return new Map(
       Object.entries(encontradas).flatMap(([id, entidade]) => {
-        const rotulo = entidade.labels?.pt?.value ?? entidade.labels?.en?.value;
+        const outro = idioma === 'en' ? 'pt' : 'en';
+        const rotulo = entidade.labels?.[idioma]?.value ?? entidade.labels?.[outro]?.value;
 
         return rotulo ? [[id, rotulo] as const] : [];
       }),

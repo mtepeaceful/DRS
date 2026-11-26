@@ -35,6 +35,9 @@ export interface GaleriaDeFotos {
   foto(artigoEmIngles: string): Promise<Foto | null>;
 }
 
+export type Idioma = 'pt' | 'en';
+
 export interface Enciclopedia {
-  verbete(artigoEmIngles: string): Promise<Verbete | null>;
+  /** O texto vem da Wikipédia no idioma pedido (português se omitido), com a outra de reserva. */
+  verbete(artigoEmIngles: string, idioma?: Idioma): Promise<Verbete | null>;
 }

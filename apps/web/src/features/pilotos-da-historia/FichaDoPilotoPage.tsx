@@ -8,7 +8,7 @@ import { Bandeira } from '../../shared/ui/Bandeira';
 import { FotoDoCommons } from '../../shared/ui/FotoDoCommons';
 import botao from '../../shared/ui/botao.module.css';
 import { COMUNS } from '../../shared/i18n/comuns';
-import { porIdioma, useTextos } from '../../shared/i18n/idioma';
+import { porIdioma, useIdioma, useTextos } from '../../shared/i18n/idioma';
 import { fichaDoPilotoDaF1 } from './api';
 import styles from './FichaDoPilotoPage.module.css';
 
@@ -73,7 +73,7 @@ const TEXTOS = {
 
 export function FichaDoPilotoPage() {
   const { id = '' } = useParams();
-  const ficha = useQuery(fichaDoPilotoDaF1(id));
+  const ficha = useQuery(fichaDoPilotoDaF1(id, useIdioma()));
   const t = useTextos(TEXTOS);
   const comuns = useTextos(COMUNS);
 

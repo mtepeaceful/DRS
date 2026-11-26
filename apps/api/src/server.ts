@@ -42,10 +42,16 @@ const vencedoresNoCircuitoEmCache = comCachePorChave(
   24 * 60 * MINUTO,
 );
 const enciclopedia = new EnciclopediaWikimedia();
-const verbeteEmCache = comCachePorChave(
-  (artigo: string) => enciclopedia.verbete(artigo),
-  7 * 24 * 60 * MINUTO,
-);
+const verbeteEmCache = {
+  pt: comCachePorChave(
+    (artigo: string) => enciclopedia.verbete(artigo, 'pt'),
+    7 * 24 * 60 * MINUTO,
+  ),
+  en: comCachePorChave(
+    (artigo: string) => enciclopedia.verbete(artigo, 'en'),
+    7 * 24 * 60 * MINUTO,
+  ),
+};
 const fotoEmCache = comCachePorChave(
   (artigo: string) => enciclopedia.foto(artigo),
   7 * 24 * 60 * MINUTO,
@@ -70,7 +76,7 @@ const app = await buildApp(
       listar: () => circuitos.listar(),
       vencedores: vencedoresNoCircuitoEmCache,
     },
-    enciclopedia: { verbete: verbeteEmCache },
+    enciclopedia: { verbete: (artigo, idioma = 'pt') => verbeteEmCache[idioma](artigo) },
     galeria: { foto: fotoEmCache },
     campeonato: {
       buscarCampeonato: campeonatoEmCache,

@@ -125,7 +125,12 @@ export function GaragemPage() {
 
       <section className={styles.vitrine} aria-label={t.carro}>
         {modo === '3d' ? (
-          <Garagem3D {...pintura} asaAberta={asaAberta} girando={girando} />
+          <Garagem3D
+            {...pintura}
+            asaAberta={asaAberta}
+            girando={girando}
+            aoFicarParado={() => setGirando(false)}
+          />
         ) : (
           <CarroIlustrado {...pintura} asaAberta={asaAberta} />
         )}

@@ -169,7 +169,12 @@ export function MontagemPage() {
       <div className={styles.layout}>
         <section className={styles.vitrine} aria-label="Carro montado">
           {modo === '3d' ? (
-            <Montagem3D pintura={pintura} girando={girando} descricao={descricao} />
+            <Montagem3D
+              pintura={pintura}
+              girando={girando}
+              descricao={descricao}
+              aoFicarParado={() => setGirando(false)}
+            />
           ) : (
             <CarroIlustrado {...pintura} asaAberta={false} />
           )}

@@ -4,8 +4,10 @@ import {
   CAIXA_DA_RODA,
   CAIXA_DO_SIDEPOD,
   desenharCarroceria,
+  desenharPatrocinio,
   desenharPlacaTraseira,
   desenharRoda,
+  patrocinadoresPrincipais,
 } from '../equipes/carro/desenho';
 import { pinturaDaEquipe as pinturaDoDesenho } from '../equipes/carro/pinturas';
 import type { PinturaDoRedesenho } from './cena';
@@ -72,18 +74,41 @@ export function pinturaDoRedesenho(
 ): PinturaDoRedesenho {
   const desenho = pinturaDoDesenho(nome, daApi);
   const sufixo = chaveDaEquipe(nome) || 'equipe';
+  const [principal, segundo = principal] = patrocinadoresPrincipais(desenho);
+  const endplate = desenho.endplate ?? desenho.base;
 
   return {
     direita: desenharCarroceria(desenho, numero, `${sufixo}d`),
     esquerda: desenharCarroceria(desenho, numero, `${sufixo}e`, true),
     asaTraseira: desenho.asaTraseira ?? desenho.base,
     flap: desenho.flap ?? '#111114',
-    endplate: desenho.endplate ?? desenho.base,
+    endplate,
     flapDianteiro: desenho.flapDianteiro ?? desenho.base,
     capacete: desenho.capacete,
     retrovisor: desenho.retrovisor ?? desenho.base,
     sidepod: CAIXA_DO_SIDEPOD,
     roda: { svg: desenharRoda(desenho, `${sufixo}r`), caixa: CAIXA_DA_RODA },
     placaTraseira: { svg: desenharPlacaTraseira(desenho), caixa: CAIXA_DA_PLACA },
+    placaDianteira: principal && {
+      svg: desenharPatrocinio({ ...principal, cor: corQueAparece(endplate) }, 280, 100, endplate),
+      caixa: '0 0 280 100',
+    },
+    topoDoSidepod: principal && {
+      svg: desenharPatrocinio({ ...principal, cor: corQueAparece(desenho.base) }, 420, 100),
+      caixa: '0 0 420 100',
+    },
+    bico: segundo && {
+      svg: desenharPatrocinio({ ...segundo, cor: corQueAparece(desenho.base) }, 420, 90),
+      caixa: '0 0 420 90',
+    },
   };
+}
+
+/** Branco ou quase preto, o que aparecer melhor em cima da cor de fundo. */
+function corQueAparece(fundo: string) {
+  const [r = 0, g = 0, b = 0] = [1, 3, 5].map((inicio) =>
+    Number.parseInt(fundo.slice(inicio, inicio + 2), 16),
+  );
+
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? '#121214' : '#ffffff';
 }

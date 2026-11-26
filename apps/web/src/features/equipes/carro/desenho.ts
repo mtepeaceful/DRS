@@ -394,6 +394,35 @@ export function desenharPlacaTraseira(pintura: Pintura) {
   return `<rect x="60" y="98" width="90" height="118" fill="${pintura.asaTraseira ?? pintura.base}"/>${pintura.asa ?? ''}`;
 }
 
+/**
+ * Os patrocinadores em texto da lateral, do maior para o menor. O maior é o
+ * principal da equipe; os carros reais costumam repeti-lo nas placas da asa
+ * dianteira e pôr outro no bico.
+ */
+export function patrocinadoresPrincipais(pintura: Pintura) {
+  return (pintura.marcas ?? [])
+    .flatMap((marca) => ('texto' in marca ? [marca] : []))
+    .sort((a, b) => b.tamanho - a.tamanho)
+    .map(({ texto, cor, peso, italico }) => ({ texto, cor, peso, italico }));
+}
+
+/** Um patrocinador sozinho, centrado numa caixa, com ou sem fundo. */
+export function desenharPatrocinio(
+  patrocinio: {
+    texto: string;
+    cor: string;
+    peso?: number | undefined;
+    italico?: boolean | undefined;
+  },
+  largura: number,
+  altura: number,
+  fundo?: string,
+) {
+  const tamanho = Math.min(altura * 0.95, (largura * 2.4) / Math.max(patrocinio.texto.length, 3));
+
+  return `${fundo ? `<rect width="${largura}" height="${altura}" fill="${fundo}"/>` : ''}<text x="${largura / 2}" y="${altura / 2}" dy=".35em" text-anchor="middle" font-family="${FONTE_MARCAS}" font-size="${tamanho.toFixed(1)}" font-weight="${patrocinio.peso ?? 800}"${patrocinio.italico ? ' font-style="italic"' : ''} fill="${patrocinio.cor}">${escapar(patrocinio.texto)}</text>`;
+}
+
 /** A roda vista de lado, com o pneu, as letras da Pirelli e o aro da equipe. */
 export const CAIXA_DA_RODA = '0 0 150 150';
 

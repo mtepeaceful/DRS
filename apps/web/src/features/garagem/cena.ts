@@ -95,6 +95,12 @@ export interface Garagem {
   destruir: () => void;
 }
 
+export interface OpcoesDaGaragem {
+  girando: boolean;
+  /** Chamada a cada quadro desenhado, depois que a câmera ou o carro mudaram. */
+  aoDesenhar?: () => void;
+}
+
 const CENTRO_DO_CARRO: Ponto = [0, 0.45, 0];
 
 const FLAP_FECHADO = -0.7;
@@ -716,7 +722,10 @@ function pintarDeLado(objeto: Object3D, lataria: MeshPhysicalMaterial, caixa?: C
   return objeto;
 }
 
-function carro({ cor, corSecundaria, numero, visual: pedido, redesenho }: Pintura) {
+function carro(
+  { cor, corSecundaria, numero, visual: pedido, redesenho }: Pintura,
+  aoMudar: () => void = () => undefined,
+) {
   const visual = { ...VISUAL_PADRAO, ...pedido };
   const pintura = pinturaMetalica(cor);
   const detalhe = pinturaMetalica(corSecundaria, 0.3);
@@ -750,6 +759,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido, redesenho }: Pintur
       lataria.map = textura;
       lataria.color.set('#ffffff');
       lataria.needsUpdate = true;
+      aoMudar();
     });
   }
 
@@ -893,6 +903,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido, redesenho }: Pintur
       flanco.map = textura;
       flanco.opacity = 1;
       flanco.needsUpdate = true;
+      aoMudar();
     });
   }
   for (const [x, z] of [
@@ -992,19 +1003,29 @@ function liberar(raiz: Object3D) {
   });
 }
 
+// Quadros acima disso (menos de 40 por segundo) fazem a qualidade baixar um
+// degrau: primeiro saem os efeitos, depois a resolução cai até 1x.
+const QUADRO_LENTO_MS = 25;
+const QUADROS_PARA_AVALIAR = 45;
+
 export function montarGaragem(
   recipiente: HTMLElement,
   pintura: Pintura,
-  { girando }: { girando: boolean },
+  { girando, aoDesenhar }: OpcoesDaGaragem,
 ): Garagem {
   const renderizador = new WebGLRenderer({ antialias: true, alpha: true });
-  renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  let resolucao = Math.min(window.devicePixelRatio, 2);
+  renderizador.setPixelRatio(resolucao);
   renderizador.outputColorSpace = SRGBColorSpace;
   // Tone mapping neutro (Khronos PBR Neutral): segura os brilhos fortes sem
   // desbotar nem desviar as cores das equipes.
   renderizador.toneMapping = NeutralToneMapping;
   renderizador.shadowMap.enabled = true;
   renderizador.shadowMap.type = PCFShadowMap;
+  // A luz e o carro ficam parados; só a câmera gira. A sombra é refeita só
+  // quando o carro muda ou o flap se mexe, e não a cada quadro.
+  renderizador.shadowMap.autoUpdate = false;
+  renderizador.shadowMap.needsUpdate = true;
   recipiente.append(renderizador.domElement);
 
   const cena = new Scene();
@@ -1038,7 +1059,19 @@ export function montarGaragem(
   contraluz.position.set(-6, 4, -5);
   cena.add(contraluz);
 
-  let atual = carro(pintura);
+  // Só desenha um quadro novo quando algo mudou: câmera, flap, carro,
+  // tamanho ou uma pintura que acabou de carregar. Parado, o 3D não gasta nada.
+  let pedido = true;
+  const pedirQuadro = () => {
+    pedido = true;
+  };
+  const refazerSombra = () => {
+    renderizador.shadowMap.needsUpdate = true;
+    pedido = true;
+  };
+
+  let atual = carro(pintura, pedirQuadro);
+  const paraLiberar: Object3D[] = [];
   cena.add(chao(), atual.conjunto);
 
   const controles = new OrbitControls(camera, renderizador.domElement);
@@ -1050,6 +1083,7 @@ export function montarGaragem(
   controles.maxPolarAngle = Math.PI / 2.15;
   controles.autoRotate = girando;
   controles.autoRotateSpeed = 1.1;
+  controles.addEventListener('change', pedirQuadro);
 
   let anguloDesejado = FLAP_FECHADO;
   const alvoDesejado = new Vector3(...CENTRO_DO_CARRO);
@@ -1066,51 +1100,166 @@ export function montarGaragem(
     efeitos?.ajustar(largura, altura);
     camera.aspect = largura / altura;
     camera.updateProjectionMatrix();
+    pedido = true;
   }
 
   let efeitos: Efeitos | null = null;
   let destruida = false;
+  // Vira verdadeiro quando a qualidade baixou: os efeitos não voltam mais.
+  let reduzida = false;
 
   if (aparelhoForte()) {
     void import('./efeitos').then(({ criarEfeitos }) => {
-      if (destruida) {
+      if (destruida || reduzida) {
         return;
       }
 
       const { clientWidth: largura, clientHeight: altura } = recipiente;
       efeitos = criarEfeitos(renderizador, cena, camera, largura || 1, altura || 1);
+      pedido = true;
     });
   }
 
-  const observador = new ResizeObserver(ajustar);
-  observador.observe(recipiente);
-  ajustar();
+  // Qualidade que se ajusta: se o aparelho não segura 40 quadros por segundo
+  // com o carro girando, tira os efeitos e depois baixa a resolução.
+  let ultimoQuadro = 0;
+  let somaDosQuadros = 0;
+  let quadrosSeguidos = 0;
 
-  renderizador.setAnimationLoop(() => {
-    atual.dobradica.rotation.z += (anguloDesejado - atual.dobradica.rotation.z) * 0.12;
-    controles.target.lerp(alvoDesejado, 0.08);
+  function medir(agora: number) {
+    const intervalo = agora - ultimoQuadro;
+    ultimoQuadro = agora;
+
+    // Um intervalo longo é pausa (carro parado, aba escondida), não lentidão.
+    if (intervalo > 250) {
+      somaDosQuadros = 0;
+      quadrosSeguidos = 0;
+      return;
+    }
+
+    somaDosQuadros += intervalo;
+    quadrosSeguidos += 1;
+
+    if (quadrosSeguidos < QUADROS_PARA_AVALIAR) {
+      return;
+    }
+
+    const media = somaDosQuadros / quadrosSeguidos;
+    somaDosQuadros = 0;
+    quadrosSeguidos = 0;
+
+    if (media <= QUADRO_LENTO_MS) {
+      return;
+    }
+
+    if (efeitos) {
+      efeitos.destruir();
+      efeitos = null;
+      reduzida = true;
+    } else if (resolucao > 1) {
+      resolucao = Math.max(1, resolucao - 0.5);
+      renderizador.setPixelRatio(resolucao);
+      ajustar();
+    }
+  }
+
+  function quadro(agora: number) {
+    const angulo = atual.dobradica.rotation.z;
+
+    if (Math.abs(anguloDesejado - angulo) > 0.0005) {
+      atual.dobradica.rotation.z += (anguloDesejado - angulo) * 0.12;
+      refazerSombra();
+    }
+
+    if (controles.target.distanceToSquared(alvoDesejado) > 1e-7) {
+      controles.target.lerp(alvoDesejado, 0.08);
+    }
+
+    // Dispara 'change' (e pede um quadro) quando a câmera se mexe.
     controles.update();
+
+    if (!pedido) {
+      ultimoQuadro = 0;
+      return;
+    }
+
+    pedido = false;
+
+    if (ultimoQuadro > 0) {
+      medir(agora);
+    } else {
+      ultimoQuadro = agora;
+    }
+
     if (efeitos) {
       efeitos.renderizar();
     } else {
       renderizador.render(cena, camera);
     }
+
+    // O carro antigo só é liberado depois que o novo foi desenhado: assim os
+    // shaders que os dois usam continuam prontos e a troca de peça não
+    // recompila nada.
+    for (const antigo of paraLiberar.splice(0)) {
+      liberar(antigo);
+    }
+
+    aoDesenhar?.();
+  }
+
+  // Fora da tela, nem o laço de animação roda.
+  let naTela = true;
+  let compilado = false;
+  const vigia = new IntersectionObserver(([entrada]) => {
+    const agora = entrada?.isIntersecting ?? true;
+
+    if (agora === naTela) {
+      return;
+    }
+
+    naTela = agora;
+    pedido = true;
+    ultimoQuadro = 0;
+
+    if (compilado) {
+      renderizador.setAnimationLoop(naTela ? quadro : null);
+    }
   });
+  vigia.observe(recipiente);
+
+  const observador = new ResizeObserver(ajustar);
+  observador.observe(recipiente);
+  ajustar();
+
+  // Os shaders são compilados em segundo plano quando o navegador deixa
+  // (KHR_parallel_shader_compile); a página não congela enquanto o 3D chega.
+  void renderizador
+    .compileAsync(cena, camera)
+    .catch(() => undefined)
+    .then(() => {
+      compilado = true;
+
+      if (!destruida && naTela) {
+        renderizador.setAnimationLoop(quadro);
+      }
+    });
 
   return {
     pintar: (nova) => {
       const angulo = atual.dobradica.rotation.z;
       cena.remove(atual.conjunto);
-      liberar(atual.conjunto);
-      atual = carro(nova);
+      paraLiberar.push(atual.conjunto);
+      atual = carro(nova, pedirQuadro);
       atual.dobradica.rotation.z = angulo;
       cena.add(atual.conjunto);
+      refazerSombra();
     },
     abrirAsa: (aberta) => {
       anguloDesejado = aberta ? FLAP_ABERTO : FLAP_FECHADO;
     },
     girar: (ativo) => {
       controles.autoRotate = ativo;
+      pedido = true;
     },
     focar: (ponto) => {
       alvoDesejado.set(...(ponto ?? CENTRO_DO_CARRO));
@@ -1128,8 +1277,11 @@ export function montarGaragem(
       destruida = true;
       renderizador.setAnimationLoop(null);
       efeitos?.destruir();
+      vigia.disconnect();
       observador.disconnect();
+      controles.removeEventListener('change', pedirQuadro);
       controles.dispose();
+      paraLiberar.forEach(liberar);
       liberar(cena);
       reflexos.dispose();
       renderizador.dispose();

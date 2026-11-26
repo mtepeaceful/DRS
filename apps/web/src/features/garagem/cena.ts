@@ -982,12 +982,28 @@ function carro(
     );
   }
 
-  const luzDeChuva = new Mesh(
-    new BoxGeometry(0.03, 0.06, 0.12),
-    new MeshStandardMaterial({ color: '#ff2a14', emissive: '#ff2a14', emissiveIntensity: 1.5 }),
-  );
-  luzDeChuva.position.set(-2.44, 0.26, 0);
+  // Luzes traseiras. A de chuva fica na ponta da estrutura de impacto, acima
+  // do difusor, numa caixa de carbono. Desde 2026 as placas da asa também têm
+  // uma faixa de luz na borda de trás, que mostra o estado da parte elétrica.
+  const luz = new MeshStandardMaterial({
+    color: '#ff2a14',
+    emissive: '#ff2a14',
+    emissiveIntensity: 0.9,
+  });
+  const caixaDaLuz = new Mesh(new BoxGeometry(0.07, 0.1, 0.17), carbono);
+  caixaDaLuz.position.set(-2.43, 0.34, 0);
+  conjunto.add(caixaDaLuz);
+
+  const luzDeChuva = new Mesh(new BoxGeometry(0.02, 0.07, 0.14), luz);
+  luzDeChuva.position.set(-2.47, 0.34, 0);
   conjunto.add(luzDeChuva);
+
+  for (const lado of [-1, 1]) {
+    const luzDaPlaca = new Mesh(new BoxGeometry(0.014, 0.34, 0.04), luz);
+    luzDaPlaca.position.set(-2.66, 0.77, lado * 0.8);
+    luzDaPlaca.rotation.z = 0.115;
+    conjunto.add(luzDaPlaca);
+  }
 
   const capacete = new Mesh(new SphereGeometry(0.16, 32, 20), cores.capacete);
   capacete.position.set(-0.05, 0.68, 0);

@@ -61,6 +61,8 @@ function pinturaDe(equipe: EquipeDaGaragem, montagem: Montagem): Pintura {
     cor: equipe.cor,
     corSecundaria: equipe.corSecundaria,
     redesenho: pinturaDoRedesenho(equipe.nome, equipe),
+    // A Red Bull usa o RB22 baixado do Sketchfab.
+    modelo: equipe.id === 'red-bull-racing' ? 'rb22' : undefined,
     visual: {
       asaDianteira: pecaDaMontagem(montagem, 'asa-dianteira').visual as VariacaoDeAsa,
       asaTraseira: pecaDaMontagem(montagem, 'asa-traseira').visual as VariacaoDeAsa,

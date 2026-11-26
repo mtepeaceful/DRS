@@ -108,6 +108,8 @@ export function GaragemPage() {
     ...pinturaDaEquipe(equipe.nome, equipe),
     numero,
     redesenho: pinturaDoRedesenho(equipe.nome, equipe, numero),
+    // A Red Bull usa o RB22 baixado do Sketchfab.
+    modelo: /red bull/i.test(equipe.nome) ? ('rb22' as const) : undefined,
   };
 
   return (

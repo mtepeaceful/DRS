@@ -17,6 +17,7 @@ export function Garagem3D({
   corSecundaria,
   numero,
   redesenho,
+  modelo,
   asaAberta,
   girando,
   aoFicarParado,
@@ -41,7 +42,7 @@ export function Garagem3D({
 
         garagem.current = montarGaragem(
           recipiente.current,
-          { cor, corSecundaria, numero, redesenho: estado.current.redesenho },
+          { cor, corSecundaria, numero, redesenho: estado.current.redesenho, modelo },
           { girando: estado.current.girando },
         );
         garagem.current.abrirAsa(estado.current.asaAberta);
@@ -58,7 +59,7 @@ export function Garagem3D({
     };
     // A pintura desenhada muda junto com a equipe e o número; o texto do
     // lado direito basta para saber se ela mudou.
-  }, [cor, corSecundaria, numero, redesenho?.direita]);
+  }, [cor, corSecundaria, numero, redesenho?.direita, modelo]);
 
   useEffect(() => {
     garagem.current?.abrirAsa(asaAberta);

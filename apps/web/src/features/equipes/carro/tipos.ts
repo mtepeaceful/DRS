@@ -5,6 +5,12 @@ export interface Aro {
   /** Cores que dão a volta no aro, como o anel colorido da McLaren. */
   anel?: string[];
   larguraDoAnel?: number;
+  /** Distância do anel até a borda do pneu (padrão 27). */
+  recuoDoAnel?: number;
+  /** Blocos de cor alternados em volta do aro, como os da Williams. */
+  blocos?: { cores: string[]; quantidade: number; largura: number };
+  /** Raios finos em pares no lugar dos raios largos. */
+  raiosFinos?: boolean;
   borda?: string;
   centro?: string;
   /** Calota lisa por cima dos raios. */

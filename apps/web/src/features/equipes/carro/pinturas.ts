@@ -165,8 +165,8 @@ const PINTURAS: Record<string, Pintura> = {
       <path d="M880 196 L980 196 L980 260 L870 260 Z" fill="#d8102b"/>
       <path d="M860 196 L880 196 L870 260 L850 260 Z" fill="#ffcc00"/>`,
     marcas: [
-      { x: 320, y: 204, svg: touros(320, 204, 1.15), giro: -4 },
-      { x: 390, y: 161, texto: 'Red Bull', tamanho: 16, cor: '#d8102b', peso: 900, giro: -8 },
+      { x: 298, y: 154, svg: touros(298, 154, 0.85), giro: -7 },
+      { x: 374, y: 161, texto: 'Red Bull', tamanho: 16, cor: '#d8102b', peso: 900, giro: -8 },
       { x: 470, y: 201, texto: 'ORACLE', tamanho: 24, cor: '#fff', peso: 500, espaco: 3, giro: -4 },
       { x: 545, y: 155, texto: 'ROKT', tamanho: 11, cor: '#fff', peso: 900, espaco: 1, giro: -6 },
       {
@@ -341,9 +341,9 @@ const PINTURAS: Record<string, Pintura> = {
         italico: true,
         espaco: 1,
       },
-      { x: 320, y: 204, svg: touros(320, 204, 0.9), giro: -4 },
+      { x: 276, y: 156, svg: touros(276, 156, 0.75), giro: -7 },
       { x: 520, y: 156, texto: 'cash app', tamanho: 12, cor: '#00b84d', giro: -6 },
-      { x: 340, y: 160, texto: 'Red Bull', tamanho: 17, cor: '#d8102b', peso: 900, giro: -7 },
+      { x: 352, y: 161, texto: 'Red Bull', tamanho: 17, cor: '#d8102b', peso: 900, giro: -7 },
     ],
     asa: texto(110, 142, 11, '#fff', 'VISA'),
   },

@@ -18,6 +18,8 @@ const PINTURA = {
   ...FERRARI,
   numero: 16,
   redesenho: pinturaDoRedesenho('Ferrari', FERRARI, 16),
+  // O SF-26 baixado do Sketchfab; até ele chegar, aparece o carro em código.
+  modelo: 'sf26' as const,
 };
 
 interface Props {

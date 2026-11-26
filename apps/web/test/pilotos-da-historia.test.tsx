@@ -1,7 +1,8 @@
 import type { FichaDoPilotoDaF1DTO, ResumoDoPilotoDaF1DTO } from '@drs/contracts';
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { trocarIdioma } from '../src/shared/i18n/idioma';
 import { renderizar } from './renderizar';
 import { servidor } from './servidor';
 
@@ -191,5 +192,52 @@ describe('Pilotos da história', () => {
       'href',
       'https://commons.wikimedia.org/wiki/File:Senna.jpg',
     );
+  });
+
+  it('troca o texto de idioma sem tirar a ficha da tela e diz de qual Wikipédia ele veio', async () => {
+    let liberar = () => {};
+    const respostaEmIngles = new Promise<void>((resolver) => (liberar = resolver));
+    servidor.use(
+      http.get('*/api/historia/pilotos/:id', async ({ request }) => {
+        const ingles = new URL(request.url).searchParams.get('lang') === 'en';
+
+        if (ingles) {
+          await respostaEmIngles;
+        }
+
+        return HttpResponse.json({
+          ...piloto('senna', 'Ayrton Senna', 3),
+          temporadas: [1984, 1994],
+          corridas: 161,
+          vitorias: 41,
+          podios: 80,
+          poles: 65,
+          equipes: [],
+          anosDeTitulo: [],
+          verbete: {
+            resumo: ingles ? 'Brazilian racing driver.' : 'Piloto brasileiro.',
+            fonte: `https://${ingles ? 'en' : 'pt'}.wikipedia.org/wiki/Ayrton_Senna`,
+            foto: null,
+            fundacao: null,
+            fundadores: [],
+            sede: null,
+          },
+        });
+      }),
+    );
+    renderizar('/historia/pilotos/senna');
+
+    expect(await screen.findByText('Piloto brasileiro.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Texto da Wikipédia/ })).toHaveAttribute(
+      'href',
+      'https://pt.wikipedia.org/wiki/Ayrton_Senna',
+    );
+
+    act(() => trocarIdioma('en'));
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Ayrton Senna' })).toBeInTheDocument();
+    liberar();
+    expect(await screen.findByText('Brazilian racing driver.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Text from Wikipedia/ })).toBeInTheDocument();
   });
 });

@@ -2,37 +2,54 @@ import { useEffect, useRef } from 'react';
 import type { Garagem, Pintura } from './cena';
 import styles from './GaragemPage.module.css';
 import { idiomaAtual } from '../../shared/i18n/idioma';
+import { quandoO3dPuderComecar } from './suporte';
 
 interface Props extends Pintura {
   numero: number;
   asaAberta: boolean;
   girando: boolean;
+  /** Chamada quando o aparelho não aguenta o carro girando sozinho. */
+  aoFicarParado?: () => void;
 }
 
-export function Garagem3D({ cor, corSecundaria, numero, redesenho, asaAberta, girando }: Props) {
+export function Garagem3D({
+  cor,
+  corSecundaria,
+  numero,
+  redesenho,
+  asaAberta,
+  girando,
+  aoFicarParado,
+}: Props) {
   const recipiente = useRef<HTMLDivElement>(null);
   const garagem = useRef<Garagem | null>(null);
-  const estado = useRef({ asaAberta, girando, redesenho });
+  const estado = useRef({ asaAberta, girando, redesenho, aoFicarParado });
 
   useEffect(() => {
-    estado.current = { asaAberta, girando, redesenho };
+    estado.current = { asaAberta, girando, redesenho, aoFicarParado };
   });
 
   useEffect(() => {
     let cancelado = false;
 
-    void import('./cena').then(({ montarGaragem }) => {
-      if (cancelado || !recipiente.current) {
-        return;
-      }
+    void quandoO3dPuderComecar()
+      .then(() => import('./cena'))
+      .then(({ montarGaragem }) => {
+        if (cancelado || !recipiente.current) {
+          return;
+        }
 
-      garagem.current = montarGaragem(
-        recipiente.current,
-        { cor, corSecundaria, numero, redesenho: estado.current.redesenho },
-        { girando: estado.current.girando },
-      );
-      garagem.current.abrirAsa(estado.current.asaAberta);
-    });
+        garagem.current = montarGaragem(
+          recipiente.current,
+          { cor, corSecundaria, numero, redesenho: estado.current.redesenho },
+          { girando: estado.current.girando },
+        );
+        garagem.current.abrirAsa(estado.current.asaAberta);
+
+        if (garagem.current.leve) {
+          estado.current.aoFicarParado?.();
+        }
+      });
 
     return () => {
       cancelado = true;

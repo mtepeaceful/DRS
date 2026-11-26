@@ -36,7 +36,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import type { Efeitos } from './efeitos';
 import { corpoPorSecoes, haste, perfilDeAsa, placa, pneu, type Secao, tubo } from './formas';
 import { type Caixa2D, projetarDeLado, texturaLateral, texturaQuadrada } from './lateral';
-import { aparelhoForte } from './suporte';
+import { aparelhoForte, desenhoPorSoftware } from './suporte';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
 export type VariacaoDeAssoalho = 'padrao' | 'canais' | 'borda';
@@ -93,6 +93,12 @@ export interface Garagem {
   focar: (ponto: Ponto | null) => void;
   projetar: (ponto: Ponto) => PontoNaTela;
   destruir: () => void;
+  /**
+   * Verdadeiro quando o navegador desenha o 3D sem placa de vídeo (por
+   * software). Nesse caso o carro fica parado até alguém arrastar: girando
+   * sozinho, cada quadro travaria a página inteira.
+   */
+  leve: boolean;
 }
 
 export interface OpcoesDaGaragem {
@@ -1014,13 +1020,14 @@ export function montarGaragem(
   { girando, aoDesenhar }: OpcoesDaGaragem,
 ): Garagem {
   const renderizador = new WebGLRenderer({ antialias: true, alpha: true });
-  let resolucao = Math.min(window.devicePixelRatio, 2);
+  const leve = desenhoPorSoftware();
+  let resolucao = leve ? 1 : Math.min(window.devicePixelRatio, 2);
   renderizador.setPixelRatio(resolucao);
   renderizador.outputColorSpace = SRGBColorSpace;
   // Tone mapping neutro (Khronos PBR Neutral): segura os brilhos fortes sem
   // desbotar nem desviar as cores das equipes.
   renderizador.toneMapping = NeutralToneMapping;
-  renderizador.shadowMap.enabled = true;
+  renderizador.shadowMap.enabled = !leve;
   renderizador.shadowMap.type = PCFShadowMap;
   // A luz e o carro ficam parados; só a câmera gira. A sombra é refeita só
   // quando o carro muda ou o flap se mexe, e não a cada quadro.
@@ -1046,7 +1053,7 @@ export function montarGaragem(
 
   const sol = new DirectionalLight('#ffffff', 2.4);
   sol.position.set(3, 9, 4);
-  sol.castShadow = true;
+  sol.castShadow = !leve;
   sol.shadow.mapSize.set(2048, 2048);
   sol.shadow.radius = 4;
   sol.shadow.bias = -0.0004;
@@ -1081,7 +1088,7 @@ export function montarGaragem(
   controles.minDistance = 5;
   controles.maxDistance = 13;
   controles.maxPolarAngle = Math.PI / 2.15;
-  controles.autoRotate = girando;
+  controles.autoRotate = girando && !leve;
   controles.autoRotateSpeed = 1.1;
   controles.addEventListener('change', pedirQuadro);
 
@@ -1108,7 +1115,7 @@ export function montarGaragem(
   // Vira verdadeiro quando a qualidade baixou: os efeitos não voltam mais.
   let reduzida = false;
 
-  if (aparelhoForte()) {
+  if (!leve && aparelhoForte()) {
     void import('./efeitos').then(({ criarEfeitos }) => {
       if (destruida || reduzida) {
         return;
@@ -1245,6 +1252,7 @@ export function montarGaragem(
     });
 
   return {
+    leve,
     pintar: (nova) => {
       const angulo = atual.dobradica.rotation.z;
       cena.remove(atual.conjunto);

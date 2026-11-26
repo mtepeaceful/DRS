@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { ErroDaApi, mensagemDoErro } from '../../shared/api/http';
 import { nomeDoPais } from '../../shared/lib/paises';
@@ -23,7 +24,7 @@ const dataCurta = porIdioma(
 const TEXTOS = {
   pt: {
     voltar: '← Pilotos da história',
-    carregando: '{t.carregando}',
+    carregando: 'Carregando o piloto…',
     naoEncontrado: 'Piloto não encontrado',
     erro: 'Não foi possível carregar o piloto',
     buscarOutro: 'Buscar outro piloto',
@@ -40,8 +41,11 @@ const TEXTOS = {
     correuDe: (de: number, a: number) => `Correu de ${de} a ${a}`,
     foto: (nome: string) => `Foto de ${nome}`,
     historia: 'História',
-    textoDa: 'Texto da',
+    textoDa: (idioma: string | null): string =>
+      idioma === 'en' ? 'Texto da Wikipédia em inglês' : 'Texto da Wikipédia',
     licenca: ', sob a licença CC BY-SA.',
+    lerMais: 'Ler mais',
+    lerMenos: 'Ler menos',
     campeao: 'Campeão mundial',
     equipes: 'Equipes',
   },
@@ -64,16 +68,77 @@ const TEXTOS = {
     correuDe: (de: number, a: number) => `Raced from ${de} to ${a}`,
     foto: (nome: string) => `Photo of ${nome}`,
     historia: 'History',
-    textoDa: 'Text from the Portuguese',
+    textoDa: (idioma: string | null): string =>
+      idioma === 'pt' ? 'Text from the Portuguese Wikipedia' : 'Text from Wikipedia',
     licenca: ', under the CC BY-SA licence.',
+    lerMais: 'Read more',
+    lerMenos: 'Show less',
     campeao: 'World champion',
     equipes: 'Teams',
   },
 };
 
+function idiomaDaFonte(fonte: string) {
+  return /^(\w+)\.wikipedia\.org$/.exec(new URL(fonte).hostname)?.[1] ?? null;
+}
+
+// O resumo muda de tamanho entre os idiomas: fica recolhido em poucas linhas
+// para o cartão manter a mesma altura, e o leitor abre o resto se quiser.
+function TextoDaHistoria({ texto }: { texto: string }) {
+  const t = useTextos(TEXTOS);
+  const paragrafo = useRef<HTMLParagraphElement>(null);
+  const [aberto, setAberto] = useState(false);
+  const [longo, setLongo] = useState(false);
+
+  useEffect(() => {
+    const medir = () => {
+      const elemento = paragrafo.current;
+
+      if (elemento && !aberto) {
+        setLongo(elemento.scrollHeight > elemento.clientHeight + 1);
+      }
+    };
+
+    medir();
+    window.addEventListener('resize', medir);
+
+    return () => window.removeEventListener('resize', medir);
+  }, [texto, aberto]);
+
+  return (
+    <>
+      <p
+        ref={paragrafo}
+        id="texto-da-historia"
+        className={aberto ? styles.texto : styles.textoRecolhido}
+      >
+        {texto}
+      </p>
+      {(longo || aberto) && (
+        <button
+          type="button"
+          className={styles.lerMais}
+          aria-expanded={aberto}
+          aria-controls="texto-da-historia"
+          onClick={() => setAberto(!aberto)}
+        >
+          {aberto ? t.lerMenos : t.lerMais}
+        </button>
+      )}
+    </>
+  );
+}
+
 export function FichaDoPilotoPage() {
   const { id = '' } = useParams();
-  const ficha = useQuery(fichaDoPilotoDaF1(id, useIdioma()));
+  const idioma = useIdioma();
+  const cliente = useQueryClient();
+  const ficha = useQuery({
+    ...fichaDoPilotoDaF1(id, idioma),
+    // Ao trocar de idioma, a ficha já carregada no outro idioma fica na tela enquanto a nova chega.
+    placeholderData: () =>
+      cliente.getQueryData(fichaDoPilotoDaF1(id, idioma === 'en' ? 'pt' : 'en').queryKey),
+  });
   const t = useTextos(TEXTOS);
   const comuns = useTextos(COMUNS);
 
@@ -171,11 +236,10 @@ export function FichaDoPilotoPage() {
             <h2 id="historia-do-piloto" className={styles.tituloDoCartao}>
               {t.historia}
             </h2>
-            <p className={styles.texto}>{dados.verbete.resumo}</p>
+            <TextoDaHistoria key={dados.verbete.resumo} texto={dados.verbete.resumo} />
             <p className={styles.fonte}>
-              {t.textoDa}{' '}
               <a href={dados.verbete.fonte} target="_blank" rel="noopener noreferrer">
-                Wikipédia
+                {t.textoDa(idiomaDaFonte(dados.verbete.fonte))}
                 <span className="apenas-leitor">{comuns.novaAba}</span>
               </a>
               {t.licenca}

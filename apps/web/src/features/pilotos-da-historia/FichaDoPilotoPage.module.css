@@ -42,6 +42,11 @@
   width: 220px;
 }
 
+/* Retratos são mais altos que o quadro 4:3: mantém o rosto, que fica no alto da foto. */
+.foto img {
+  object-position: 50% 20%;
+}
+
 .sobretitulo {
   color: var(--cor-corrida);
   font-size: 0.78rem;
@@ -130,6 +135,34 @@
 .texto {
   max-width: 70ch;
   line-height: 1.7;
+}
+
+.textoRecolhido {
+  composes: texto;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 8;
+  line-clamp: 8;
+}
+
+.lerMais {
+  justify-self: start;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--cor-texto);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--cor-linha-forte);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.lerMais:hover {
+  text-decoration-color: currentcolor;
 }
 
 .fonte {

@@ -1,5 +1,7 @@
 /**
- * Que equipe tem carro baixado do Sketchfab, e qual. Fica fora de modelo.ts
+ * Que equipe tem carro baixado do Sketchfab, e qual. Alpine, Racing Bulls e
+ * Williams usam a mesma malha (o FW48 de demonstração da FIA) pintada com o
+ * desenho 2D de cada uma. Fica fora de modelo.ts
  * para as páginas saberem o nome do carro sem carregar o three.js.
  */
 const CARROS = {
@@ -13,6 +15,9 @@ const CARROS = {
   audi: 'r26',
   sauber: 'r26',
   cadillac: 'mac26',
+  alpine: 'a526',
+  'racing-bulls': 'vcarb03',
+  rb: 'vcarb03',
 } as const;
 
 export type ModeloDoSite = (typeof CARROS)[keyof typeof CARROS];
@@ -25,11 +30,6 @@ export function modeloDaEquipe(equipe: string): ModeloDoSite | undefined {
     .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, ' ')
     .trim()} `;
-
-  // A Racing Bulls também tem "Bull" no nome, mas não tem modelo próprio.
-  if (id.includes(' racing bulls ')) {
-    return undefined;
-  }
 
   const achado = Object.entries(CARROS).find(([chave]) =>
     id.includes(` ${chave.replace('-', ' ')} `),

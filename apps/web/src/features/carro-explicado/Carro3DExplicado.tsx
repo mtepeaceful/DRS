@@ -4,6 +4,7 @@ import styles from './CarroExplicadoPage.module.css';
 import { useTextos } from '../../shared/i18n/idioma';
 import { PINTURAS, pinturaDoRedesenho } from '../garagem/pinturas';
 import { PECAS, pecasNoIdioma } from './pecas';
+import { quandoO3dPuderComecar } from '../garagem/suporte';
 
 const TEXTOS = {
   pt: { rotulo: 'Carro de F1 em 3D. Arraste para girar e escolha uma peça para ver a explicação.' },
@@ -51,16 +52,18 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
       }
     }
 
-    void import('../garagem/cena').then(({ montarGaragem }) => {
-      if (cancelado || !recipiente.current) {
-        return;
-      }
+    void quandoO3dPuderComecar()
+      .then(() => import('../garagem/cena'))
+      .then(({ montarGaragem }) => {
+        if (cancelado || !recipiente.current) {
+          return;
+        }
 
-      garagem.current = montarGaragem(recipiente.current, PINTURA, {
-        girando: false,
-        aoDesenhar: posicionar,
+        garagem.current = montarGaragem(recipiente.current, PINTURA, {
+          girando: false,
+          aoDesenhar: posicionar,
+        });
       });
-    });
 
     return () => {
       cancelado = true;

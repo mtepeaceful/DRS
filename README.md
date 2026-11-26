@@ -123,6 +123,19 @@ pnpm test:e2e
 - `pnpm test:integracao`: repositórios contra o banco `drs_test`, criado automaticamente pelo Docker Compose
 - `pnpm test:e2e`: Playwright no Chrome, no desktop e no celular. Sobe a API em modo memória e o site já compilado, entra como administrador e cadastra, edita, busca e exclui um piloto de verdade
 
+## Limitações conhecidas
+
+O que ainda não funciona tão bem quanto deveria, e por onde seguir.
+
+- **Servidor gratuito que dorme.** A API e o site rodam no plano gratuito do Render, que desliga depois de um tempo parado. A primeira visita espera o servidor acordar, e o cache em memória se perde a cada vez. _Próximo passo:_ guardar no banco os dados que mudam pouco ou passar para um plano que não dorme.
+- **Jolpica instável.** As listas completas de equipes e de pilotos da história são paginadas e ficam só no cache em memória. Quando a Jolpica falha, `/equipes` mostra apenas o grid atual e as páginas da história ficam sem dados. _Próximo passo:_ guardar essas listas no banco, como já acontece com os campeões e as fotos dos pilotos.
+- **Dependência de fontes externas.** OpenF1, Jolpica, Wikipédia, Wikidata e o RSS de notícias são de terceiros. Se uma delas mudar o formato, a validação recusa a resposta e a página fica sem aquele dado, e hoje não há registro de erros em produção para avisar. _Próximo passo:_ registrar os erros da API e do site num serviço de monitoramento.
+- **Inglês incompleto.** O resumo da Wikipédia nas fichas de equipes e de circuitos vem só em português, e as páginas A história do DRS, Garagem com peças e as telas de administração ainda não foram traduzidas. _Próximo passo:_ pedir o resumo no idioma da página, como já faz a ficha do piloto, e traduzir as páginas que faltam.
+- **Fotos de pilotos mal enquadradas.** A foto é a principal do artigo da Wikipédia, e algumas cortam o rosto no cartão. _Próximo passo:_ guardar no banco um enquadramento por piloto, ou escolher a foto à mão quando a automática não serve.
+- **Carros 3D aproximados.** O carro é montado em código com as formas gerais de 2026 e a pintura de cada equipe, sem os detalhes do carro real. Há modelos com licença CC BY para nove equipes, mas nenhum para Alpine e Racing Bulls. _Próximo passo:_ usar os modelos licenciados onde existem e manter o carro em código para as outras, sem perder a troca de peças.
+- **Desempenho no celular.** As notas do Lighthouse no celular ficam por volta de 90, medidas localmente, e o maior conteúdo aparece em uns 3 segundos porque o site é todo renderizado no navegador. Sem placa de vídeo, o 3D só começa no primeiro toque e sem sombras. _Próximo passo:_ conferir no PageSpeed do site no ar e pré-renderizar as páginas que não dependem de dados ao vivo.
+- **Content Security Policy rígida.** O site não aceita `eval`, WebAssembly nem `blob:`, o que deixa de fora a compressão Draco dos modelos 3D, texturas embutidas em GLB e incorporações de outros sites. Cada novo domínio de imagens também precisa entrar na política. _Próximo passo:_ manter a regra e liberar só o necessário, caso a caso.
+
 ## Versão 1
 
 A primeira versão, em Laravel, está preservada na tag [`v1.0.0`](https://github.com/mtepeaceful/DRS/tree/v1.0.0).

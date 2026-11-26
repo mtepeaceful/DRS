@@ -1,3 +1,5 @@
+import './sem-eval.js';
+
 export * from './calendario.js';
 export * from './circuitos.js';
 export * from './desempenho.js';

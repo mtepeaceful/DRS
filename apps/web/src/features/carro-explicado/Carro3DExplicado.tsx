@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { Garagem } from '../garagem/cena';
 import styles from './CarroExplicadoPage.module.css';
 import { useTextos } from '../../shared/i18n/idioma';
+import { PINTURAS, pinturaDoRedesenho } from '../garagem/pinturas';
 import { PECAS, pecasNoIdioma } from './pecas';
 
 const TEXTOS = {
@@ -9,7 +10,14 @@ const TEXTOS = {
   en: { rotulo: 'F1 car in 3D. Drag to rotate and pick a part to see what it does.' },
 };
 
-const PINTURA = { cor: '#d81500', corSecundaria: '#f1f2f5', numero: 1 };
+// O carro do explicador usa a pintura da Ferrari do redesenho, com o número 16,
+// no lugar de um carro vermelho genérico.
+const FERRARI = PINTURAS.ferrari;
+const PINTURA = {
+  ...FERRARI,
+  numero: 16,
+  redesenho: pinturaDoRedesenho('Ferrari', FERRARI, 16),
+};
 
 interface Props {
   selecionada: string | null;

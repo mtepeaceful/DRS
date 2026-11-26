@@ -32,6 +32,17 @@ export interface Caixa2D {
   direita: number;
   topo: number;
   base: number;
+  /**
+   * Onde a peça 3D começa a receber o desenho, no eixo do carro. Atrás dele
+   * a peça afina e se esconde embaixo da tampa do motor; sem esse corte, os
+   * patrocínios do fim do sidepod caíam ali e quase sumiam.
+   */
+  inicio3D?: number;
+  /**
+   * Fração de baixo da peça 3D que fica sem desenho. Ali a peça faz a curva
+   * para dentro (o rebaixo do sidepod) e os patrocínios ficavam escondidos.
+   */
+  rebaixo3D?: number;
 }
 
 type Para2D = (x: number, y: number) => [number, number];
@@ -56,12 +67,14 @@ function encaixar(geometria: BufferGeometry, caixa: Caixa2D): Para2D {
   }
 
   const { min, max } = limites;
-  const largura = max.x - min.x || 1;
-  const altura = max.y - min.y || 1;
+  const inicio = Math.max(min.x, caixa.inicio3D ?? min.x);
+  const largura = max.x - inicio || 1;
+  const chao = min.y + (max.y - min.y) * (caixa.rebaixo3D ?? 0);
+  const altura = max.y - chao || 1;
 
   return (x, y) => [
-    caixa.esquerda + ((x - min.x) / largura) * (caixa.direita - caixa.esquerda),
-    caixa.base - ((y - min.y) / altura) * (caixa.base - caixa.topo),
+    caixa.esquerda + Math.max(0, (x - inicio) / largura) * (caixa.direita - caixa.esquerda),
+    caixa.base - Math.max(0, (y - chao) / altura) * (caixa.base - caixa.topo),
   ];
 }
 

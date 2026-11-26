@@ -4,7 +4,7 @@ import botao from '../../shared/ui/botao.module.css';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { CarroIlustrado } from '../garagem/CarroIlustrado';
 import type { Composto, Pintura, VariacaoDeAsa, VariacaoDeAssoalho } from '../garagem/cena';
-import { aparelhoModesto, preferePoucoMovimento, temWebgl } from '../garagem/suporte';
+import { preferePoucoMovimento, temWebgl } from '../garagem/suporte';
 import {
   ATRIBUTOS,
   atributos,
@@ -42,12 +42,11 @@ function salvar(parametros: URLSearchParams) {
   }
 }
 
+// O carro 3D aparece sempre que o navegador tem WebGL. Quem prefere menos
+// movimento vê o mesmo carro, só que parado; a imagem de lado fica para
+// navegadores sem 3D.
 function modoInicial() {
-  if (!temWebgl()) {
-    return 'sem-3d' as const;
-  }
-
-  return preferePoucoMovimento() || aparelhoModesto() ? ('ilustracao' as const) : ('3d' as const);
+  return temWebgl() ? ('3d' as const) : ('sem-3d' as const);
 }
 
 function sinal(valor: number) {
@@ -72,7 +71,7 @@ function pinturaDe(equipe: EquipeDaGaragem, montagem: Montagem): Pintura {
 
 export function MontagemPage() {
   const [parametros, setParametros] = useSearchParams();
-  const [modo, setModo] = useState(modoInicial);
+  const [modo] = useState(modoInicial);
   const [girando, setGirando] = useState(() => !preferePoucoMovimento());
   const [copiado, setCopiado] = useState<'sim' | 'erro' | null>(null);
 
@@ -182,11 +181,6 @@ export function MontagemPage() {
                 onClick={() => setGirando((ativo) => !ativo)}
               >
                 {girando ? 'Parar de girar' : 'Girar sozinho'}
-              </button>
-            )}
-            {modo === 'ilustracao' && (
-              <button type="button" className={botao.secundario} onClick={() => setModo('3d')}>
-                Ver em 3D
               </button>
             )}
             <button type="button" className={botao.primario} onClick={() => void copiarLink()}>

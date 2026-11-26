@@ -16,12 +16,6 @@ export function preferePoucoMovimento() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
-export function aparelhoModesto() {
-  const memoria = (navigator as NavegadorComMemoria).deviceMemory;
-
-  return (memoria !== undefined && memoria <= 2) || navigator.hardwareConcurrency <= 2;
-}
-
 export function aparelhoForte() {
   const memoria = (navigator as NavegadorComMemoria).deviceMemory;
   const toque = window.matchMedia?.('(pointer: coarse)').matches ?? false;

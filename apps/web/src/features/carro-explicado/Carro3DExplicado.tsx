@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { Garagem } from '../garagem/cena';
 import styles from './CarroExplicadoPage.module.css';
 import { useTextos } from '../../shared/i18n/idioma';
-import { PINTURAS, pinturaDoRedesenho } from '../garagem/pinturas';
 import { PECAS, pecasNoIdioma } from './pecas';
 import { quandoO3dPuderComecar } from '../garagem/suporte';
 
@@ -19,16 +18,9 @@ const TEXTOS = {
   },
 };
 
-// O carro do explicador usa a pintura da Ferrari do redesenho, com o número 16,
-// no lugar de um carro vermelho genérico.
-const FERRARI = PINTURAS.ferrari;
-const PINTURA = {
-  ...FERRARI,
-  numero: 16,
-  redesenho: pinturaDoRedesenho('Ferrari', FERRARI, 16),
-  // O SF-26 baixado do Sketchfab; até ele chegar, aparece o carro em código.
-  modelo: 'sf26' as const,
-};
+// O carro do explicador é o SF-26 da Ferrari baixado do Sketchfab. Até ele
+// chegar, o palco mostra o aviso de carregamento.
+const PINTURA = { modelo: 'sf26' as const };
 
 interface Props {
   selecionada: string | null;

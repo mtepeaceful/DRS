@@ -7,11 +7,10 @@ import { Aviso } from '../../shared/ui/Aviso';
 import botao from '../../shared/ui/botao.module.css';
 import { useTextos } from '../../shared/i18n/idioma';
 import { detalheDoPiloto } from '../pilotos/api';
-import { CarroIlustrado } from './CarroIlustrado';
+import { FotoDoCarro } from './FotoDoCarro';
 import { Garagem3D } from './Garagem3D';
 import styles from './GaragemPage.module.css';
-import { modeloDaEquipe } from './modelos';
-import { pinturaDaEquipe, pinturaDoRedesenho } from './pinturas';
+import { carroDaEquipe } from './modelos';
 import { preferePoucoMovimento, temWebgl } from './suporte';
 
 const TEXTOS = {
@@ -105,13 +104,7 @@ export function GaragemPage() {
   }
 
   const { nome, numero, equipe } = piloto.data;
-  const pintura = {
-    ...pinturaDaEquipe(equipe.nome, equipe),
-    numero,
-    redesenho: pinturaDoRedesenho(equipe.nome, equipe, numero),
-    // O carro baixado do Sketchfab, quando a equipe tem um.
-    modelo: modeloDaEquipe(equipe.nome),
-  };
+  const modelo = carroDaEquipe(equipe.nome);
 
   return (
     <>
@@ -129,24 +122,28 @@ export function GaragemPage() {
       <section className={styles.vitrine} aria-label={t.carro}>
         {modo === '3d' ? (
           <Garagem3D
-            {...pintura}
+            modelo={modelo}
+            numero={numero}
             asaAberta={asaAberta}
             girando={girando}
             aoFicarParado={() => setGirando(false)}
           />
         ) : (
-          <CarroIlustrado {...pintura} asaAberta={asaAberta} />
+          <FotoDoCarro modelo={modelo} numero={numero} />
         )}
 
         <div className={styles.controles}>
-          <button
-            type="button"
-            className={asaAberta ? styles.drsAtivo : styles.drs}
-            aria-pressed={asaAberta}
-            onClick={() => setAsaAberta((aberta) => !aberta)}
-          >
-            {t.drs(asaAberta)}
-          </button>
+          {/* A foto de lado não abre a asa: o DRS só aparece com o carro 3D. */}
+          {modo === '3d' && (
+            <button
+              type="button"
+              className={asaAberta ? styles.drsAtivo : styles.drs}
+              aria-pressed={asaAberta}
+              onClick={() => setAsaAberta((aberta) => !aberta)}
+            >
+              {t.drs(asaAberta)}
+            </button>
+          )}
           {modo === '3d' && (
             <button
               type="button"

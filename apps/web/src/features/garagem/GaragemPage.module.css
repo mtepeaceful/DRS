@@ -66,10 +66,6 @@
   margin: 24px auto;
 }
 
-.ilustracao g {
-  transition: transform 300ms ease;
-}
-
 .controles {
   display: flex;
   flex-wrap: wrap;
@@ -115,10 +111,4 @@
   min-height: 520px;
   border-radius: var(--raio);
   background: var(--cor-superficie);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ilustracao g {
-    transition: none;
-  }
 }

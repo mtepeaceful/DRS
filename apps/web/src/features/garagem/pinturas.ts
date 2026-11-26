@@ -10,7 +10,6 @@ import {
   patrocinadoresPrincipais,
 } from '../equipes/carro/desenho';
 import { pinturaDaEquipe as pinturaDoDesenho } from '../equipes/carro/pinturas';
-import type { PinturaDoRedesenho } from './cena';
 
 export interface PinturaDaEquipe {
   cor: string;
@@ -64,14 +63,12 @@ export function pinturaDaEquipe(nome: string, daApi: PinturaDaEquipe): PinturaDa
 }
 
 /**
- * A pintura do carro 3D tirada do redesenho 2D da equipe: as laterais
- * desenhadas, com patrocínios e número, e a cor de cada peça.
+ * O redesenho 2D da equipe preparado para pintar um modelo 3D: as laterais
+ * desenhadas, com patrocínios e número, e a cor de cada peça. Não roda no
+ * site: é o que o script de pintura usa para pintar a malha do FW48 com as
+ * cores da Alpine, da Racing Bulls e da Williams.
  */
-export function pinturaDoRedesenho(
-  nome: string,
-  daApi: PinturaDaEquipe,
-  numero?: number,
-): PinturaDoRedesenho {
+export function pinturaDoRedesenho(nome: string, daApi: PinturaDaEquipe, numero?: number) {
   const desenho = pinturaDoDesenho(nome, daApi);
   const sufixo = chaveDaEquipe(nome) || 'equipe';
   const [principal, segundo = principal] = patrocinadoresPrincipais(desenho);

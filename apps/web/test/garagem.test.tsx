@@ -20,22 +20,15 @@ describe('Garagem 3D', () => {
     expect(router.state.location.pathname).toBe(`/pilotos/${id}/garagem`);
   });
 
-  it('mostra o carro de lado quando o navegador não tem 3D e deixa abrir o DRS', async () => {
-    const { usuario } = renderizar(`/pilotos/${idDoLeclerc()}/garagem`);
+  it('mostra a foto do carro novo de lado quando o navegador não tem 3D', async () => {
+    renderizar(`/pilotos/${idDoLeclerc()}/garagem`);
 
     const carro = await screen.findByRole('img', { name: 'Carro número 16 visto de lado' });
-    const drs = screen.getByRole('button', { name: 'DRS fechado' });
 
     expect(carro).toBeVisible();
+    expect(carro).toHaveAttribute('src', '/modelos/sf26/lado.webp');
     expect(screen.getByText(/não consegue mostrar 3D/)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Ver em 3D' })).not.toBeInTheDocument();
-
-    await usuario.click(drs);
-
-    expect(screen.getByRole('button', { name: 'DRS aberto' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(screen.queryByRole('button', { name: /DRS/ })).not.toBeInTheDocument();
   });
 
   it('avisa quando o piloto não existe', async () => {

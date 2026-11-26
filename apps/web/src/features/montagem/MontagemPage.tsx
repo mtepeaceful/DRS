@@ -2,11 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import botao from '../../shared/ui/botao.module.css';
 import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
-import { CarroIlustrado } from '../garagem/CarroIlustrado';
+import { FotoDoCarro } from '../garagem/FotoDoCarro';
 import type { Composto, Pintura, VariacaoDeAsa, VariacaoDeAssoalho } from '../garagem/cena';
 import { preferePoucoMovimento, temWebgl } from '../garagem/suporte';
-import { modeloDaEquipe } from '../garagem/modelos';
-import { pinturaDoRedesenho } from '../garagem/pinturas';
+import { carroDaEquipe } from '../garagem/modelos';
 import {
   ATRIBUTOS,
   atributos,
@@ -59,11 +58,7 @@ function pinturaDe(equipe: EquipeDaGaragem, montagem: Montagem): Pintura {
   const patrocinio = pecaDaMontagem(montagem, 'patrocinio');
 
   return {
-    cor: equipe.cor,
-    corSecundaria: equipe.corSecundaria,
-    redesenho: pinturaDoRedesenho(equipe.nome, equipe),
-    // O carro baixado do Sketchfab, quando a equipe tem um.
-    modelo: modeloDaEquipe(equipe.id),
+    modelo: carroDaEquipe(equipe.id),
     visual: {
       asaDianteira: pecaDaMontagem(montagem, 'asa-dianteira').visual as VariacaoDeAsa,
       asaTraseira: pecaDaMontagem(montagem, 'asa-traseira').visual as VariacaoDeAsa,
@@ -179,7 +174,7 @@ export function MontagemPage() {
               aoFicarParado={() => setGirando(false)}
             />
           ) : (
-            <CarroIlustrado {...pintura} asaAberta={false} />
+            <FotoDoCarro modelo={pintura.modelo} />
           )}
 
           <div className={styles.controles}>

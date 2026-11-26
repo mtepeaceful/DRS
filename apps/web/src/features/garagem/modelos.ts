@@ -22,6 +22,18 @@ const CARROS = {
 
 export type ModeloDoSite = (typeof CARROS)[keyof typeof CARROS];
 
+/**
+ * Uma equipe que ainda não tem carro (um nome novo vindo da API) usa o FW48,
+ * a mesma malha das três equipes pintadas pelo site. O carro antigo, feito
+ * em código, não existe mais.
+ */
+export const MODELO_DE_RESERVA: ModeloDoSite = 'fw48';
+
+/** O carro que aparece para a equipe: o dela ou, sem um, o de reserva. */
+export function carroDaEquipe(equipe: string): ModeloDoSite {
+  return modeloDaEquipe(equipe) ?? MODELO_DE_RESERVA;
+}
+
 /** O modelo de uma equipe, pelo id da montagem ou pelo nome vindo da API. */
 export function modeloDaEquipe(equipe: string): ModeloDoSite | undefined {
   const id = ` ${equipe

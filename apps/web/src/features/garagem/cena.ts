@@ -294,6 +294,37 @@ function halo(carbono: MeshStandardMaterial) {
   return conjunto;
 }
 
+// Aletas na frente do assoalho, logo atrás das rodas dianteiras. Em 2026 o
+// regulamento permite até três elementos e exige que joguem o ar para dentro,
+// por isso a borda de trás fica mais perto do centro do carro.
+function aletasDoAssoalho(lado: number, carbono: MeshStandardMaterial) {
+  const conjunto = new Group();
+
+  for (const [indice, altura] of [0.2, 0.16, 0.12].entries()) {
+    const aleta = caixa(0.34, altura, 0.012, carbono);
+    aleta.position.set(1.28 - indice * 0.12, 0.12 + altura / 2, lado * (0.74 - indice * 0.045));
+    aleta.rotation.y = lado * 0.12;
+    conjunto.add(aleta);
+  }
+
+  return conjunto;
+}
+
+// Câmera de TV em forma de T no alto do arco de proteção, que filma para a
+// frente e para trás.
+function cameraT(carbono: MeshStandardMaterial) {
+  const conjunto = new Group();
+  const pe = caixa(0.05, 0.08, 0.025, carbono);
+  pe.position.set(-0.56, 0.92, 0);
+  conjunto.add(pe);
+
+  const barra = caixa(0.06, 0.035, 0.2, carbono);
+  barra.position.set(-0.56, 0.97, 0);
+  conjunto.add(barra);
+
+  return conjunto;
+}
+
 function retrovisor(lado: number, pintura: MeshStandardMaterial, carbono: MeshStandardMaterial) {
   const conjunto = new Group();
   conjunto.add(new Mesh(haste([0.42, 0.5, lado * 0.42], [0.42, 0.64, lado * 0.52], 0.01), carbono));
@@ -650,6 +681,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   conjunto.add(assoalho(visual.assoalho, carbono, detalhe));
   conjunto.add(halo(carbono));
   conjunto.add(suspensao(carbono));
+  conjunto.add(cameraT(carbono));
 
   const cockpit = new Mesh(new CircleGeometry(1, 40), material('#08080a', 0.8));
   cockpit.scale.set(0.38, 0.19, 1);
@@ -666,6 +698,7 @@ function carro({ cor, corSecundaria, numero, visual: pedido }: Pintura) {
   for (const lado of [-1, 1]) {
     conjunto.add(sidepod(lado, pintura, carbono));
     conjunto.add(retrovisor(lado, pintura, carbono));
+    conjunto.add(aletasDoAssoalho(lado, carbono));
 
     const placaTraseira = new Mesh(
       placa(

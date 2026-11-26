@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Garagem } from '../garagem/cena';
 import styles from './CarroExplicadoPage.module.css';
 import { useTextos } from '../../shared/i18n/idioma';
@@ -7,8 +7,16 @@ import { PECAS, pecasNoIdioma } from './pecas';
 import { quandoO3dPuderComecar } from '../garagem/suporte';
 
 const TEXTOS = {
-  pt: { rotulo: 'Carro de F1 em 3D. Arraste para girar e escolha uma peça para ver a explicação.' },
-  en: { rotulo: 'F1 car in 3D. Drag to rotate and pick a part to see what it does.' },
+  pt: {
+    rotulo: 'Carro de F1 em 3D. Arraste para girar e escolha uma peça para ver a explicação.',
+    ocultar: 'Ocultar números',
+    mostrar: 'Mostrar números',
+  },
+  en: {
+    rotulo: 'F1 car in 3D. Drag to rotate and pick a part to see what it does.',
+    ocultar: 'Hide numbers',
+    mostrar: 'Show numbers',
+  },
 };
 
 // O carro do explicador usa a pintura da Ferrari do redesenho, com o número 16,
@@ -32,6 +40,8 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
   const garagem = useRef<Garagem | null>(null);
   const marcadores = useRef(new Map<string, HTMLButtonElement>());
   const t = useTextos(TEXTOS);
+  // Os números podem sair da frente para ver só o carro; a lista ao lado continua.
+  const [comNumeros, setComNumeros] = useState(true);
 
   useEffect(() => {
     let cancelado = false;
@@ -83,25 +93,35 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
   return (
     <div className={styles.palco}>
       <div ref={recipiente} className={styles.cena} role="img" aria-label={t.rotulo} />
-      {pecasNoIdioma().map((peca, indice) => (
-        <button
-          key={peca.id}
-          ref={(elemento) => {
-            if (elemento) {
-              marcadores.current.set(peca.id, elemento);
-            } else {
-              marcadores.current.delete(peca.id);
-            }
-          }}
-          type="button"
-          className={peca.id === selecionada ? styles.marcadorAtivo : styles.marcador}
-          aria-label={peca.nome}
-          aria-pressed={peca.id === selecionada}
-          onClick={() => aoSelecionar(peca.id)}
-        >
-          {indice + 1}
-        </button>
-      ))}
+      <button
+        type="button"
+        className={styles.alternarNumeros}
+        aria-pressed={!comNumeros}
+        onClick={() => setComNumeros((atual) => !atual)}
+      >
+        {comNumeros ? t.ocultar : t.mostrar}
+      </button>
+      <div className={styles.marcadores} hidden={!comNumeros}>
+        {pecasNoIdioma().map((peca, indice) => (
+          <button
+            key={peca.id}
+            ref={(elemento) => {
+              if (elemento) {
+                marcadores.current.set(peca.id, elemento);
+              } else {
+                marcadores.current.delete(peca.id);
+              }
+            }}
+            type="button"
+            className={peca.id === selecionada ? styles.marcadorAtivo : styles.marcador}
+            aria-label={peca.nome}
+            aria-pressed={peca.id === selecionada}
+            onClick={() => aoSelecionar(peca.id)}
+          >
+            {indice + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

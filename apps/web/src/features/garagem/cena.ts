@@ -77,6 +77,12 @@ export interface PinturaDoRedesenho {
   roda: { svg: string; caixa: string };
   /** A placa da asa traseira de lado, com o patrocínio dela, e o viewBox. */
   placaTraseira: { svg: string; caixa: string };
+  /** O patrocinador principal nas placas da asa dianteira, com o fundo delas. */
+  placaDianteira?: { svg: string; caixa: string } | undefined;
+  /** O patrocinador principal em cima do sidepod, que é o que se vê de cima. */
+  topoDoSidepod?: { svg: string; caixa: string } | undefined;
+  /** Um patrocinador em cima do bico, sem fundo. */
+  bico?: { svg: string; caixa: string } | undefined;
 }
 
 export interface Pintura {
@@ -620,7 +626,8 @@ function asaDianteira(
   variacao: VariacaoDeAsa,
   detalhe: MeshStandardMaterial,
   carbono: MeshStandardMaterial,
-  placas = detalhe,
+  placas: MeshStandardMaterial = detalhe,
+  placasPintadas = false,
 ) {
   const conjunto = new Group();
   const elementos = { padrao: 2, carga: 3, arrasto: 1, evolucao: 4 }[variacao];
@@ -637,7 +644,7 @@ function asaDianteira(
   }
 
   for (const lado of [-1, 1]) {
-    const placaLateral = new Mesh(
+    const placaLateral = new Mesh<BufferGeometry, Material>(
       placa(
         [
           [2.95, 0.06],
@@ -650,6 +657,9 @@ function asaDianteira(
       ),
       placas,
     );
+    if (placasPintadas) {
+      placaLateral.geometry = projetarNaPlaca(placaLateral.geometry);
+    }
     placaLateral.position.z = lado * 0.97;
     conjunto.add(placaLateral);
   }
@@ -798,6 +808,26 @@ function carro(
     rebaixo3D: 0.3,
   };
 
+  // Um adesivo sem fundo desenhado em SVG, que aparece quando o desenho fica pronto.
+  const adesivoDesenhado = (desenho: { svg: string; caixa: string }) => {
+    const material = new MeshStandardMaterial({
+      transparent: true,
+      opacity: 0,
+      roughness: 0.4,
+      metalness: 0,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+    });
+    texturaQuadrada(desenho.svg, desenho.caixa, (textura) => {
+      material.map = textura;
+      material.opacity = 1;
+      material.needsUpdate = true;
+      aoMudar();
+    });
+    return material;
+  };
+  const noTopoDoSidepod = redesenho?.topoDoSidepod && adesivoDesenhado(redesenho.topoDoSidepod);
+
   const pintarSeTiver = (objeto: Object3D, caixa?: Caixa2D) =>
     redesenho ? pintarDeLado(objeto, lataria, caixa) : objeto;
 
@@ -822,6 +852,18 @@ function carro(
 
   for (const lado of [-1, 1]) {
     conjunto.add(pintarSeTiver(sidepod(lado, pintura, carbono), pinturaDoSidepod));
+
+    if (noTopoDoSidepod) {
+      // Em cima do sidepod, acompanhando a descida dele para trás. O texto
+      // fica de pé para quem olha o carro daquele lado.
+      const adesivoDoSidepod = new Mesh(new PlaneGeometry(1, 0.24), noTopoDoSidepod);
+      adesivoDoSidepod.rotation.set(-Math.PI / 2, 0, lado === 1 ? 0 : Math.PI);
+      const inclinacao = new Group();
+      inclinacao.position.set(-0.1, 0.585, lado * 0.48);
+      inclinacao.rotation.z = 0.11;
+      inclinacao.add(adesivoDoSidepod);
+      conjunto.add(inclinacao);
+    }
     conjunto.add(retrovisor(lado, cores.retrovisor, carbono));
     conjunto.add(aletasDoAssoalho(lado, carbono));
 
@@ -878,7 +920,41 @@ function carro(
     }
   }
 
-  conjunto.add(asaDianteira(visual.asaDianteira, cores.flapDianteiro, carbono, cores.endplate));
+  // As placas da asa dianteira levam o patrocinador principal, e o bico um
+  // segundo patrocinador, como nos carros reais.
+  const placaDianteira = redesenho?.placaDianteira;
+  const placasDianteiras = placaDianteira
+    ? pinturaMetalica(redesenho.endplate, 0.3)
+    : cores.endplate;
+  if (placaDianteira) {
+    texturaQuadrada(placaDianteira.svg, placaDianteira.caixa, (textura) => {
+      placasDianteiras.map = textura;
+      placasDianteiras.color.set('#ffffff');
+      placasDianteiras.needsUpdate = true;
+      aoMudar();
+    });
+  }
+  conjunto.add(
+    asaDianteira(
+      visual.asaDianteira,
+      cores.flapDianteiro,
+      carbono,
+      placasDianteiras,
+      placaDianteira !== undefined,
+    ),
+  );
+
+  const bico = redesenho?.bico;
+  if (bico) {
+    // Deitado em cima do bico, acompanhando a descida dele até a ponta.
+    const adesivoDoBico = new Mesh(new PlaneGeometry(0.44, 0.094), adesivoDesenhado(bico));
+    adesivoDoBico.rotation.x = -Math.PI / 2;
+    const inclinacao = new Group();
+    inclinacao.position.set(2.0, 0.373, 0);
+    inclinacao.rotation.z = -0.128;
+    inclinacao.add(adesivoDoBico);
+    conjunto.add(inclinacao);
+  }
 
   const asa = ASA_TRASEIRA[visual.asaTraseira];
   const planoTraseiro = new Mesh(perfilDeAsa(asa.plano, 1.58, 0.11), cores.asaTraseira);

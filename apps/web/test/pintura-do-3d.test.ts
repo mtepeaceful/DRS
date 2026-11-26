@@ -75,4 +75,12 @@ describe('Pintura do carro 3D', () => {
       if (posicao.getY(i) < 0.3) expect(y2D).toBeCloseTo(caixa.base);
     }
   });
+
+  it('repete o patrocinador principal no sidepod e na asa dianteira e põe outro no bico', () => {
+    const pintura = pinturaDoRedesenho('Williams', WILLIAMS);
+
+    expect(pintura.topoDoSidepod?.svg).toContain('ATLASSIAN');
+    expect(pintura.placaDianteira?.svg).toContain('ATLASSIAN');
+    expect(pintura.bico?.svg).toContain('KOMATSU');
+  });
 });

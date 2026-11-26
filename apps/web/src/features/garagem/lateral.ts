@@ -1,0 +1,193 @@
+import type { BufferGeometry } from 'three';
+import { CanvasTexture, Float32BufferAttribute, SRGBColorSpace, Vector3 } from 'three';
+
+/*
+ * A pintura das laterais do carro 3D vem do desenho 2D dos cartões das
+ * equipes. O desenho tem viewBox 0 0 1000 300, chão em y = 280 e eixos em
+ * x = 182 (traseiro) e x = 819 (dianteiro). No 3D, o bico aponta para +x, o
+ * eixo traseiro fica em x = -1,65 e o dianteiro em x = 1,85. Com isso dá para
+ * levar cada ponto da carroceria 3D para o ponto do desenho que fica ao lado
+ * dele, como se o desenho fosse projetado de lado no carro.
+ */
+
+const EIXO_TRASEIRO_2D = 182;
+const EIXO_DIANTEIRO_2D = 819;
+const CHAO_2D = 280;
+const EIXO_TRASEIRO_3D = -1.65;
+const EIXO_DIANTEIRO_3D = 1.85;
+const ESCALA = (EIXO_DIANTEIRO_2D - EIXO_TRASEIRO_2D) / (EIXO_DIANTEIRO_3D - EIXO_TRASEIRO_3D);
+
+const LARGURA = 2048;
+const ALTURA_DO_LADO = Math.round((LARGURA * 300) / 1000);
+
+/** Um retângulo do desenho 2D, em unidades do viewBox. */
+export interface Caixa2D {
+  esquerda: number;
+  direita: number;
+  topo: number;
+  base: number;
+}
+
+type Para2D = (x: number, y: number) => [number, number];
+
+/** Leva um ponto do carro 3D para o ponto do desenho que fica ao lado dele. */
+const deLado: Para2D = (x, y) => [
+  EIXO_TRASEIRO_2D + (x - EIXO_TRASEIRO_3D) * ESCALA,
+  CHAO_2D - y * ESCALA,
+];
+
+/**
+ * Estica a caixa de uma peça 3D até a caixa da mesma peça no desenho. Assim a
+ * pintura do sidepod cai inteira no sidepod, mesmo que as proporções do 3D
+ * e do 2D não sejam iguais.
+ */
+function encaixar(geometria: BufferGeometry, caixa: Caixa2D): Para2D {
+  geometria.computeBoundingBox();
+  const limites = geometria.boundingBox;
+
+  if (!limites) {
+    return deLado;
+  }
+
+  const { min, max } = limites;
+  const largura = max.x - min.x || 1;
+  const altura = max.y - min.y || 1;
+
+  return (x, y) => [
+    caixa.esquerda + ((x - min.x) / largura) * (caixa.direita - caixa.esquerda),
+    caixa.base - ((y - min.y) / altura) * (caixa.base - caixa.topo),
+  ];
+}
+
+/** Coordenadas de textura de um ponto: o lado direito (z > 0) fica na metade de cima. */
+function coordenada(para2D: Para2D, x: number, y: number, direita: boolean): [number, number] {
+  const [x2D, y2D] = para2D(x, y);
+  const horizontal = x2D / 1000;
+  const vertical = 1 - y2D / 300;
+  const u = direita ? horizontal : 1 - horizontal;
+
+  return [u, direita ? 0.5 + vertical / 2 : vertical / 2];
+}
+
+/**
+ * Projeta o desenho de lado numa peça da carroceria. Cada triângulo pega o
+ * lado do carro para onde ele olha, então a geometria vira não indexada para
+ * que os vértices do meio do carro não misturem os dois lados.
+ */
+export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
+  const para2D = caixa ? encaixar(geometria, caixa) : deLado;
+  const solta = geometria.index ? geometria.toNonIndexed() : geometria;
+  const posicoes = solta.getAttribute('position');
+  const normais = solta.getAttribute('normal');
+  const uvs: number[] = [];
+  const a = new Vector3();
+  const b = new Vector3();
+  const c = new Vector3();
+  const normal = new Vector3();
+  const auxiliar = new Vector3();
+
+  for (let i = 0; i < posicoes.count; i += 3) {
+    a.fromBufferAttribute(posicoes, i);
+    b.fromBufferAttribute(posicoes, i + 1);
+    c.fromBufferAttribute(posicoes, i + 2);
+    if (normais) {
+      normal.fromBufferAttribute(normais, i);
+      normal.add(auxiliar.fromBufferAttribute(normais, i + 1));
+      normal.add(auxiliar.fromBufferAttribute(normais, i + 2)).normalize();
+    } else {
+      normal.subVectors(b, a).cross(auxiliar.subVectors(c, a)).normalize();
+    }
+
+    const centroZ = (a.z + b.z + c.z) / 3;
+    const direita = Math.abs(normal.z) > 0.2 ? normal.z > 0 : centroZ >= 0;
+
+    for (const ponto of [a, b, c]) {
+      uvs.push(...coordenada(para2D, ponto.x, ponto.y, direita));
+    }
+  }
+
+  solta.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+
+  if (solta !== geometria) {
+    geometria.dispose();
+  }
+
+  return solta;
+}
+
+function svgCompleto(conteudo: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="${LARGURA}" height="${ALTURA_DO_LADO}">${conteudo}</svg>`;
+}
+
+function carregarImagem(svg: string) {
+  return new Promise<HTMLImageElement>((resolver, rejeitar) => {
+    const imagem = new Image();
+    const endereco = URL.createObjectURL(new Blob([svgCompleto(svg)], { type: 'image/svg+xml' }));
+    imagem.onload = () => {
+      URL.revokeObjectURL(endereco);
+      resolver(imagem);
+    };
+    imagem.onerror = () => {
+      URL.revokeObjectURL(endereco);
+      rejeitar(new Error('Não deu para desenhar a pintura do carro.'));
+    };
+    imagem.src = endereco;
+  });
+}
+
+const prontas = new Map<string, HTMLCanvasElement>();
+const pendentes = new Map<string, Promise<HTMLCanvasElement>>();
+
+async function desenharLados(direita: string, esquerda: string) {
+  const [imagemDireita, imagemEsquerda] = await Promise.all([
+    carregarImagem(direita),
+    carregarImagem(esquerda),
+  ]);
+  const tela = document.createElement('canvas');
+  tela.width = LARGURA;
+  tela.height = ALTURA_DO_LADO * 2;
+  const contexto = tela.getContext('2d');
+  contexto?.drawImage(imagemDireita, 0, 0, LARGURA, ALTURA_DO_LADO);
+  contexto?.drawImage(imagemEsquerda, 0, ALTURA_DO_LADO, LARGURA, ALTURA_DO_LADO);
+
+  return tela;
+}
+
+function textura(tela: HTMLCanvasElement) {
+  const nova = new CanvasTexture(tela);
+  nova.colorSpace = SRGBColorSpace;
+  nova.anisotropy = 8;
+
+  return nova;
+}
+
+/**
+ * Entrega a textura das laterais. Se a mesma pintura já foi desenhada (a
+ * montagem refaz o carro a cada troca de peça), ela chega na hora, sem piscar.
+ */
+export function texturaLateral(
+  direita: string,
+  esquerda: string,
+  aoFicarPronta: (textura: CanvasTexture) => void,
+) {
+  const chave = direita + esquerda;
+  const pronta = prontas.get(chave);
+
+  if (pronta) {
+    aoFicarPronta(textura(pronta));
+    return;
+  }
+
+  let pendente = pendentes.get(chave);
+
+  if (!pendente) {
+    pendente = desenharLados(direita, esquerda).then((tela) => {
+      prontas.set(chave, tela);
+      pendentes.delete(chave);
+      return tela;
+    });
+    pendentes.set(chave, pendente);
+  }
+
+  pendente.then((tela) => aoFicarPronta(textura(tela))).catch(() => undefined);
+}

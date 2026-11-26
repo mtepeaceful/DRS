@@ -1,0 +1,4 @@
+"2026 Aston Martin AMR26" por Dave Love (https://sketchfab.com/Tyler_Dave)
+https://sketchfab.com/3d-models/a50d1c7bc086455c9412470d93fc3fc7
+Licença: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Alterações: peças separadas, malha simplificada e texturas convertidas para WebP.

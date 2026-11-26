@@ -5,6 +5,7 @@ import { SimboloDaEquipe } from '../equipes/SimboloDaEquipe';
 import { CarroIlustrado } from '../garagem/CarroIlustrado';
 import type { Composto, Pintura, VariacaoDeAsa, VariacaoDeAssoalho } from '../garagem/cena';
 import { preferePoucoMovimento, temWebgl } from '../garagem/suporte';
+import { modeloDaEquipe } from '../garagem/modelos';
 import { pinturaDoRedesenho } from '../garagem/pinturas';
 import {
   ATRIBUTOS,
@@ -61,8 +62,8 @@ function pinturaDe(equipe: EquipeDaGaragem, montagem: Montagem): Pintura {
     cor: equipe.cor,
     corSecundaria: equipe.corSecundaria,
     redesenho: pinturaDoRedesenho(equipe.nome, equipe),
-    // A Red Bull usa o RB22 baixado do Sketchfab.
-    modelo: equipe.id === 'red-bull-racing' ? 'rb22' : undefined,
+    // O carro baixado do Sketchfab, quando a equipe tem um.
+    modelo: modeloDaEquipe(equipe.id),
     visual: {
       asaDianteira: pecaDaMontagem(montagem, 'asa-dianteira').visual as VariacaoDeAsa,
       asaTraseira: pecaDaMontagem(montagem, 'asa-traseira').visual as VariacaoDeAsa,

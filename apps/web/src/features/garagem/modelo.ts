@@ -1,34 +1,17 @@
-import { Group, Mesh, MeshStandardMaterial, TorusGeometry } from 'three';
+import { Group, Mesh, MeshStandardMaterial, type Object3D, TorusGeometry } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModeloDoSite } from './modelos';
 
 /**
- * O RB22 2026 baixado do Sketchfab ("2026 Redbull RB22", de Dave Love,
- * licença CC BY 4.0). O arquivo foi preparado antes de entrar no site: frente
- * para +x, rodas no mesmo lugar das do carro desenhado em código, peças
- * separadas (asas, flap, rodas, carroceria), malha simplificada e texturas em
- * WebP. Fica em public/modelos/rb22 como .gltf com arquivos à parte, porque um
- * .glb com texturas embutidas obriga o carregador a usar endereços blob:, que
- * a CSP do site bloqueia.
+ * Os carros 2026 baixados do Sketchfab (série de Dave Love, licença CC BY 4.0;
+ * o crédito de cada um fica em public/modelos/<carro>/CREDITOS.txt). Cada
+ * arquivo foi preparado antes de entrar no site: frente para +x, rodas no
+ * mesmo lugar das do carro desenhado em código, peças separadas (asas, flap,
+ * rodas, carroceria), malha simplificada e texturas em WebP. O eixo de cada
+ * peça que se mexe vem nos extras do nó. Ficam como .gltf com arquivos à
+ * parte, porque um .glb com texturas embutidas obriga o carregador a usar
+ * endereços blob:, que a CSP do site bloqueia.
  */
-export type ModeloDoSite = 'rb22';
-
-const ENDERECO: Record<ModeloDoSite, string> = {
-  rb22: '/modelos/rb22/rb22.gltf',
-};
-
-/** Onde fica, no carro do site, o eixo de cada peça que se mexe. */
-const ESCALA = 3.5 / 3.4;
-const noSite = (x: number, y: number, z: number) =>
-  [x * ESCALA + 0.1, y * ESCALA, z * ESCALA] as const;
-const EIXOS: Record<string, readonly [number, number, number]> = {
-  flap: noSite(-2.335, 0.945, 0),
-  asaDianteira: noSite(2.5, 0.11, 0),
-  rodaFE: noSite(1.7, 0.325, 0.775),
-  rodaFD: noSite(1.7, 0.325, -0.775),
-  rodaTE: noSite(-1.7, 0.325, 0.74),
-  rodaTD: noSite(-1.7, 0.325, -0.74),
-};
-
 const prontos = new Map<ModeloDoSite, Group>();
 const pedidos = new Map<ModeloDoSite, Promise<Group>>();
 
@@ -36,18 +19,20 @@ const pedidos = new Map<ModeloDoSite, Promise<Group>>();
 export function carregarModelo(modelo: ModeloDoSite): Promise<Group> {
   const pedido =
     pedidos.get(modelo) ??
-    new GLTFLoader().loadAsync(ENDERECO[modelo]).then((gltf) => {
+    new GLTFLoader().loadAsync(`/modelos/${modelo}/${modelo}.gltf`).then((gltf) => {
       const raiz = gltf.scene;
       raiz.updateMatrixWorld(true);
 
       // Cada peça que gira ganha um grupo no eixo dela, sem sair do lugar.
-      for (const [nome, eixo] of Object.entries(EIXOS)) {
-        const peca = raiz.getObjectByName(nome);
-
-        if (!peca) {
-          continue;
+      const comEixo: { nome: string; peca: Object3D; eixo: [number, number, number] }[] = [];
+      raiz.traverse((peca) => {
+        const eixo = peca.userData.eixo as [number, number, number] | undefined;
+        if (eixo) {
+          comEixo.push({ nome: peca.name, peca, eixo });
         }
+      });
 
+      for (const { nome, peca, eixo } of comEixo) {
         // O grupo fica direto na raiz, que já está nas medidas do site.
         const pivo = new Group();
         pivo.name = `${nome}-eixo`;

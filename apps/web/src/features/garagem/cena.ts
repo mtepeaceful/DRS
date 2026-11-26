@@ -276,6 +276,28 @@ const SIDEPOD: Secao[] = [
   { x: -1.7, largura: 0.06, base: 0.18, topo: 0.3, centroZ: 0.12 },
 ];
 
+/** Se um ponto do corpo fica atrás do sidepod, abaixo do topo dele. */
+export function atrasDoSidepod({ x, y }: { x: number; y: number }) {
+  const primeiro = SIDEPOD[0];
+  const ultimo = SIDEPOD.at(-1);
+
+  if (!primeiro || !ultimo || x > primeiro.x || x < ultimo.x) {
+    return false;
+  }
+
+  for (let i = 1; i < SIDEPOD.length; i++) {
+    const frente = SIDEPOD[i - 1];
+    const tras = SIDEPOD[i];
+
+    if (frente && tras && x >= tras.x) {
+      const t = (x - tras.x) / (frente.x - tras.x || 1);
+      return y < tras.topo + (frente.topo - tras.topo) * t + 0.03;
+    }
+  }
+
+  return false;
+}
+
 function monocoque(pintura: MeshStandardMaterial) {
   return new Mesh(corpoPorSecoes(CORPO), pintura);
 }
@@ -736,11 +758,16 @@ function assoalho(
 
 // Leva a pintura desenhada para as laterais: a peça ganha coordenadas de
 // textura de lado e o material recebe o desenho assim que ele fica pronto.
-function pintarDeLado(objeto: Object3D, lataria: MeshPhysicalMaterial, caixa?: Caixa2D) {
+function pintarDeLado(
+  objeto: Object3D,
+  lataria: MeshPhysicalMaterial,
+  caixa?: Caixa2D,
+  escondido?: (ponto: Vector3) => boolean,
+) {
   const malha = objeto instanceof Mesh ? objeto : objeto.children[0];
 
   if (malha instanceof Mesh) {
-    malha.geometry = projetarDeLado(malha.geometry, caixa);
+    malha.geometry = projetarDeLado(malha.geometry, caixa, escondido);
     malha.material = lataria;
   }
 
@@ -828,10 +855,16 @@ function carro(
   };
   const noTopoDoSidepod = redesenho?.topoDoSidepod && adesivoDesenhado(redesenho.topoDoSidepod);
 
-  const pintarSeTiver = (objeto: Object3D, caixa?: Caixa2D) =>
-    redesenho ? pintarDeLado(objeto, lataria, caixa) : objeto;
+  const pintarSeTiver = (
+    objeto: Object3D,
+    caixa?: Caixa2D,
+    escondido?: (ponto: Vector3) => boolean,
+  ) => (redesenho ? pintarDeLado(objeto, lataria, caixa, escondido) : objeto);
 
-  conjunto.add(pintarSeTiver(monocoque(pintura)));
+  // O desenho do sidepod (os touros da Red Bull, por exemplo) cairia também
+  // no corpo logo atrás dele e aparecia pela fresta como um segundo logo
+  // cortado. Abaixo do topo do sidepod, o corpo fica só na cor de base.
+  conjunto.add(pintarSeTiver(monocoque(pintura), undefined, atrasDoSidepod));
   conjunto.add(pintarSeTiver(barbatana(pintura)));
   conjunto.add(assoalho(visual.assoalho, carbono, detalhe));
   conjunto.add(halo(carbono));

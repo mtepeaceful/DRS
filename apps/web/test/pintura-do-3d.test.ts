@@ -83,4 +83,25 @@ describe('Pintura do carro 3D', () => {
     expect(pintura.placaDianteira?.svg).toContain('ATLASSIAN');
     expect(pintura.bico?.svg).toContain('KOMATSU');
   });
+
+  it('deixa na cor de base a parte do corpo escondida atrás de outra peça', () => {
+    const geometria = new BoxGeometry(2, 1, 0.2, 1, 4, 1).translate(0, 0.5, 0);
+    const solta = projetarDeLado(geometria, undefined, ({ y }) => y < 0.3);
+    const uv = solta.getAttribute('uv');
+    const posicao = solta.getAttribute('position');
+    const normal = solta.getAttribute('normal');
+    // A face da frente (normal em x) sempre pega a cor de base.
+    const base = [...Array(uv.count).keys()].find((i) => Math.abs(normal.getX(i)) > 0.9) ?? 0;
+    const corDeBase = [uv.getX(base), uv.getY(base) % 0.5];
+
+    let escondidas = 0;
+    for (let i = 0; i < uv.count; i += 3) {
+      if (normal.getZ(i) < 0.9) continue;
+      const centroY = (posicao.getY(i) + posicao.getY(i + 1) + posicao.getY(i + 2)) / 3;
+      const naBase = uv.getX(i) === corDeBase[0] && uv.getY(i) % 0.5 === corDeBase[1];
+      expect(naBase).toBe(centroY < 0.3);
+      if (naBase) escondidas++;
+    }
+    expect(escondidas).toBeGreaterThan(0);
+  });
 });

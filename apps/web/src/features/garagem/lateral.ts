@@ -92,8 +92,16 @@ function coordenada(para2D: Para2D, x: number, y: number, direita: boolean): [nu
  * Projeta o desenho de lado numa peça da carroceria. Cada triângulo pega o
  * lado do carro para onde ele olha, então a geometria vira não indexada para
  * que os vértices do meio do carro não misturem os dois lados.
+ *
+ * `escondido` diz quais pontos da peça ficam atrás de outra peça. Ali entra só
+ * a cor de base: o desenho que cairia ali já aparece na peça da frente, e uma
+ * cópia aparecendo pela fresta ficava como um borrão.
  */
-export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
+export function projetarDeLado(
+  geometria: BufferGeometry,
+  caixa?: Caixa2D,
+  escondido?: (ponto: Vector3) => boolean,
+) {
   const para2D = caixa ? encaixar(geometria, caixa) : deLado;
   const solta = geometria.index ? geometria.toNonIndexed() : geometria;
   const posicoes = solta.getAttribute('position');
@@ -104,6 +112,7 @@ export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
   const c = new Vector3();
   const normal = new Vector3();
   const auxiliar = new Vector3();
+  const centro = new Vector3();
 
   for (let i = 0; i < posicoes.count; i += 3) {
     a.fromBufferAttribute(posicoes, i);
@@ -117,14 +126,17 @@ export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
       normal.subVectors(b, a).cross(auxiliar.subVectors(c, a)).normalize();
     }
 
-    const centroZ = (a.z + b.z + c.z) / 3;
-    const direita = Math.abs(normal.z) > 0.2 ? normal.z > 0 : centroZ >= 0;
+    centro.addVectors(a, b).add(c).divideScalar(3);
+    const direita = Math.abs(normal.z) > 0.2 ? normal.z > 0 : centro.z >= 0;
 
     // O desenho é de lado. Uma face que olha para a frente, para trás, para
     // cima ou para baixo receberia o desenho esticado, em faixas borradas.
     // Ela pega a cor de base, que ocupa o canto do desenho, longe da
     // carroceria. Numa peça encaixada (o sidepod), a face de cima também.
-    const deCima = Math.abs(normal.z) < FACE_DE_LADO || (caixa !== undefined && normal.y > 0.75);
+    const deCima =
+      Math.abs(normal.z) < FACE_DE_LADO ||
+      (caixa !== undefined && normal.y > 0.75) ||
+      escondido?.(centro) === true;
 
     for (const ponto of [a, b, c]) {
       uvs.push(

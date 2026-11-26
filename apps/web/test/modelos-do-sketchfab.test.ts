@@ -11,9 +11,15 @@ describe('modeloDaEquipe', () => {
     expect(modeloDaEquipe('Cadillac')).toBe('mac26');
   });
 
-  it('deixa sem modelo as equipes que não têm um', () => {
-    expect(modeloDaEquipe('racing-bulls')).toBeUndefined();
-    expect(modeloDaEquipe('Visa Cash App Racing Bulls')).toBeUndefined();
-    expect(modeloDaEquipe('Alpine')).toBeUndefined();
+  it('dá à Alpine e à Racing Bulls o carro pintado com o desenho delas', () => {
+    expect(modeloDaEquipe('alpine')).toBe('a526');
+    expect(modeloDaEquipe('Alpine F1 Team')).toBe('a526');
+    expect(modeloDaEquipe('racing-bulls')).toBe('vcarb03');
+    expect(modeloDaEquipe('Visa Cash App Racing Bulls')).toBe('vcarb03');
+    expect(modeloDaEquipe('RB F1 Team')).toBe('vcarb03');
+  });
+
+  it('deixa sem modelo uma equipe nova', () => {
+    expect(modeloDaEquipe('Equipe Nova')).toBeUndefined();
   });
 });

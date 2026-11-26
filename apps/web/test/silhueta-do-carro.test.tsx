@@ -16,9 +16,9 @@ describe('Silhueta do carro', () => {
     expect(container.querySelector('svg')).toBeNull();
   });
 
-  it('desenha em SVG, com a pintura e o número, a equipe sem modelo', () => {
+  it('desenha em SVG, com a pintura e o número, uma equipe sem modelo', () => {
     const { container } = render(
-      <SilhuetaDoCarro nome="Alpine" numero={10} cor="#ff87bc" corSecundaria="#0093cc" />,
+      <SilhuetaDoCarro nome="Equipe Nova" numero={10} cor="#ff87bc" corSecundaria="#0093cc" />,
     );
     const carro = container.querySelector('svg');
 
@@ -41,8 +41,8 @@ describe('Silhueta do carro', () => {
   it('não repete ids quando há vários carros na página', () => {
     const { container } = render(
       <>
-        <SilhuetaDoCarro nome="Alpine" cor="#ff87bc" corSecundaria="#0093cc" />
-        <SilhuetaDoCarro nome="Alpine" cor="#ff87bc" corSecundaria="#0093cc" />
+        <SilhuetaDoCarro nome="Equipe Nova" cor="#ff87bc" corSecundaria="#0093cc" />
+        <SilhuetaDoCarro nome="Equipe Nova" cor="#ff87bc" corSecundaria="#0093cc" />
       </>,
     );
     const ids = [...container.querySelectorAll('[id]')].map((elemento) => elemento.id);
@@ -54,7 +54,7 @@ describe('Silhueta do carro', () => {
     const { container } = render(
       <>
         <SilhuetaDoCarro nome="Ferrari" cor="#dc0000" corSecundaria="#fff200" acesa />
-        <SilhuetaDoCarro nome="Alpine" cor="#ff87bc" corSecundaria="#0093cc" acesa />
+        <SilhuetaDoCarro nome="Equipe Nova" cor="#ff87bc" corSecundaria="#0093cc" acesa />
       </>,
     );
 

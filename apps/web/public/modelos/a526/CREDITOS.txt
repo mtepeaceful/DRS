@@ -1,0 +1,4 @@
+Malha: "2026 Williams FW48" por Dave Love (https://sketchfab.com/Tyler_Dave)
+https://sketchfab.com/3d-models/4efa51e6d64a4192a83418f1b715c671
+Licença: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Alterações: pintura da Alpine feita pelo DRS a partir do desenho 2D do site (o modelo original vem com a pintura de demonstração da FIA), decalques da FIA removidos, peças separadas, malha simplificada e texturas convertidas para WebP.

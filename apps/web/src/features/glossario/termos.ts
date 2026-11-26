@@ -272,6 +272,58 @@ export const TERMOS: Termo[] = [
     relacionados: ['unidade-de-potencia', 'aerodinamica-ativa'],
   },
   {
+    id: 'modo-de-ultrapassagem',
+    nome: 'Modo de ultrapassagem',
+    tambem: 'Overtake mode',
+    categoria: 'carro',
+    definicao:
+      'O substituto do DRS a partir de 2026. Quem passa a menos de um segundo do carro da frente no ponto de detecção ganha energia elétrica extra para usar na volta seguinte e tentar a ultrapassagem.',
+    relacionados: ['aerodinamica-ativa', 'ers', 'drs'],
+  },
+  {
+    id: 'modo-de-curva-e-de-reta',
+    nome: 'Modo de curva e modo de reta',
+    tambem: 'Z-mode e X-mode',
+    categoria: 'carro',
+    definicao:
+      'As duas posições das asas na aerodinâmica ativa de 2026. No modo de curva os flaps ficam fechados e o carro gruda no chão; no modo de reta eles abrem como uma persiana e o arrasto cai. Todos os carros usam, não só quem ataca.',
+    relacionados: ['aerodinamica-ativa', 'downforce', 'drs'],
+  },
+  {
+    id: 'pushrod-e-pullrod',
+    nome: 'Pushrod e pullrod',
+    categoria: 'carro',
+    definicao:
+      'Os dois jeitos de ligar a roda às molas da suspensão. No pushrod a barra sai de baixo da roda e empurra; no pullrod sai de cima e puxa. A escolha muda a altura das peças e o caminho do ar. Em 2026 quase todos usam pushrod na frente.',
+    relacionados: ['downforce'],
+  },
+  {
+    id: 'mousehole',
+    nome: 'Mousehole',
+    tambem: 'Toca do rato',
+    categoria: 'carro',
+    definicao:
+      'Um furo na parede lateral do difusor que deixa entrar ar de fora para manter o fluxo colado por baixo do carro. Virou padrão nos carros de 2026.',
+    relacionados: ['efeito-solo', 'downforce'],
+  },
+  {
+    id: 'prancha',
+    nome: 'Prancha',
+    tambem: 'Plank',
+    categoria: 'carro',
+    definicao:
+      'Tábua presa embaixo do assoalho que se desgasta quando o carro raspa no chão. É medida depois da corrida, e se estiver fina demais o piloto é desclassificado.',
+    relacionados: ['efeito-solo', 'parc-ferme'],
+  },
+  {
+    id: 'lastro',
+    nome: 'Lastro',
+    categoria: 'carro',
+    definicao:
+      'Peso extra preso em pontos escolhidos do carro para chegar ao peso mínimo, que em 2026 é de 768 kg. Quem fica abaixo do limite usa o lastro para equilibrar o carro; quem fica acima perde tempo, cerca de 0,3 s por volta a cada 10 kg.',
+    relacionados: ['parc-ferme'],
+  },
+  {
     id: 'safety-car',
     nome: 'Safety car',
     categoria: 'bandeiras',

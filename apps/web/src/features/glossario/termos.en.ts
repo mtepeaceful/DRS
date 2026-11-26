@@ -177,6 +177,37 @@ export const TERMOS_EN: Record<string, TermoEn> = {
     definicao:
       'The hybrid part of the power unit: it recovers energy under braking, stores it in a battery and gives it back as extra power.',
   },
+  'modo-de-ultrapassagem': {
+    nome: 'Overtake mode',
+    definicao:
+      'The replacement for DRS from 2026. A driver who crosses the detection point less than a second behind the car ahead gets extra electric energy to use on the next lap and try to pass.',
+  },
+  'modo-de-curva-e-de-reta': {
+    nome: 'Corner mode and straight mode',
+    tambem: 'Z-mode and X-mode',
+    definicao:
+      'The two wing positions of the 2026 active aerodynamics. In corner mode the flaps are closed and the car sticks to the ground; in straight mode they open like a Venetian blind and drag drops. Every car uses them, not only the attacker.',
+  },
+  'pushrod-e-pullrod': {
+    nome: 'Pushrod and pullrod',
+    definicao:
+      'The two ways to link the wheel to the suspension springs. A pushrod runs from the bottom of the wheel and pushes; a pullrod runs from the top and pulls. The choice changes the height of the parts and the path of the air. In 2026 almost everyone uses pushrod at the front.',
+  },
+  mousehole: {
+    nome: 'Mousehole',
+    definicao:
+      'A hole in the side wall of the diffuser that lets outside air in to keep the flow attached under the car. It became standard on the 2026 cars.',
+  },
+  prancha: {
+    nome: 'Plank',
+    definicao:
+      'A board fixed under the floor that wears when the car scrapes the ground. It is measured after the race, and if it is too thin the driver is disqualified.',
+  },
+  lastro: {
+    nome: 'Ballast',
+    definicao:
+      'Extra weight fixed at chosen points of the car to reach the minimum weight, which is 768 kg in 2026. Cars under the limit use ballast to balance the car; cars over it lose time, about 0.3 s per lap for every 10 kg.',
+  },
   'safety-car': {
     nome: 'Safety car',
     definicao:

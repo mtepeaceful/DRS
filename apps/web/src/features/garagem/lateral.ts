@@ -20,6 +20,9 @@ const ESCALA = (EIXO_DIANTEIRO_2D - EIXO_TRASEIRO_2D) / (EIXO_DIANTEIRO_3D - EIX
 /** Um ponto 3D que cai no canto do desenho, onde só há a cor de base. */
 const COR_DE_BASE_3D = { x: EIXO_TRASEIRO_3D - 150 / ESCALA, y: 250 / ESCALA };
 
+/** Abaixo disso, a face olha mais para fora do lado do que para o lado. */
+const FACE_DE_LADO = 0.3;
+
 const LARGURA = 2048;
 const ALTURA_DO_LADO = Math.round((LARGURA * 300) / 1000);
 
@@ -104,9 +107,11 @@ export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
     const centroZ = (a.z + b.z + c.z) / 3;
     const direita = Math.abs(normal.z) > 0.2 ? normal.z > 0 : centroZ >= 0;
 
-    // Numa peça encaixada (o sidepod), a face de cima não tem desenho: ela
-    // pega a cor de base, que ocupa o canto do desenho, longe da carroceria.
-    const deCima = caixa !== undefined && normal.y > 0.75;
+    // O desenho é de lado. Uma face que olha para a frente, para trás, para
+    // cima ou para baixo receberia o desenho esticado, em faixas borradas.
+    // Ela pega a cor de base, que ocupa o canto do desenho, longe da
+    // carroceria. Numa peça encaixada (o sidepod), a face de cima também.
+    const deCima = Math.abs(normal.z) < FACE_DE_LADO || (caixa !== undefined && normal.y > 0.75);
 
     for (const ponto of [a, b, c]) {
       uvs.push(

@@ -55,6 +55,8 @@ export function carregarModelo(modelo: ModeloDoSite): Promise<Group> {
     });
 
   pedidos.set(modelo, pedido);
+  // Se a rede falhar, a próxima troca de equipe tenta de novo.
+  pedido.catch(() => pedidos.delete(modelo));
   return pedido;
 }
 

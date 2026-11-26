@@ -3,17 +3,29 @@ import { describe, expect, it } from 'vitest';
 import { SilhuetaDoCarro } from '../src/features/equipes/SilhuetaDoCarro';
 
 describe('Silhueta do carro', () => {
-  it('é decorativa e leva a pintura e o número do piloto', () => {
+  it('mostra o carro do Sketchfab de lado quando a equipe tem um', () => {
     const { container } = render(
       <SilhuetaDoCarro nome="McLaren" numero={81} cor="#ff8000" corSecundaria="#000000" />,
+    );
+    const carro = container.querySelector('img');
+
+    expect(carro).toHaveAttribute('src', '/modelos/mcl40/lado.webp');
+    expect(carro).toHaveAttribute('alt', '');
+    expect(carro).toHaveAttribute('loading', 'lazy');
+    expect(carro).not.toHaveAttribute('data-acesa');
+    expect(container.querySelector('svg')).toBeNull();
+  });
+
+  it('desenha em SVG, com a pintura e o número, a equipe sem modelo', () => {
+    const { container } = render(
+      <SilhuetaDoCarro nome="Alpine" numero={10} cor="#ff87bc" corSecundaria="#0093cc" />,
     );
     const carro = container.querySelector('svg');
 
     expect(carro).toHaveAttribute('aria-hidden', 'true');
     expect(carro).not.toHaveAttribute('data-acesa');
-    expect(carro?.innerHTML).toContain('Gemini');
     expect(
-      [...container.querySelectorAll('text')].filter((t) => t.textContent === '81'),
+      [...container.querySelectorAll('text')].filter((t) => t.textContent === '10'),
     ).toHaveLength(2);
   });
 
@@ -29,8 +41,8 @@ describe('Silhueta do carro', () => {
   it('não repete ids quando há vários carros na página', () => {
     const { container } = render(
       <>
-        <SilhuetaDoCarro nome="Ferrari" cor="#dc0000" corSecundaria="#fff200" />
-        <SilhuetaDoCarro nome="Ferrari" cor="#dc0000" corSecundaria="#fff200" />
+        <SilhuetaDoCarro nome="Alpine" cor="#ff87bc" corSecundaria="#0093cc" />
+        <SilhuetaDoCarro nome="Alpine" cor="#ff87bc" corSecundaria="#0093cc" />
       </>,
     );
     const ids = [...container.querySelectorAll('[id]')].map((elemento) => elemento.id);
@@ -40,9 +52,13 @@ describe('Silhueta do carro', () => {
 
   it('acende quando pedem', () => {
     const { container } = render(
-      <SilhuetaDoCarro nome="Ferrari" cor="#dc0000" corSecundaria="#fff200" acesa />,
+      <>
+        <SilhuetaDoCarro nome="Ferrari" cor="#dc0000" corSecundaria="#fff200" acesa />
+        <SilhuetaDoCarro nome="Alpine" cor="#ff87bc" corSecundaria="#0093cc" acesa />
+      </>,
     );
 
+    expect(container.querySelector('img')).toHaveAttribute('data-acesa', 'true');
     expect(container.querySelector('svg')).toHaveAttribute('data-acesa', 'true');
   });
 });

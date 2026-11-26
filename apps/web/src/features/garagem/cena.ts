@@ -1438,16 +1438,28 @@ export function montarGaragem(
     atual.dobradica.rotation.z = angulo;
     cena.add(atual.conjunto);
     refazerSombra();
+    baixarModelo(nova.modelo);
   }
 
   // O modelo baixado chega depois: até lá aparece o carro desenhado em código.
-  if (pintura.modelo && !modeloPronto(pintura.modelo)) {
-    void carregarModelo(pintura.modelo).then(() => {
-      if (!destruida && pinturaAtual.modelo) {
-        pintar(pinturaAtual);
-      }
-    });
+  // Vale também para a troca de equipe, que pede o carro novo na hora.
+  function baixarModelo(modelo: ModeloDoSite | undefined) {
+    if (!modelo || modeloPronto(modelo)) {
+      return;
+    }
+    carregarModelo(modelo).then(
+      () => {
+        if (!destruida && pinturaAtual.modelo === modelo) {
+          pintar(pinturaAtual);
+        }
+      },
+      () => {
+        // Sem o arquivo, fica o carro desenhado em código.
+      },
+    );
   }
+
+  baixarModelo(pintura.modelo);
 
   return {
     leve,

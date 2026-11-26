@@ -21,7 +21,7 @@ export const PECAS: Peca[] = [
   {
     id: 'nariz',
     nome: 'Nariz',
-    ponto: [2.15, 0.3, 0],
+    ponto: [2.12, 0.35, 0],
     texto:
       'A ponta do carro guarda a estrutura que absorve as batidas de frente. Em 2026 ela passou a trabalhar em dois estágios, para proteger também numa segunda pancada. Cada equipe escolhe a altura e a largura: um nariz alto deixa mais ar passar por baixo rumo ao assoalho.',
     termos: [],
@@ -53,7 +53,7 @@ export const PECAS: Peca[] = [
   {
     id: 'assoalho',
     nome: 'Assoalho',
-    ponto: [0.8, 0.12, 0.78],
+    ponto: [0.7, 0.16, 0.77],
     texto:
       'Uma das peças mais importantes da aerodinâmica. De 2022 a 2025 tinha túneis que sugavam o carro contra a pista. Em 2026 ficou mais plano e mais estreito, com um difusor maior atrás: gera menos pressão, mas o carro quase não quica mais nas retas.',
     termos: ['efeito-solo', 'porpoising'],
@@ -93,7 +93,7 @@ export const PECAS: Peca[] = [
   {
     id: 'unidade-de-potencia',
     nome: 'Unidade de potência',
-    ponto: [-1.2, 0.85, 0],
+    ponto: [-1.2, 0.93, 0],
     texto:
       'Fica atrás do piloto: um V6 turbo de 1,6 litro trabalhando junto com um motor elétrico que recupera energia nas frenagens. Em 2026 o motor a combustão caiu para cerca de 400 kW e o elétrico subiu de 120 para 350 kW, quase metade da potência. O combustível passou a ser 100% sustentável.',
     termos: ['unidade-de-potencia', 'ers'],
@@ -109,7 +109,7 @@ export const PECAS: Peca[] = [
   {
     id: 'prancha',
     nome: 'Prancha',
-    ponto: [-0.3, 0.06, 0.5],
+    ponto: [-0.3, 0.12, 0.5],
     texto:
       'Uma tábua presa embaixo do assoalho, de ponta a ponta. Ela se desgasta quando o carro raspa no chão e é medida depois da corrida: se estiver fina demais, o piloto é desclassificado. Assim ninguém pode andar baixo demais.',
     termos: ['efeito-solo'],
@@ -117,7 +117,7 @@ export const PECAS: Peca[] = [
   {
     id: 'luzes',
     nome: 'Luzes traseiras',
-    ponto: [-2.5, 0.34, 0],
+    ponto: [-2.38, 0.36, 0],
     texto:
       'A luz vermelha no centro da traseira acende na chuva e quando o carro está recarregando a bateria e perdendo velocidade. Em 2026 ganharam a companhia de luzes nas placas laterais da asa, que mostram o estado da parte elétrica para quem vem atrás.',
     termos: ['ers'],
@@ -125,7 +125,7 @@ export const PECAS: Peca[] = [
   {
     id: 'asa-traseira',
     nome: 'Asa traseira',
-    ponto: [-2.38, 1, 0.5],
+    ponto: [-2.33, 0.98, 0.6],
     texto:
       'Dá pressão à traseira para o carro não escapar nas curvas. De 2011 a 2025 tinha o DRS, que abria o flap nas retas só para quem atacava. Em 2026 a asa passou a abrir nas retas para todos os carros, e a asinha de baixo (a beam wing) foi eliminada. A Ferrari criou uma versão cujo elemento de cima gira e fica de cabeça para baixo.',
     termos: ['drs', 'aerodinamica-ativa'],
@@ -133,7 +133,7 @@ export const PECAS: Peca[] = [
   {
     id: 'difusor',
     nome: 'Difusor',
-    ponto: [-2.5, 0.25, 0.45],
+    ponto: [-2.22, 0.4, 0.4],
     texto:
       'A saída do assoalho, embaixo da traseira. Ao abrir espaço para o ar se expandir, ajuda a sugar o carro contra o chão. Em 2026 ficou maior, e quase todas as equipes abriram um furo na lateral dele para manter o ar colado.',
     termos: ['downforce', 'efeito-solo'],

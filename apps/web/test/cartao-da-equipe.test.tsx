@@ -41,7 +41,7 @@ describe('Cartão da equipe', () => {
 
     fireEvent.pointerEnter(cartao);
     expect(cartao).toHaveAttribute('data-acesa', 'true');
-    expect(container.querySelector('svg[data-acesa]')).toBeInTheDocument();
+    expect(container.querySelector('img[data-acesa]')).toBeInTheDocument();
 
     fireEvent.pointerLeave(cartao);
     expect(cartao).not.toHaveAttribute('data-acesa');

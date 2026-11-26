@@ -1,5 +1,6 @@
 import { useId, useMemo } from 'react';
 import type { CoresDaEquipe } from '../../shared/lib/equipe';
+import { modeloDaEquipe } from '../garagem/modelos';
 import { desenharCarro, VIEWBOX } from './carro/desenho';
 import { pinturaDaEquipe } from './carro/pinturas';
 import styles from './SilhuetaDoCarro.module.css';
@@ -15,7 +16,8 @@ interface Props extends CoresDaEquipe {
 
 /**
  * Um F1 de 2026 visto de lado, com a pintura e os patrocínios de cada equipe.
- * É desenhado em SVG, sem imagem nenhuma.
+ * Quem tem carro baixado do Sketchfab mostra uma foto de lado dele (tirada do
+ * mesmo modelo da garagem); as outras equipes usam o desenho em SVG.
  */
 export function SilhuetaDoCarro({
   nome,
@@ -26,14 +28,32 @@ export function SilhuetaDoCarro({
   className,
 }: Props) {
   const sufixo = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const modelo = modeloDaEquipe(nome);
   const desenho = useMemo(
-    () => desenharCarro(pinturaDaEquipe(nome, { cor, corSecundaria }), numero, sufixo),
-    [nome, numero, cor, corSecundaria, sufixo],
+    () =>
+      modelo ? '' : desenharCarro(pinturaDaEquipe(nome, { cor, corSecundaria }), numero, sufixo),
+    [modelo, nome, numero, cor, corSecundaria, sufixo],
   );
+  const classe = className ? `${styles.carro} ${className}` : styles.carro;
+
+  if (modelo) {
+    return (
+      <img
+        className={classe}
+        src={`/modelos/${modelo}/lado.webp`}
+        width={1000}
+        height={300}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        data-acesa={acesa || undefined}
+      />
+    );
+  }
 
   return (
     <svg
-      className={className ? `${styles.carro} ${className}` : styles.carro}
+      className={classe}
       viewBox={VIEWBOX}
       data-acesa={acesa || undefined}
       aria-hidden="true"

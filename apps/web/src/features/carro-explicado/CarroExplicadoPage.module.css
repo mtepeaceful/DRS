@@ -35,6 +35,31 @@
   touch-action: none;
 }
 
+.marcadores[hidden] {
+  display: none;
+}
+
+.alternarNumeros {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  padding: 6px 12px;
+  border: 1px solid var(--cor-linha);
+  border-radius: 999px;
+  background: rgb(10 10 11 / 0.7);
+  color: var(--cor-texto);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.alternarNumeros:hover,
+.alternarNumeros:focus-visible {
+  border-color: var(--cor-corrida);
+}
+
 .marcador,
 .marcadorAtivo {
   position: absolute;

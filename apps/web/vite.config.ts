@@ -73,7 +73,11 @@ export default defineConfig(({ mode }) => {
       expect: { poll: { timeout: 10_000 } },
     },
     build: {
-      assetsInlineLimit: (arquivo) => (arquivo.includes('country-flag-icons') ? false : undefined),
+      // Fontes nunca viram data: no CSS: a CSP do site (font-src 'self') bloqueia.
+      assetsInlineLimit: (arquivo) =>
+        arquivo.includes('country-flag-icons') || /\.(woff2?|ttf|otf)$/.test(arquivo)
+          ? false
+          : undefined,
     },
     server: {
       port: 5173,

@@ -40,4 +40,23 @@ describe('Pintura do carro 3D', () => {
       if (normal.getZ(i) < -0.9) expect(uv.getY(i)).toBeLessThanOrEqual(0.5);
     }
   });
+
+  it('deixa o fim e o rebaixo do sidepod fora do desenho', () => {
+    const caixa = { esquerda: 258, direita: 608, topo: 163, base: 214 };
+    const geometria = new BoxGeometry(2, 1, 0.2).translate(0, 0.5, 0.5);
+    const solta = projetarDeLado(geometria, { ...caixa, inicio3D: 0, rebaixo3D: 0.3 });
+    const uv = solta.getAttribute('uv');
+    const posicao = solta.getAttribute('position');
+    const normal = solta.getAttribute('normal');
+
+    for (let i = 0; i < uv.count; i++) {
+      if (normal.getZ(i) < 0.9) continue;
+      const x2D = uv.getX(i) * 1000;
+      const y2D = (1 - (uv.getY(i) - 0.5) * 2) * 300;
+      // Atrás do início (x < 0) tudo cai na borda de trás do desenho do sidepod.
+      if (posicao.getX(i) < 0) expect(x2D).toBeCloseTo(caixa.esquerda);
+      // No rebaixo (30% de baixo) tudo cai na borda de baixo.
+      if (posicao.getY(i) < 0.3) expect(y2D).toBeCloseTo(caixa.base);
+    }
+  });
 });

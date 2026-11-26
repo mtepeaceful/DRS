@@ -769,6 +769,15 @@ function carro(
     });
   }
 
+  // A pintura do sidepod fica na parte dele que aparece: o fim, que afina por
+  // baixo da tampa do motor, e o rebaixo embaixo dele ficam na cor da borda
+  // do desenho. Assim os patrocínios do fim do sidepod não somem.
+  const pinturaDoSidepod = redesenho && {
+    ...redesenho.sidepod,
+    inicio3D: -1.2,
+    rebaixo3D: 0.3,
+  };
+
   const pintarSeTiver = (objeto: Object3D, caixa?: Caixa2D) =>
     redesenho ? pintarDeLado(objeto, lataria, caixa) : objeto;
 
@@ -792,7 +801,7 @@ function carro(
   conjunto.add(tomadaDeAr);
 
   for (const lado of [-1, 1]) {
-    conjunto.add(pintarSeTiver(sidepod(lado, pintura, carbono), redesenho?.sidepod));
+    conjunto.add(pintarSeTiver(sidepod(lado, pintura, carbono), pinturaDoSidepod));
     conjunto.add(retrovisor(lado, cores.retrovisor, carbono));
     conjunto.add(aletasDoAssoalho(lado, carbono));
 

@@ -725,7 +725,17 @@ function carro({ cor, corSecundaria, numero, visual: pedido, redesenho }: Pintur
   const patrocinio = visual.patrocinio
     ? adesivo(texturaDoPatrocinio(visual.patrocinio, corSecundaria, corDoTexto(corSecundaria)))
     : null;
-  const lataria = pinturaMetalica(cor);
+  // A lataria com o desenho é acetinada, como a pintura dos carros atuais.
+  // Com o verniz espelhado das outras peças, um carro escuro parecia cromado
+  // visto de cima e de trás, e o rebaixo do sidepod virava uma faixa branca.
+  const lataria = new MeshPhysicalMaterial({
+    color: cor,
+    metalness: 0.1,
+    roughness: 0.5,
+    clearcoat: 0.35,
+    clearcoatRoughness: 0.3,
+    envMapIntensity: 0.5,
+  });
   const cores = {
     asaTraseira: redesenho ? pinturaMetalica(redesenho.asaTraseira) : pintura,
     flap: redesenho ? pinturaMetalica(redesenho.flap, 0.3) : detalhe,

@@ -91,13 +91,20 @@ export function corpoPorSecoes(secoes: readonly Secao[], quadratura = 2.6) {
     }
   }
 
+  // A ordem dos vértices de cada triângulo diz para que lado a face olha.
+  // Ela depende de os cortes irem da frente para trás ou ao contrário; com a
+  // ordem errada o corpo fica do avesso: as normais apontam para dentro, o
+  // navegador desenha a parede de dentro do outro lado e a luz cai trocada.
+  const paraTras = (cortes.at(-1)?.x ?? 0) < (cortes[0]?.x ?? 0);
+  const triangulo = (p: number, q: number, r: number) => (paraTras ? [p, q, r] : [p, r, q]);
+
   for (let corte = 0; corte < cortes.length - 1; corte++) {
     for (let volta = 0; volta < VOLTAS; volta++) {
       const a = corte * VOLTAS + volta;
       const b = corte * VOLTAS + ((volta + 1) % VOLTAS);
       const c = a + VOLTAS;
       const d = b + VOLTAS;
-      indices.push(a, c, b, b, c, d);
+      indices.push(...triangulo(a, b, c), ...triangulo(b, d, c));
     }
   }
 
@@ -118,7 +125,7 @@ export function corpoPorSecoes(secoes: readonly Secao[], quadratura = 2.6) {
     for (let volta = 0; volta < VOLTAS; volta++) {
       const a = corte * VOLTAS + volta;
       const b = corte * VOLTAS + ((volta + 1) % VOLTAS);
-      indices.push(...(frente ? [centro, b, a] : [centro, a, b]));
+      indices.push(...(frente ? triangulo(centro, b, a) : triangulo(centro, a, b)));
     }
   }
 

@@ -32,8 +32,9 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
 
   useEffect(() => {
     let cancelado = false;
-    let quadro = 0;
 
+    // Os marcadores andam junto com o carro: só são reposicionados quando o
+    // 3D desenha um quadro novo, e não a cada quadro da tela.
     function posicionar() {
       const atual = garagem.current;
 
@@ -48,8 +49,6 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
           }
         }
       }
-
-      quadro = requestAnimationFrame(posicionar);
     }
 
     void import('../garagem/cena').then(({ montarGaragem }) => {
@@ -57,13 +56,14 @@ export function Carro3DExplicado({ selecionada, aoSelecionar }: Props) {
         return;
       }
 
-      garagem.current = montarGaragem(recipiente.current, PINTURA, { girando: false });
-      quadro = requestAnimationFrame(posicionar);
+      garagem.current = montarGaragem(recipiente.current, PINTURA, {
+        girando: false,
+        aoDesenhar: posicionar,
+      });
     });
 
     return () => {
       cancelado = true;
-      cancelAnimationFrame(quadro);
       garagem.current?.destruir();
       garagem.current = null;
     };

@@ -44,6 +44,7 @@ import {
   texturaQuadrada,
 } from './lateral';
 import { aparelhoForte, desenhoPorSoftware } from './suporte';
+import { carregarModelo, carroDoModelo, type ModeloDoSite, modeloPronto } from './modelo';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
 export type VariacaoDeAssoalho = 'padrao' | 'canais' | 'borda';
@@ -91,6 +92,8 @@ export interface Pintura {
   numero?: number;
   visual?: Partial<Visual>;
   redesenho?: PinturaDoRedesenho | undefined;
+  /** TESTE: usa o modelo baixado do Sketchfab no lugar do carro desenhado em código. */
+  modelo?: ModeloDoSite | undefined;
 }
 
 export type Ponto = readonly [number, number, number];
@@ -748,10 +751,24 @@ function pintarDeLado(objeto: Object3D, lataria: MeshPhysicalMaterial, caixa?: C
 }
 
 function carro(
-  { cor, corSecundaria, numero, visual: pedido, redesenho }: Pintura,
+  { cor, corSecundaria, numero, visual: pedido, redesenho, modelo }: Pintura,
   aoMudar: () => void = () => undefined,
 ) {
   const visual = { ...VISUAL_PADRAO, ...pedido };
+  const baixado = modelo ? modeloPronto(modelo) : null;
+
+  if (baixado) {
+    return carroDoModelo(
+      baixado,
+      {
+        asaDianteira: visual.asaDianteira,
+        asaTraseira: visual.asaTraseira,
+        corDoComposto: visual.pneus ? COR_DO_COMPOSTO[visual.pneus] : null,
+      },
+      FLAP_FECHADO,
+    );
+  }
+
   const pintura = pinturaMetalica(cor);
   const detalhe = pinturaMetalica(corSecundaria, 0.3);
   const carbono = fibraDeCarbono();
@@ -1117,7 +1134,8 @@ function texturaDaSombraDeContato() {
 
 function liberar(raiz: Object3D) {
   raiz.traverse((objeto) => {
-    if (objeto instanceof Mesh) {
+    // As peças do modelo baixado são da cópia carregada uma vez só.
+    if (objeto instanceof Mesh && !objeto.userData.compartilhado) {
       objeto.geometry.dispose();
       const materiais = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
 
@@ -1203,6 +1221,7 @@ export function montarGaragem(
   };
 
   let atual = carro(pintura, pedirQuadro);
+  let pinturaAtual = pintura;
   const paraLiberar: Object3D[] = [];
   cena.add(chao(), atual.conjunto);
 
@@ -1376,17 +1395,29 @@ export function montarGaragem(
       }
     });
 
+  function pintar(nova: Pintura) {
+    pinturaAtual = nova;
+    const angulo = atual.dobradica.rotation.z;
+    cena.remove(atual.conjunto);
+    paraLiberar.push(atual.conjunto);
+    atual = carro(nova, pedirQuadro);
+    atual.dobradica.rotation.z = angulo;
+    cena.add(atual.conjunto);
+    refazerSombra();
+  }
+
+  // O modelo baixado chega depois: até lá aparece o carro desenhado em código.
+  if (pintura.modelo && !modeloPronto(pintura.modelo)) {
+    void carregarModelo(pintura.modelo).then(() => {
+      if (!destruida && pinturaAtual.modelo) {
+        pintar(pinturaAtual);
+      }
+    });
+  }
+
   return {
     leve,
-    pintar: (nova) => {
-      const angulo = atual.dobradica.rotation.z;
-      cena.remove(atual.conjunto);
-      paraLiberar.push(atual.conjunto);
-      atual = carro(nova, pedirQuadro);
-      atual.dobradica.rotation.z = angulo;
-      cena.add(atual.conjunto);
-      refazerSombra();
-    },
+    pintar,
     abrirAsa: (aberta) => {
       anguloDesejado = aberta ? FLAP_ABERTO : FLAP_FECHADO;
     },

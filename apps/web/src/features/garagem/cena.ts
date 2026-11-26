@@ -46,6 +46,7 @@ import {
 import { aparelhoForte, desenhoPorSoftware } from './suporte';
 import { carregarModelo, carroDoModelo, modeloPronto } from './modelo';
 import type { ModeloDoSite } from './modelos';
+import { idiomaAtual } from '../../shared/i18n/idioma';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
 export type VariacaoDeAssoalho = 'padrao' | 'canais' | 'borda';
@@ -111,6 +112,8 @@ export interface Garagem {
   girar: (girando: boolean) => void;
   focar: (ponto: Ponto | null) => void;
   projetar: (ponto: Ponto) => PontoNaTela;
+  /** Verdadeiro enquanto o carro baixado ainda não chegou (o palco fica vazio). */
+  carregando: () => boolean;
   destruir: () => void;
   /**
    * Verdadeiro quando o navegador desenha o 3D sem placa de vídeo (por
@@ -1441,12 +1444,26 @@ export function montarGaragem(
     baixarModelo(nova.modelo);
   }
 
-  // O modelo baixado chega depois: até lá aparece o carro desenhado em código.
-  // Vale também para a troca de equipe, que pede o carro novo na hora.
+  // O modelo baixado chega depois. Até lá o palco mostra um aviso de
+  // carregamento, e não o carro desenhado em código, que só volta se o
+  // arquivo não puder ser baixado. Vale também para a troca de equipe.
+  const falharam = new Set<ModeloDoSite>();
+  const aviso = avisoDeCarregamento(recipiente);
+  let esperando = false;
+
+  function esperar(sim: boolean) {
+    esperando = sim;
+    atual.conjunto.visible = !sim;
+    aviso.mostrar(sim);
+    pedirQuadro();
+  }
+
   function baixarModelo(modelo: ModeloDoSite | undefined) {
-    if (!modelo || modeloPronto(modelo)) {
+    if (!modelo || modeloPronto(modelo) || falharam.has(modelo)) {
+      esperar(false);
       return;
     }
+    esperar(true);
     carregarModelo(modelo).then(
       () => {
         if (!destruida && pinturaAtual.modelo === modelo) {
@@ -1454,7 +1471,10 @@ export function montarGaragem(
         }
       },
       () => {
-        // Sem o arquivo, fica o carro desenhado em código.
+        falharam.add(modelo);
+        if (!destruida && pinturaAtual.modelo === modelo) {
+          esperar(false);
+        }
       },
     );
   }
@@ -1483,8 +1503,10 @@ export function montarGaragem(
         visivel: projetado.z < 1,
       };
     },
+    carregando: () => esperando,
     destruir: () => {
       destruida = true;
+      aviso.remover();
       renderizador.setAnimationLoop(null);
       efeitos?.destruir();
       vigia.disconnect();
@@ -1496,6 +1518,64 @@ export function montarGaragem(
       reflexos.dispose();
       renderizador.dispose();
       renderizador.domElement.remove();
+    },
+  };
+}
+
+/** O aviso de "carregando" no meio do palco, montado sem CSS de fora. */
+function avisoDeCarregamento(recipiente: HTMLElement) {
+  if (getComputedStyle(recipiente).position === 'static') {
+    recipiente.style.position = 'relative';
+  }
+
+  const aviso = document.createElement('div');
+  aviso.setAttribute('role', 'status');
+  Object.assign(aviso.style, {
+    position: 'absolute',
+    inset: '0',
+    display: 'none',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px',
+    color: '#a5a7b0',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    pointerEvents: 'none',
+  });
+
+  const roda = document.createElement('span');
+  Object.assign(roda.style, {
+    width: '34px',
+    height: '34px',
+    border: '3px solid rgb(255 255 255 / 0.14)',
+    borderTopColor: '#e10600',
+    borderRadius: '50%',
+  });
+  const texto = document.createElement('span');
+  texto.textContent = idiomaAtual() === 'en' ? 'Loading the car…' : 'Carregando o carro…';
+  aviso.append(roda, texto);
+  recipiente.append(aviso);
+
+  const semMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let giro: Animation | null = null;
+
+  return {
+    mostrar(sim: boolean) {
+      aviso.style.display = sim ? 'flex' : 'none';
+      if (sim && !giro && !semMovimento) {
+        giro = roda.animate([{ transform: 'rotate(0turn)' }, { transform: 'rotate(1turn)' }], {
+          duration: 900,
+          iterations: Infinity,
+        });
+      } else if (!sim) {
+        giro?.cancel();
+        giro = null;
+      }
+    },
+    remover() {
+      giro?.cancel();
+      aviso.remove();
     },
   };
 }

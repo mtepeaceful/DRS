@@ -412,7 +412,9 @@ describe('EnciclopediaWikimedia · fotos', () => {
     ];
 
     expect(emPortugues?.resumo).toBe('Texto de pt.wikipedia.org');
-    expect(emPortugues?.foto?.pagina).toBe('https://commons.wikimedia.org/wiki/File:Senna_1993.jpg');
+    expect(emPortugues?.foto?.pagina).toBe(
+      'https://commons.wikimedia.org/wiki/File:Senna_1993.jpg',
+    );
     expect(emIngles?.foto).toEqual(emPortugues?.foto);
   });
 

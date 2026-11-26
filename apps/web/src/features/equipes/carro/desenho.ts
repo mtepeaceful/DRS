@@ -418,7 +418,7 @@ export function desenharPatrocinio(
   altura: number,
   fundo?: string,
 ) {
-  const tamanho = Math.min(altura * 0.95, (largura * 2.4) / Math.max(patrocinio.texto.length, 3));
+  const tamanho = Math.min(altura * 0.95, (largura * 1.4) / Math.max(patrocinio.texto.length, 3));
 
   return `${fundo ? `<rect width="${largura}" height="${altura}" fill="${fundo}"/>` : ''}<text x="${largura / 2}" y="${altura / 2}" dy=".35em" text-anchor="middle" font-family="${FONTE_MARCAS}" font-size="${tamanho.toFixed(1)}" font-weight="${patrocinio.peso ?? 800}"${patrocinio.italico ? ' font-style="italic"' : ''} fill="${patrocinio.cor}">${escapar(patrocinio.texto)}</text>`;
 }

@@ -117,7 +117,7 @@ export const PECAS: Peca[] = [
   {
     id: 'luzes',
     nome: 'Luzes traseiras',
-    ponto: [-2.55, 0.5, 0],
+    ponto: [-2.5, 0.34, 0],
     texto:
       'A luz vermelha no centro da traseira acende na chuva e quando o carro está recarregando a bateria e perdendo velocidade. Em 2026 ganharam a companhia de luzes nas placas laterais da asa, que mostram o estado da parte elétrica para quem vem atrás.',
     termos: ['ers'],

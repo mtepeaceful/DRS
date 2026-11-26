@@ -134,25 +134,31 @@
 }
 
 .esqueleto {
+  position: relative;
   min-height: 190px;
+  overflow: hidden;
   border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+/* O brilho anda com transform: a GPU move a faixa sem repintar o cartão. */
+.esqueleto::after {
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
     100deg,
-    var(--cor-superficie) 30%,
+    transparent 30%,
     var(--cor-superficie-alta) 50%,
-    var(--cor-superficie) 70%
+    transparent 70%
   );
-  background-size: 300% 100%;
+  content: '';
+  transform: translateX(-100%);
   animation: brilho 1.4s linear infinite;
 }
 
 @keyframes brilho {
-  from {
-    background-position: 100% 0;
-  }
-
   to {
-    background-position: -50% 0;
+    transform: translateX(100%);
   }
 }
 

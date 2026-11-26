@@ -40,15 +40,27 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(900px 420px at 85% -10%, rgb(255 42 20 / 0.13), transparent 70%),
-    radial-gradient(700px 380px at 0% 0%, rgb(180 107 214 / 0.1), transparent 70%), var(--cor-fundo);
-  background-attachment: fixed;
+  background: var(--cor-fundo);
   color: var(--cor-texto);
   font-family: var(--fonte-corpo);
   font-size: 1rem;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * O brilho do fundo fica numa camada fixa própria. Com background-attachment:
+ * fixed no body, o navegador repintava a tela inteira a cada passo da rolagem.
+ */
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(900px 420px at 85% -10%, rgb(255 42 20 / 0.13), transparent 70%),
+    radial-gradient(700px 380px at 0% 0%, rgb(180 107 214 / 0.1), transparent 70%);
+  content: '';
+  pointer-events: none;
 }
 
 h1,

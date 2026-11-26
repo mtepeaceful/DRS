@@ -129,18 +129,14 @@ export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
 function carregarImagem(svg: string, caixa: string, largura: number, altura: number) {
   const completo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${caixa}" width="${largura}" height="${altura}">${svg}</svg>`;
 
+  // Endereço data: e não blob: porque a política de segurança do site (CSP em
+  // render.yaml) só aceita imagens de 'self' e data:. Com blob: a pintura não
+  // carregava no site no ar.
   return new Promise<HTMLImageElement>((resolver, rejeitar) => {
     const imagem = new Image();
-    const endereco = URL.createObjectURL(new Blob([completo], { type: 'image/svg+xml' }));
-    imagem.onload = () => {
-      URL.revokeObjectURL(endereco);
-      resolver(imagem);
-    };
-    imagem.onerror = () => {
-      URL.revokeObjectURL(endereco);
-      rejeitar(new Error('Não deu para desenhar a pintura do carro.'));
-    };
-    imagem.src = endereco;
+    imagem.onload = () => resolver(imagem);
+    imagem.onerror = () => rejeitar(new Error('Não deu para desenhar a pintura do carro.'));
+    imagem.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(completo)}`;
   });
 }
 

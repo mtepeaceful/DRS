@@ -80,6 +80,22 @@ describe('ConsultarPilotosDaHistoria', () => {
     });
   });
 
+  it('pede o verbete no idioma da ficha', async () => {
+    const pedidos: unknown[][] = [];
+    const consulta = await criar(async (...argumentos) => {
+      pedidos.push(argumentos);
+      return null;
+    });
+
+    await consulta.detalhar('senna', 'en');
+    await consulta.detalhar('senna');
+
+    expect(pedidos).toEqual([
+      ['Ayrton Senna', 'en'],
+      ['Ayrton Senna', 'pt'],
+    ]);
+  });
+
   it('segue sem o verbete quando a enciclopédia falha', async () => {
     const ficha = await (
       await criar(() => Promise.reject(new Error('fora do ar')))

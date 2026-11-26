@@ -23,11 +23,12 @@ export const rotasPilotosDaHistoria: FastifyPluginAsyncZod<{
     {
       schema: {
         params: z.object({ id: z.string().regex(/^[A-Za-z0-9_-]{1,60}$/) }),
+        querystring: z.object({ lang: z.enum(['pt', 'en']).default('pt') }),
         response: { 200: fichaDoPilotoDaF1Schema, 404: erroSchema },
       },
     },
     async (request, reply) => {
-      const ficha = await pilotos.detalhar(request.params.id);
+      const ficha = await pilotos.detalhar(request.params.id, request.query.lang);
       reply.header('cache-control', UMA_HORA);
 
       return ficha;

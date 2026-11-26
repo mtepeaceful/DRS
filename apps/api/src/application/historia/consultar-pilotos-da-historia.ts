@@ -1,7 +1,7 @@
 import { PilotoNaoEncontrado } from '../../domain/erros.js';
 import type { CampeoesRepository } from '../ports/campeoes-repository.js';
 import type { CarreiraNaF1, FonteDaHistoria, PilotoDaF1 } from '../ports/fonte-da-historia.js';
-import type { Enciclopedia, Verbete } from '../ports/fonte-das-equipes.js';
+import type { Enciclopedia, Idioma, Verbete } from '../ports/fonte-das-equipes.js';
 import { nomeComparavel } from '../pilotos/nome-comparavel.js';
 
 export interface ResumoDoPilotoDaF1 extends PilotoDaF1 {
@@ -37,7 +37,7 @@ export class ConsultarPilotosDaHistoria {
       .toSorted((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
   }
 
-  async detalhar(id: string): Promise<FichaDoPilotoDaF1> {
+  async detalhar(id: string, idioma: Idioma = 'pt'): Promise<FichaDoPilotoDaF1> {
     const piloto = (await this.fonte.listarPilotos()).find((candidato) => candidato.id === id);
 
     if (!piloto) {
@@ -49,7 +49,7 @@ export class ConsultarPilotosDaHistoria {
       this.fonte.buscarCarreira(id),
       this.campeoes.listar(),
       piloto.wikipedia
-        ? this.enciclopedia.verbete(piloto.wikipedia).catch(() => null)
+        ? this.enciclopedia.verbete(piloto.wikipedia, idioma).catch(() => null)
         : Promise.resolve(null),
     ]);
 

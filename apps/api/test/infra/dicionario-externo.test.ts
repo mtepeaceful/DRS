@@ -184,6 +184,50 @@ describe('EnciclopediaWikimedia', () => {
     });
     expect(pedidos.map((url) => url.hostname)).toEqual(['www.wikidata.org', 'en.wikipedia.org']);
   });
+
+  it('em inglês, usa a Wikipédia em inglês mesmo havendo artigo em português', async () => {
+    const pedidos = responder((url) => {
+      if (url.hostname === 'www.wikidata.org') {
+        return wikidata({ Q1: { sitelinks: { ptwiki: { title: 'Ayrton Senna' } } } });
+      }
+
+      return Response.json({
+        extract: `Texto de ${url.hostname}`,
+        content_urls: { desktop: { page: `https://${url.hostname}/wiki/Ayrton_Senna` } },
+      });
+    });
+
+    const verbete = await new EnciclopediaWikimedia().verbete('Ayrton Senna', 'en');
+
+    expect(verbete?.resumo).toBe('Texto de en.wikipedia.org');
+    expect(pedidos.map((url) => url.hostname)).toEqual(['www.wikidata.org', 'en.wikipedia.org']);
+  });
+
+  it('em inglês, cai para a Wikipédia em português quando não há artigo em inglês', async () => {
+    const pedidos = responder((url) => {
+      if (url.hostname === 'www.wikidata.org') {
+        return wikidata({ Q1: { sitelinks: { ptwiki: { title: 'Piloto' } } } });
+      }
+
+      if (url.hostname === 'en.wikipedia.org') {
+        return new Response(null, { status: 404 });
+      }
+
+      return Response.json({
+        extract: 'Texto em português.',
+        content_urls: { desktop: { page: 'https://pt.wikipedia.org/wiki/Piloto' } },
+      });
+    });
+
+    const verbete = await new EnciclopediaWikimedia().verbete('Piloto', 'en');
+
+    expect(verbete?.resumo).toBe('Texto em português.');
+    expect(pedidos.map((url) => url.hostname)).toEqual([
+      'www.wikidata.org',
+      'en.wikipedia.org',
+      'pt.wikipedia.org',
+    ]);
+  });
 });
 
 describe('FonteCircuitosJolpica', () => {

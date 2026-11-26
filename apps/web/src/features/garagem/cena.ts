@@ -35,7 +35,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Efeitos } from './efeitos';
 import { corpoPorSecoes, haste, perfilDeAsa, placa, pneu, type Secao, tubo } from './formas';
-import { type Caixa2D, projetarDeLado, texturaLateral } from './lateral';
+import { type Caixa2D, projetarDeLado, texturaLateral, texturaQuadrada } from './lateral';
 import { aparelhoForte } from './suporte';
 
 export type VariacaoDeAsa = 'padrao' | 'carga' | 'arrasto' | 'evolucao';
@@ -66,6 +66,8 @@ export interface PinturaDoRedesenho {
   retrovisor: string;
   /** Onde fica o sidepod no desenho, para a pintura dele cair inteira no sidepod 3D. */
   sidepod: Caixa2D;
+  /** A roda vista de lado (pneu com as letras da Pirelli e o aro da equipe) e o viewBox dela. */
+  roda: { svg: string; caixa: string };
 }
 
 export interface Pintura {
@@ -235,13 +237,16 @@ const CORPO: Secao[] = [
   { x: -2.42, largura: 0.07, base: 0.18, topo: 0.32 },
 ];
 
+// Sidepod no formato do redesenho 2D: alto e estreito na entrada, logo
+// abaixo do halo, descendo em diagonal até a roda traseira. Embaixo dele
+// fica o rebaixo, o vão por onde o ar corre até o difusor.
 const SIDEPOD: Secao[] = [
-  { x: 0.64, largura: 0.2, base: 0.2, topo: 0.49, centroZ: 0.5 },
-  { x: 0.35, largura: 0.24, base: 0.16, topo: 0.52, centroZ: 0.5 },
-  { x: -0.25, largura: 0.24, base: 0.16, topo: 0.48, centroZ: 0.46 },
-  { x: -0.9, largura: 0.2, base: 0.16, topo: 0.38, centroZ: 0.34 },
-  { x: -1.5, largura: 0.12, base: 0.16, topo: 0.28, centroZ: 0.2 },
-  { x: -1.85, largura: 0.06, base: 0.17, topo: 0.22, centroZ: 0.12 },
+  { x: 0.66, largura: 0.16, base: 0.42, topo: 0.64, centroZ: 0.48 },
+  { x: 0.4, largura: 0.24, base: 0.34, topo: 0.63, centroZ: 0.5 },
+  { x: -0.2, largura: 0.25, base: 0.26, topo: 0.57, centroZ: 0.47 },
+  { x: -0.8, largura: 0.21, base: 0.2, topo: 0.49, centroZ: 0.36 },
+  { x: -1.3, largura: 0.13, base: 0.18, topo: 0.4, centroZ: 0.22 },
+  { x: -1.7, largura: 0.06, base: 0.18, topo: 0.3, centroZ: 0.12 },
 ];
 
 function monocoque(pintura: MeshStandardMaterial) {
@@ -254,9 +259,9 @@ function sidepod(lado: number, pintura: MeshStandardMaterial, carbono: MeshStand
   conjunto.add(new Mesh(corpoPorSecoes(secoes, 4), pintura));
 
   const entrada = new Mesh(new CircleGeometry(1, 32), carbono);
-  entrada.scale.set(0.17, 0.1, 1);
+  entrada.scale.set(0.13, 0.09, 1);
   entrada.rotation.y = Math.PI / 2;
-  entrada.position.set(0.645, 0.35, lado * 0.5);
+  entrada.position.set(0.665, 0.53, lado * 0.48);
   conjunto.add(entrada);
 
   return conjunto;
@@ -491,6 +496,7 @@ function roda(
   aro: MeshStandardMaterial,
   capa: MeshStandardMaterial,
   composto: Composto | null,
+  flanco: MeshStandardMaterial | null,
 ) {
   const conjunto = new Group();
   const lado = Math.sign(z);
@@ -516,12 +522,22 @@ function roda(
   porca.position.z = lado * (largura * 0.43 + 0.012);
   conjunto.add(porca);
 
+  // O flanco desenhado: o pneu com as letras da Pirelli e o aro da equipe,
+  // colado por fora da roda. O desenho tem a roda com raio 70 num quadro de
+  // 150, então o disco é um pouco maior que o pneu e a sobra é transparente.
+  if (flanco) {
+    const desenho = new Mesh(new CircleGeometry((0.36 * 75) / 70, 64), flanco);
+    desenho.position.z = lado * (largura / 2 + 0.004);
+    desenho.rotation.y = lado === 1 ? 0 : Math.PI;
+    conjunto.add(desenho);
+  }
+
   if (composto) {
     const faixa = new Mesh(
-      new TorusGeometry(0.3, 0.014, 8, 64),
+      new TorusGeometry(flanco ? 0.272 : 0.3, flanco ? 0.008 : 0.014, 8, 64),
       material(COR_DO_COMPOSTO[composto], 0.6),
     );
-    faixa.position.z = lado * (largura / 2 - 0.005);
+    faixa.position.z = lado * (largura / 2 + (flanco ? 0.006 : -0.005));
     conjunto.add(faixa);
   }
   conjunto.position.set(x, 0.36, z);
@@ -851,13 +867,31 @@ function carro({ cor, corSecundaria, numero, visual: pedido, redesenho }: Pintur
 
   const aro = aroForjado('#2a2b30');
   const capa = calota(cor, corSecundaria);
+  const flanco = redesenho
+    ? new MeshStandardMaterial({
+        transparent: true,
+        opacity: 0,
+        roughness: 0.6,
+        metalness: 0.1,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+      })
+    : null;
+
+  if (redesenho && flanco) {
+    texturaQuadrada(redesenho.roda.svg, redesenho.roda.caixa, (textura) => {
+      flanco.map = textura;
+      flanco.opacity = 1;
+      flanco.needsUpdate = true;
+    });
+  }
   for (const [x, z] of [
     [1.85, 0.86],
     [1.85, -0.86],
     [-1.65, 0.86],
     [-1.65, -0.86],
   ] as const) {
-    conjunto.add(roda(x, z, aro, capa, visual.pneus));
+    conjunto.add(roda(x, z, aro, capa, visual.pneus, flanco));
   }
 
   conjunto.traverse((objeto) => {

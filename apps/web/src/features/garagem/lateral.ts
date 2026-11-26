@@ -17,6 +17,9 @@ const EIXO_TRASEIRO_3D = -1.65;
 const EIXO_DIANTEIRO_3D = 1.85;
 const ESCALA = (EIXO_DIANTEIRO_2D - EIXO_TRASEIRO_2D) / (EIXO_DIANTEIRO_3D - EIXO_TRASEIRO_3D);
 
+/** Um ponto 3D que cai no canto do desenho, onde só há a cor de base. */
+const COR_DE_BASE_3D = { x: EIXO_TRASEIRO_3D - 150 / ESCALA, y: 250 / ESCALA };
+
 const LARGURA = 2048;
 const ALTURA_DO_LADO = Math.round((LARGURA * 300) / 1000);
 
@@ -101,8 +104,16 @@ export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
     const centroZ = (a.z + b.z + c.z) / 3;
     const direita = Math.abs(normal.z) > 0.2 ? normal.z > 0 : centroZ >= 0;
 
+    // Numa peça encaixada (o sidepod), a face de cima não tem desenho: ela
+    // pega a cor de base, que ocupa o canto do desenho, longe da carroceria.
+    const deCima = caixa !== undefined && normal.y > 0.75;
+
     for (const ponto of [a, b, c]) {
-      uvs.push(...coordenada(para2D, ponto.x, ponto.y, direita));
+      uvs.push(
+        ...(deCima
+          ? coordenada(deLado, COR_DE_BASE_3D.x, COR_DE_BASE_3D.y, direita)
+          : coordenada(para2D, ponto.x, ponto.y, direita)),
+      );
     }
   }
 
@@ -115,14 +126,12 @@ export function projetarDeLado(geometria: BufferGeometry, caixa?: Caixa2D) {
   return solta;
 }
 
-function svgCompleto(conteudo: string) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="${LARGURA}" height="${ALTURA_DO_LADO}">${conteudo}</svg>`;
-}
+function carregarImagem(svg: string, caixa: string, largura: number, altura: number) {
+  const completo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${caixa}" width="${largura}" height="${altura}">${svg}</svg>`;
 
-function carregarImagem(svg: string) {
   return new Promise<HTMLImageElement>((resolver, rejeitar) => {
     const imagem = new Image();
-    const endereco = URL.createObjectURL(new Blob([svgCompleto(svg)], { type: 'image/svg+xml' }));
+    const endereco = URL.createObjectURL(new Blob([completo], { type: 'image/svg+xml' }));
     imagem.onload = () => {
       URL.revokeObjectURL(endereco);
       resolver(imagem);
@@ -140,8 +149,8 @@ const pendentes = new Map<string, Promise<HTMLCanvasElement>>();
 
 async function desenharLados(direita: string, esquerda: string) {
   const [imagemDireita, imagemEsquerda] = await Promise.all([
-    carregarImagem(direita),
-    carregarImagem(esquerda),
+    carregarImagem(direita, '0 0 1000 300', LARGURA, ALTURA_DO_LADO),
+    carregarImagem(esquerda, '0 0 1000 300', LARGURA, ALTURA_DO_LADO),
   ]);
   const tela = document.createElement('canvas');
   tela.width = LARGURA;
@@ -149,6 +158,17 @@ async function desenharLados(direita: string, esquerda: string) {
   const contexto = tela.getContext('2d');
   contexto?.drawImage(imagemDireita, 0, 0, LARGURA, ALTURA_DO_LADO);
   contexto?.drawImage(imagemEsquerda, 0, ALTURA_DO_LADO, LARGURA, ALTURA_DO_LADO);
+
+  return tela;
+}
+
+async function desenharQuadrado(svg: string, caixa: string) {
+  const lado = 512;
+  const imagem = await carregarImagem(svg, caixa, lado, lado);
+  const tela = document.createElement('canvas');
+  tela.width = lado;
+  tela.height = lado;
+  tela.getContext('2d')?.drawImage(imagem, 0, 0, lado, lado);
 
   return tela;
 }
@@ -162,15 +182,14 @@ function textura(tela: HTMLCanvasElement) {
 }
 
 /**
- * Entrega a textura das laterais. Se a mesma pintura já foi desenhada (a
- * montagem refaz o carro a cada troca de peça), ela chega na hora, sem piscar.
+ * Desenha uma vez e guarda. A montagem refaz o carro a cada troca de peça;
+ * com a tela guardada, a textura chega na hora, sem piscar.
  */
-export function texturaLateral(
-  direita: string,
-  esquerda: string,
+function guardada(
+  chave: string,
+  desenhar: () => Promise<HTMLCanvasElement>,
   aoFicarPronta: (textura: CanvasTexture) => void,
 ) {
-  const chave = direita + esquerda;
   const pronta = prontas.get(chave);
 
   if (pronta) {
@@ -181,7 +200,7 @@ export function texturaLateral(
   let pendente = pendentes.get(chave);
 
   if (!pendente) {
-    pendente = desenharLados(direita, esquerda).then((tela) => {
+    pendente = desenhar().then((tela) => {
       prontas.set(chave, tela);
       pendentes.delete(chave);
       return tela;
@@ -190,4 +209,22 @@ export function texturaLateral(
   }
 
   pendente.then((tela) => aoFicarPronta(textura(tela))).catch(() => undefined);
+}
+
+/** A textura das duas laterais: o lado direito em cima, o esquerdo embaixo. */
+export function texturaLateral(
+  direita: string,
+  esquerda: string,
+  aoFicarPronta: (textura: CanvasTexture) => void,
+) {
+  guardada(`lados:${direita}${esquerda}`, () => desenharLados(direita, esquerda), aoFicarPronta);
+}
+
+/** A textura de um desenho quadrado, como a roda vista de lado. */
+export function texturaQuadrada(
+  svg: string,
+  caixa: string,
+  aoFicarPronta: (textura: CanvasTexture) => void,
+) {
+  guardada(`quadrado:${caixa}${svg}`, () => desenharQuadrado(svg, caixa), aoFicarPronta);
 }
